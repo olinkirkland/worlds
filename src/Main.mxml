@@ -1,27 +1,68 @@
 <?xml version="1.0"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
                xmlns:s="library://ns.adobe.com/flex/spark"
-               xmlns:local="*"
                width="100%" height="100%" frameRate="60"
-               creationComplete="onCreationComplete(event)"
-               initialize="onInitialize(event)">
+               creationComplete="onCreationComplete(event)">
+
     <fx:Script>
+        <![CDATA[
         import Map.Map;
+        import Map.QuadTree.QuadTree;
+
+        import mx.core.UIComponent;
 
         import mx.events.FlexEvent;
 
-        private static var map:Map;
+        public static var map:Map;
+        private var c:UIComponent;
 
-        private function onInitialize(event:FlexEvent):void {
+        public function onCreationComplete(event:FlexEvent):void {
+            c = new UIComponent();
+            addElement(c);
 
+            createNewMap();
+
+            addEventListener(MouseEvent.RIGHT_CLICK, function (event:MouseEvent):void {
+                createNewMap();
+            });
+
+            addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
+                map.quadTree.insert(new Point(event.stageX, event.stageY));
+                draw();
+            });
         }
 
-        private function onCreationComplete(event:FlexEvent):void {
+        private function createNewMap():void {
 
+            map = new Map(width, height, 10);
+
+            draw();
         }
 
-        private function render():void {
+        private function draw():void {
+            c.graphics.clear();
+            var queue:Array = [map.quadTree];
+            while (queue.length > 0) {
+                var q:QuadTree = queue.pop();
+                for each (var t:QuadTree in q.quads)
+                    queue.push(t);
 
+                if (q.point) {
+                    var color:uint = Color.black;
+                    c.graphics.lineStyle(1, color);
+                    c.graphics.beginFill(color, .1);
+                    c.graphics.drawRect(q.bounds.x, q.bounds.y, q.bounds.width, q.bounds.height);
+                    c.graphics.endFill();
+
+                    c.graphics.lineStyle(1, color);
+                    c.graphics.drawCircle(q.point.x, q.point.y, 4);
+                    c.graphics.lineStyle();
+                    c.graphics.beginFill(color);
+                    c.graphics.drawCircle(q.point.x, q.point.y, 2);
+                    c.graphics.endFill();
+                }
+            }
         }
+        ]]>
     </fx:Script>
 </s:Application>
