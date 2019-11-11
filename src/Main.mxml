@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:local="*"
+               width="100%" height="100%" frameRate="60"
+               creationComplete="onCreationComplete(event)"
+               initialize="onInitialize(event)">
+    <fx:Script>
+        import mx.events.FlexEvent;
+
+
+        private function onInitialize(event:FlexEvent):void {
+
+        }
+
+        private function onCreationComplete(event:FlexEvent):void {
+
+        }
+    </fx:Script>
+</s:Application>
