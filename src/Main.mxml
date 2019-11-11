@@ -6,14 +6,21 @@
                creationComplete="onCreationComplete(event)"
                initialize="onInitialize(event)">
     <fx:Script>
+        import Map.Map;
+
         import mx.events.FlexEvent;
 
+        private static var map:Map;
 
         private function onInitialize(event:FlexEvent):void {
 
         }
 
         private function onCreationComplete(event:FlexEvent):void {
+
+        }
+
+        private function render():void {
 
         }
     </fx:Script>
