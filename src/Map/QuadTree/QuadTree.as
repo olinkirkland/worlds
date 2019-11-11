@@ -5,8 +5,9 @@ package Map.QuadTree {
     public class QuadTree {
         public var bounds:Rectangle;
         public var point:Point;
+        public var divided:Boolean = false;
+        public var quads:Array;
 
-        public var quads:Vector.<QuadTree>;
         private var topLeft:QuadTree;
         private var topRight:QuadTree;
         private var bottomLeft:QuadTree;
@@ -14,7 +15,21 @@ package Map.QuadTree {
 
         public function QuadTree(bounds:Rectangle) {
             this.bounds = bounds;
-            quads = new Vector.<QuadTree>();
+            quads = [];
+        }
+
+        public function query(range:Rectangle):Array {
+            var found:Array = [];
+            if (!bounds.intersects(range))
+                return found;
+
+            if (divided) {
+                found = found.concat(topLeft.query(range), topRight.query(range), bottomLeft.query(range), bottomRight.query(range));
+            } else if (point && range.contains(point.x, point.y)) {
+                found.push(point);
+            }
+
+            return found;
         }
 
         public function insert(point:Point):Boolean {
@@ -24,7 +39,7 @@ package Map.QuadTree {
             if (!this.point && quads.length == 0) {
                 this.point = point;
             } else {
-                if (quads.length == 0)
+                if (!divided)
                     divide();
 
                 // Send this point to the child quads
@@ -48,6 +63,8 @@ package Map.QuadTree {
             for each (var q:QuadTree in quads)
                 q.insert(point.clone());
             point = null;
+
+            divided = true;
         }
     }
 }

@@ -6,7 +6,7 @@ package Map {
 
     public class Map {
 
-        public var points:Vector.<Point>;
+        public var points:Array;
 
         public var quadTree:QuadTree;
         private var bounds:Rectangle;
@@ -24,12 +24,12 @@ package Map {
                 quadTree.insert(point);
         }
 
-        public static function makePoints(width:int, height:int, pointCount:int):Vector.<Point> {
+        public static function makePoints(width:int, height:int, pointCount:int):Array {
             var m:int = 20;
-            var vec:Vector.<Point> = new Vector.<Point>();
+            var arr:Array = [];
             for (var i:int = 0; i < pointCount; i++)
-                vec.push(new Point(m + int(Math.random() * (width - m * 2)), m + int(Math.random() * (height - m * 2))));
-            return vec;
+                arr.push(new Point(m + int(Math.random() * (width - m * 2)), m + int(Math.random() * (height - m * 2))));
+            return arr;
         }
     }
 }

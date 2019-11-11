@@ -15,10 +15,13 @@
 
         public static var map:Map;
         private var c:UIComponent;
+        private var d:UIComponent;
 
         public function onCreationComplete(event:FlexEvent):void {
             c = new UIComponent();
             addElement(c);
+            d = new UIComponent();
+            addElement(d);
 
             createNewMap();
 
@@ -26,15 +29,28 @@
                 createNewMap();
             });
 
-            addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
-                map.quadTree.insert(new Point(event.stageX, event.stageY));
-                draw();
+            addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
+                //draw();
+                d.graphics.clear();
+
+                var p:Point = new Point(event.stageX, event.stageY);
+                var size:int = 10;
+                var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
+                var arr:Array = map.quadTree.query(range);
+                for each (p in arr) {
+                    d.graphics.beginFill(Color.red);
+                    d.graphics.drawCircle(p.x, p.y, 3);
+                    d.graphics.endFill();
+                }
+
+                d.graphics.lineStyle(1, Color.blue);
+                d.graphics.drawRect(range.x, range.y, range.width, range.height)
             });
         }
 
         private function createNewMap():void {
 
-            map = new Map(width, height, 10);
+            map = new Map(width, height, 25000);
 
             draw();
         }
@@ -50,15 +66,11 @@
                 if (q.point) {
                     var color:uint = Color.black;
                     c.graphics.lineStyle(1, color);
-                    c.graphics.beginFill(color, .1);
                     c.graphics.drawRect(q.bounds.x, q.bounds.y, q.bounds.width, q.bounds.height);
-                    c.graphics.endFill();
 
-                    c.graphics.lineStyle(1, color);
-                    c.graphics.drawCircle(q.point.x, q.point.y, 4);
                     c.graphics.lineStyle();
                     c.graphics.beginFill(color);
-                    c.graphics.drawCircle(q.point.x, q.point.y, 2);
+                    c.graphics.drawCircle(q.point.x, q.point.y, 3);
                     c.graphics.endFill();
                 }
             }
