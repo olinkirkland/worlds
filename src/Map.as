@@ -79,16 +79,15 @@ package {
             var _cornerMap:Array = [];
 
             function makeCorner(point:Point):Corner {
-                var corner:Corner;
+                if (!point)
+                    return null;
 
-                if (point == null) return null;
-                for (var bucket:int = int(point.x) - 1; bucket <= int(point.x) + 1; bucket++) {
-                    for each (corner in _cornerMap[bucket]) {
+                for (var bucket:int = point.x - 1; bucket <= point.x + 1; bucket++) {
+                    for each (var corner:Corner in _cornerMap[bucket]) {
                         var dx:Number = point.x - corner.point.x;
                         var dy:Number = point.y - corner.point.y;
-                        if (dx * dx + dy * dy < 1e-6) {
+                        if (dx * dx + dy * dy < 1e-6)
                             return corner;
-                        }
                     }
                 }
 
