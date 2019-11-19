@@ -45,7 +45,6 @@
         }
 
         private function createNewMap():void {
-
             map = new Map(width, height, 100000);
 
             draw();

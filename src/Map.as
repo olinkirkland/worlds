@@ -23,15 +23,15 @@ package {
         public function Map(width:int, height:int, pointCount:int) {
             var t:Date = new Date();
             var d:Date = new Date();
-            trace("Choosing random points...")
+            trace("Choosing " + pointCount + " random points...")
             makePoints(width, height, pointCount);
-            trace("Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
             bounds = new Rectangle(0, 0, width, height);
 
             d = new Date();
             trace("Making quadtree...");
             makeQuadTreeForPoints();
-            trace("Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
 
             makeModel();
             trace("Total time taken: " + Util.secondsSince(t));
@@ -44,7 +44,7 @@ package {
             d = new Date();
             trace("Making Voronoi diagram...");
             var voronoi:Voronoi = new Voronoi(points, bounds);
-            trace("Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
 
             cells = new Vector.<Cell>();
             corners = new Vector.<Corner>();
@@ -55,7 +55,7 @@ package {
              */
 
             d = new Date();
-            trace("  Making cell dictionary...");
+            trace("Making cell dictionary...");
             var cellDictionary:Dictionary = new Dictionary();
             for each (var point:Point in points) {
                 var cell:Cell = new Cell();
@@ -64,13 +64,13 @@ package {
                 cells.push(cell);
                 cellDictionary[point] = cell;
             }
-            trace("  Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
 
             d = new Date();
-            trace("  Making voronoi regions...")
+            trace("Making voronoi regions...")
             for each (cell in cells)
                 voronoi.region(cell.point);
-            trace("  Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
 
             /**
              * Corners
@@ -113,7 +113,7 @@ package {
              */
 
             d = new Date();
-            trace("  Making edges...");
+            trace("Making edges...");
             var libEdges:Vector.<com.nodename.delaunay.Edge> = voronoi.edges();
             for each (var libEdge:com.nodename.delaunay.Edge in libEdges) {
                 var dEdge:Segment = libEdge.delaunayLine();
@@ -131,7 +131,7 @@ package {
 
                 setupEdge(edge);
             }
-            trace("  Done in " + Util.secondsSince(d));
+            trace(Util.secondsSince(d));
         }
 
         private function setupEdge(edge:Edge):void {
