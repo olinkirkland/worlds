@@ -1,4 +1,4 @@
-package Map.QuadTree {
+package {
     import flash.geom.Point;
     import flash.geom.Rectangle;
 

@@ -6,22 +6,18 @@
 
     <fx:Script>
         <![CDATA[
-        import Map.Map;
-        import Map.QuadTree.QuadTree;
-
         import mx.core.UIComponent;
-
         import mx.events.FlexEvent;
 
         public static var map:Map;
-        private var c:UIComponent;
-        private var d:UIComponent;
+        private var layer0:UIComponent;
+        private var layer1:UIComponent;
 
         public function onCreationComplete(event:FlexEvent):void {
-            c = new UIComponent();
-            addElement(c);
-            d = new UIComponent();
-            addElement(d);
+            layer0 = new UIComponent();
+            addElement(layer0);
+            layer1 = new UIComponent();
+            addElement(layer1);
 
             createNewMap();
 
@@ -31,32 +27,33 @@
 
             addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
                 //draw();
-                d.graphics.clear();
+                layer1.graphics.clear();
 
                 var p:Point = new Point(event.stageX, event.stageY);
-                var size:int = 10;
+                var size:int = 50;
                 var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
                 var arr:Array = map.quadTree.query(range);
                 for each (p in arr) {
-                    d.graphics.beginFill(Color.red);
-                    d.graphics.drawCircle(p.x, p.y, 3);
-                    d.graphics.endFill();
+                    layer1.graphics.beginFill(Color.red);
+                    layer1.graphics.drawCircle(p.x, p.y, 1);
+                    layer1.graphics.endFill();
                 }
 
-                d.graphics.lineStyle(1, Color.blue);
-                d.graphics.drawRect(range.x, range.y, range.width, range.height)
+                layer1.graphics.lineStyle(1, Color.blue);
+                layer1.graphics.drawRect(range.x, range.y, range.width, range.height)
             });
         }
 
         private function createNewMap():void {
 
-            map = new Map(width, height, 25000);
+            map = new Map(width, height, 100000);
 
             draw();
         }
 
         private function draw():void {
-            c.graphics.clear();
+            layer0.graphics.clear();
+            layer0.graphics.lineStyle();
             var queue:Array = [map.quadTree];
             while (queue.length > 0) {
                 var q:QuadTree = queue.pop();
@@ -64,14 +61,9 @@
                     queue.push(t);
 
                 if (q.point) {
-                    var color:uint = Color.black;
-                    c.graphics.lineStyle(1, color);
-                    c.graphics.drawRect(q.bounds.x, q.bounds.y, q.bounds.width, q.bounds.height);
-
-                    c.graphics.lineStyle();
-                    c.graphics.beginFill(color);
-                    c.graphics.drawCircle(q.point.x, q.point.y, 3);
-                    c.graphics.endFill();
+                    layer0.graphics.beginFill(Color.black);
+                    layer0.graphics.drawCircle(q.point.x, q.point.y, 1);
+                    layer0.graphics.endFill();
                 }
             }
         }
