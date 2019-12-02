@@ -6,6 +6,10 @@
 
     <fx:Script>
         <![CDATA[
+        import graph.Cell;
+        import graph.Corner;
+        import graph.Edge;
+
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
 
@@ -45,26 +49,47 @@
         }
 
         private function createNewMap():void {
-            map = new Map(width, height, 100000);
+            map = new Map(width, height, 200);
 
             draw();
         }
 
         private function draw():void {
-            layer0.graphics.clear();
-            layer0.graphics.lineStyle();
-            var queue:Array = [map.quadTree];
-            while (queue.length > 0) {
-                var q:QuadTree = queue.pop();
-                for each (var t:QuadTree in q.quads)
-                    queue.push(t);
+            var g:Graphics = layer0.graphics;
 
-                if (q.point) {
-                    layer0.graphics.beginFill(Color.black);
-                    layer0.graphics.drawCircle(q.point.x, q.point.y, 1);
-                    layer0.graphics.endFill();
+            g.clear();
+            g.lineStyle();
+            g.beginFill(Color.black);
+            g.drawRect(0, 0, width, height);
+            g.endFill();
+
+            for each (var cell:Cell in map.cells) {
+                drawDot(g, cell.point, Color.white, 3);
+
+                for each (var corner:Corner in cell.corners) {
+                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.blue, 3);
+                }
+
+                for each (var edge:Edge in cell.edges) {
+                    if (edge.d0 && edge.d1)
+                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
+                    if (edge.v0 && edge.v1)
+                        drawLine(g, edge.v0.point, edge.v1.point, Color.green);
                 }
             }
+        }
+
+        private function drawDot(g:Graphics, point:Point, color:uint, size:int):void {
+            g.beginFill(color);
+            g.drawCircle(point.x, point.y, size);
+            g.endFill();
+        }
+
+        private function drawLine(g:Graphics, point1:Point, point2:Point, color:uint):void {
+            g.lineStyle(1, color);
+            g.moveTo(point1.x, point1.y);
+            g.lineTo(point2.x, point2.y);
+            g.lineStyle();
         }
         ]]>
     </fx:Script>
