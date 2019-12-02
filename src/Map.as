@@ -20,6 +20,9 @@ package {
         public var quadTree:QuadTree;
         private var bounds:Rectangle;
 
+        // Associative Mapping
+        private var cellsByPoints:Object;
+
         public function Map(width:int, height:int, pointCount:int) {
             var t:Date = new Date();
             var d:Date = new Date();
@@ -56,13 +59,13 @@ package {
 
             d = new Date();
             trace("Making cell dictionary...");
-            var cellDictionary:Dictionary = new Dictionary();
+            var cellsDictionary:Dictionary = new Dictionary();
             for each (var point:Point in points) {
                 var cell:Cell = new Cell();
                 cell.index = cells.length;
                 cell.point = point;
                 cells.push(cell);
-                cellDictionary[point] = cell;
+                cellsDictionary[point] = cell;
             }
             trace(Util.secondsSince(d));
 
@@ -81,7 +84,6 @@ package {
             function makeCorner(point:Point):Corner {
                 if (!point)
                     return null;
-
                 for (var bucket:int = point.x - 1; bucket <= point.x + 1; bucket++) {
                     for each (var corner:Corner in _cornerMap[bucket]) {
                         var dx:Number = point.x - corner.point.x;
@@ -125,12 +127,48 @@ package {
 
                 edge.v0 = makeCorner(vEdge.p0);
                 edge.v1 = makeCorner(vEdge.p1);
-                edge.d0 = cellDictionary[dEdge.p0];
-                edge.d1 = cellDictionary[dEdge.p1];
+                edge.d0 = cellsDictionary[dEdge.p0];
+                edge.d1 = cellsDictionary[dEdge.p1];
 
                 setupEdge(edge);
             }
+
             trace(Util.secondsSince(d));
+
+            /**
+             * Clean Up Borders
+             */
+
+            for each (cell in cells) {
+                for each (var corner:Corner in cell.corners) {
+                    if (corner.border) {
+                        // Remove references
+                        for each (var neighbor:Cell in cell.neighbors) {
+                            for (var i:int = 0; i < neighbor.neighbors.length; i++)
+                                if (neighbor.neighbors[i] == cell)
+                                    neighbor.neighbors.removeAt(i);
+                        }
+
+                        cell.neighbors = new Vector.<Cell>();
+                        cell.corners = new Vector.<Corner>();
+                        cell.edges = new Vector.<Edge>();
+                        break;
+                    }
+                }
+            }
+
+
+            /**
+             * Associative Mapping
+             */
+
+            cellsByPoints = {};
+            for each (cell in cells)
+                cellsByPoints[JSON.stringify(cell.point)] = cell;
+        }
+
+        public function getCellByPoint(p:Point):Cell {
+            return cellsByPoints[JSON.stringify(p)];
         }
 
         private function setupEdge(edge:Edge):void {
@@ -198,9 +236,10 @@ package {
         public function makePoints(width:int, height:int, pointCount:int):void {
             var m:int = 20;
             points = new Vector.<Point>();
-            for (var i:int = 0; i < pointCount; i++) {
-                var p:Point = new Point(m + Math.random() * (width - m * 2), m + Math.random() * (height - m * 2));
-                points.push(p);
+            while (points.length < pointCount) {
+                var p:Point = new Point(m + int(Math.random() * (width - m * 2)), int(m + Math.random() * (height - m * 2)));
+                if (points.indexOf(p) < 0)
+                    points.push(p);
             }
         }
     }

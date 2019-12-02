@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<application xmlns="http://ns.adobe.com/air/application/32.0">
+<application xmlns="http://ns.adobe.com/air/application/30.0">
 
     <!-- Adobe AIR Application Descriptor File Template.
          Specifies parameters for identifying, installing, and launching AIR applications.
@@ -72,10 +72,10 @@
         <!--<resizable></resizable>-->
 
         <!-- The window's initial width in pixels. Optional. -->
-        <width>800</width>
+        <width>1920</width>
 
         <!-- The window's initial height in pixels. Optional. -->
-        <height>600</height>
+        <height>1080</height>
 
         <!-- The window's initial x position. Optional. -->
         <!--<x></x>-->

@@ -30,7 +30,6 @@
             });
 
             addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
-                //draw();
                 layer1.graphics.clear();
 
                 var p:Point = new Point(event.stageX, event.stageY);
@@ -38,9 +37,17 @@
                 var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
                 var arr:Array = map.quadTree.query(range);
                 for each (p in arr) {
-                    layer1.graphics.beginFill(Color.red);
-                    layer1.graphics.drawCircle(p.x, p.y, 1);
+                    layer1.graphics.beginFill(Color.yellow);
+                    layer1.graphics.drawCircle(p.x, p.y, 5);
                     layer1.graphics.endFill();
+
+                    var cell:Cell = map.getCellByPoint(p);
+                    if (cell) {
+                        for each (var q:Cell in cell.neighbors) {
+                            drawLine(layer1.graphics, cell.point, q.point, Color.white);
+                            drawDot(layer1.graphics, q.point, Color.white, 3);
+                        }
+                    }
                 }
 
                 layer1.graphics.lineStyle(1, Color.blue);
@@ -49,12 +56,14 @@
         }
 
         private function createNewMap():void {
-            map = new Map(width, height, 200);
+            map = new Map(width, height, 500);
 
             draw();
         }
 
         private function draw():void {
+            layer1.graphics.clear();
+
             var g:Graphics = layer0.graphics;
 
             g.clear();
@@ -64,17 +73,19 @@
             g.endFill();
 
             for each (var cell:Cell in map.cells) {
-                drawDot(g, cell.point, Color.white, 3);
+//                drawDot(g, cell.point, Color.red, 3);
 
-                for each (var corner:Corner in cell.corners) {
-                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.blue, 3);
-                }
+//                for each (var corner:Corner in cell.corners)
+//                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);
 
                 for each (var edge:Edge in cell.edges) {
-                    if (edge.d0 && edge.d1)
-                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
                     if (edge.v0 && edge.v1)
                         drawLine(g, edge.v0.point, edge.v1.point, Color.green);
+                }
+
+                for each (edge in cell.edges) {
+//                    if (edge.d0 && edge.d1)
+//                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
                 }
             }
         }
