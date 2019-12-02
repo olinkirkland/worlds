@@ -139,32 +139,42 @@ package {
              * Clean Up Borders
              */
 
-            for each (cell in cells) {
+            d = new Date();
+            trace("Cleaning borders...");
+            for (var i:int = 0; i < cells.length; i++) {
+                cell = cells[i];
                 for each (var corner:Corner in cell.corners) {
                     if (corner.border) {
                         // Remove references
                         for each (var neighbor:Cell in cell.neighbors) {
-                            for (var i:int = 0; i < neighbor.neighbors.length; i++)
-                                if (neighbor.neighbors[i] == cell)
-                                    neighbor.neighbors.removeAt(i);
+                            for (var j:int = 0; j < neighbor.neighbors.length; j++)
+                                if (neighbor.neighbors[j] == cell) {
+                                    neighbor.neighbors.removeAt(j--);
+                                }
                         }
 
                         cell.neighbors = new Vector.<Cell>();
                         cell.corners = new Vector.<Corner>();
                         cell.edges = new Vector.<Edge>();
+                        cells.removeAt(i--);
                         break;
                     }
                 }
             }
 
+            trace(Util.secondsSince(d));
 
             /**
              * Associative Mapping
              */
 
+            d = new Date();
+            trace("Preparing up associative mapping...");
             cellsByPoints = {};
             for each (cell in cells)
                 cellsByPoints[JSON.stringify(cell.point)] = cell;
+
+            trace(Util.secondsSince(d));
         }
 
         public function getCellByPoint(p:Point):Cell {
@@ -237,10 +247,13 @@ package {
             var m:int = 20;
             points = new Vector.<Point>();
             while (points.length < pointCount) {
-                var p:Point = new Point(m + int(Math.random() * (width - m * 2)), int(m + Math.random() * (height - m * 2)));
-                if (points.indexOf(p) < 0)
-                    points.push(p);
+                var p:Point = new Point(m + Math.random() * (width - m * 2), m + Math.random() * (height - m * 2));
+                points.push(p);
             }
+        }
+
+        public function query(range:Rectangle):Array {
+            return [];
         }
     }
 }

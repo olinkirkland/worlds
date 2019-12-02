@@ -37,12 +37,12 @@
                 var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
                 var arr:Array = map.quadTree.query(range);
                 for each (p in arr) {
-                    layer1.graphics.beginFill(Color.yellow);
-                    layer1.graphics.drawCircle(p.x, p.y, 5);
-                    layer1.graphics.endFill();
-
                     var cell:Cell = map.getCellByPoint(p);
                     if (cell) {
+                        layer1.graphics.beginFill(Color.yellow);
+                        layer1.graphics.drawCircle(p.x, p.y, 5);
+                        layer1.graphics.endFill();
+
                         for each (var q:Cell in cell.neighbors) {
                             drawLine(layer1.graphics, cell.point, q.point, Color.white);
                             drawDot(layer1.graphics, q.point, Color.white, 3);
@@ -50,13 +50,13 @@
                     }
                 }
 
-                layer1.graphics.lineStyle(1, Color.blue);
-                layer1.graphics.drawRect(range.x, range.y, range.width, range.height)
+                layer1.graphics.lineStyle(1, Color.grey);
+                layer1.graphics.drawRect(range.x, range.y, range.width, range.height);
             });
         }
 
         private function createNewMap():void {
-            map = new Map(width, height, 500);
+            map = new Map(width, height, 25000);
 
             draw();
         }
@@ -80,7 +80,7 @@
 
                 for each (var edge:Edge in cell.edges) {
                     if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.green);
+                        drawLine(g, edge.v0.point, edge.v1.point, Color.blue);
                 }
 
                 for each (edge in cell.edges) {
