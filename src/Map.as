@@ -10,6 +10,9 @@ package {
 
     public class Map {
 
+        // Util
+        private var rand:Rand = new Rand();
+
         // Model
         public var points:Vector.<Point>;
         public var cells:Vector.<Cell>;
@@ -23,8 +26,9 @@ package {
         // Associative Mapping
         private var cellsByPoints:Object;
 
-        public function Map(width:int, height:int) {
+        public function Map(width:int, height:int, seed:int = 1) {
             bounds = new Rectangle(0, 0, width, height);
+            rand = new Rand(seed);
 
             var t:Date = new Date();
             makePoints();
@@ -240,47 +244,50 @@ package {
             var queue:Vector.<Point> = new Vector.<Point>();
 
             // The minimum distance between each point
-            var m:Number = 20;
+            var relax:Number = 10;
 
-            var point:Point = new Point(int(Math.random() * bounds.width), int(Math.random() * bounds.height));
+            var point:Point = new Point(int(rand.next() * bounds.width), int(rand.next() * bounds.height));
+            var box:Rectangle = new Rectangle(0, 0, 2 * relax, 2 * relax);
+
             queue.push(point);
             points.push(point);
             quadTree.insert(point);
 
             while (queue.length > 0) {
-                trace(queue.length);
                 point = queue[0];
-                var nextPoint:Point = null;
-                for (var i:int = 0; i < 30; i++) {
-                    var angle:int = Math.random() * 360;
-                    var distance:int = m + (Math.random() * m);
+                var candidate:Point = null;
 
-                    var c:Point = new Point();
-                    c.x = point.x + distance * Math.cos(angle);
-                    c.y = point.y + distance * Math.sin(angle);
+                for (var i:int = 0; i < 5; i++) {
+                    var angle:int = rand.next() * 360;
+                    var distance:int = rand.between(relax, 2 * relax);
 
-                    // Check point distance to nearby points
-                    var nearbyPoints:Array = quadTree.query(new Rectangle(c.x - m, c.y - m, c.x + m, c.y + m));
-                    if (!bounds.contains(c.x, c.y))
-                        break;
+                    candidate = new Point();
+                    candidate.x = int(point.x + distance * Math.cos(angle));
+                    candidate.y = int(point.y + distance * Math.sin(angle));
 
-                    for each (var p:Point in nearbyPoints) {
-                        if (Point.distance(c, p) < m) {
-                            nextPoint = c;
-                            break;
-                        }
+                    if (!bounds.contains(candidate.x, candidate.y)) {
+                        candidate = null;
+                    } else {
+                        // Check point distance to nearby points
+                        box.x = candidate.x - relax;
+                        box.y = candidate.y - relax;
+                        if (quadTree.query(box).length > 0)
+                            candidate = null;
+                        else break;
                     }
                 }
 
-                if (nextPoint) {
-                    queue.push(nextPoint);
-                    points.push(nextPoint);
-                    quadTree.insert(nextPoint);
+                if (candidate) {
+                    queue.push(candidate);
+                    points.push(candidate);
+                    quadTree.insert(candidate);
                 } else {
                     // Remove the first point in queue
                     queue.shift();
                 }
             }
+
+            trace(points.length + " points");
 
             trace(Util.secondsSince(d));
         }
