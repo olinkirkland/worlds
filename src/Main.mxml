@@ -39,25 +39,20 @@
                 for each (p in arr) {
                     var cell:Cell = map.getCellByPoint(p);
                     if (cell) {
-                        layer1.graphics.beginFill(Color.yellow);
-                        layer1.graphics.drawCircle(p.x, p.y, 5);
-                        layer1.graphics.endFill();
+                        drawDot(layer1.graphics, p, Color.yellow, 2);
 
-                        for each (var q:Cell in cell.neighbors) {
-                            drawLine(layer1.graphics, cell.point, q.point, Color.white);
-                            drawDot(layer1.graphics, q.point, Color.white, 3);
-                        }
+                        //for each (var q:Cell in cell.neighbors)
+                        //drawLine(layer1.graphics, cell.point, q.point, Color.white);
                     }
                 }
 
-                layer1.graphics.lineStyle(1, Color.grey);
+                layer1.graphics.lineStyle(1, Color.red);
                 layer1.graphics.drawRect(range.x, range.y, range.width, range.height);
             });
         }
 
         private function createNewMap():void {
-            map = new Map(width, height, 25000);
-
+            map = new Map(width, height);
             draw();
         }
 
