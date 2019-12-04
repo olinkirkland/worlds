@@ -7,15 +7,23 @@
     <fx:Script>
         <![CDATA[
         import graph.Cell;
-        import graph.Corner;
         import graph.Edge;
+
+        import layers.Lithosphere;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
 
+        import util.Color;
+        import util.Util;
+
         public static var map:Map;
+        public static var lithosphere:Lithosphere;
+
         private var layer0:UIComponent;
         private var layer1:UIComponent;
+
+        private var seed:int = 1;
 
         public function onCreationComplete(event:FlexEvent):void {
             layer0 = new UIComponent();
@@ -29,30 +37,42 @@
                 createNewMap();
             });
 
-            addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
+            addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
                 layer1.graphics.clear();
 
                 var p:Point = new Point(event.stageX, event.stageY);
-                var size:int = 50;
+                var size:int = 20;
                 var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
-                var arr:Array = map.quadTree.query(range);
-                for each (p in arr) {
-                    var cell:Cell = map.getCellByPoint(p);
-                    if (cell) {
-                        drawDot(layer1.graphics, p, Color.yellow, 2);
+                var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
 
-                        //for each (var q:Cell in cell.neighbors)
-                        //drawLine(layer1.graphics, cell.point, q.point, Color.white);
-                    }
+                if (cell) {
+                    drawDot(layer1.graphics, cell.point, Color.black, 4);
+                    trace(cell.tectonicPlatePower);
                 }
-
-                layer1.graphics.lineStyle(1, Color.red);
-                layer1.graphics.drawRect(range.x, range.y, range.width, range.height);
             });
+
+//            addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
+//                layer1.graphics.clear();
+//
+//                var p:Point = new Point(event.stageX, event.stageY);
+//                var size:int = 50;
+//                var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
+//                var arr:Array = map.quadTree.query(range);
+//                for each (p in arr) {
+//                    var cell:Cell = map.getCellByPoint(p);
+//                    if (cell) {
+//                        drawDot(layer1.graphics, p, Color.yellow, 2);
+//                    }
+//                }
+//
+//                layer1.graphics.lineStyle(1, Color.red);
+//                layer1.graphics.drawRect(range.x, range.y, range.width, range.height);
+//            });
         }
 
         private function createNewMap():void {
-            map = new Map(width, height);
+            map = new Map(width, height, seed++);
+            lithosphere = new Lithosphere(map);
             draw();
         }
 
@@ -68,7 +88,8 @@
             g.endFill();
 
             for each (var cell:Cell in map.cells) {
-//                drawDot(g, cell.point, Color.red, 3);
+                if (cell.tectonicPlate)
+                    fillCell(g, cell, cell.tectonicPlate.color);
 
 //                for each (var corner:Corner in cell.corners)
 //                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);
@@ -83,6 +104,19 @@
 //                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
                 }
             }
+        }
+
+        private function fillCell(g:Graphics, cell:Cell, color:uint):void {
+            // Draw a filled cell
+            g.beginFill(color);
+            for each (var edge:Edge in cell.edges) {
+                if (edge.v0 && edge.v1) {
+                    g.moveTo(edge.v0.point.x, edge.v0.point.y);
+                    g.lineTo(cell.point.x, cell.point.y);
+                    g.lineTo(edge.v1.point.x, edge.v1.point.y);
+                }
+            }
+            g.endFill();
         }
 
         private function drawDot(g:Graphics, point:Point, color:uint, size:int):void {

@@ -8,10 +8,15 @@ package {
 
     import graph.*;
 
+    import graph.QuadTree;
+
+    import util.Rand;
+
+    import util.Util;
+
     public class Map {
 
-        // Util
-        private var rand:Rand = new Rand();
+        public var rand:Rand = new Rand();
 
         // Model
         public var points:Vector.<Point>;
@@ -33,7 +38,20 @@ package {
             var t:Date = new Date();
             makePoints();
             makeModel();
-            trace("Total time taken: " + Util.secondsSince(t));
+            Util.log("Total time taken: " + Util.secondsSince(t));
+        }
+
+        public function unuseCells():void {
+            for each(var cell:Cell in cells)
+                cell.used = false;
+        }
+
+        public function nextUnusedCell():Cell {
+            for each(var cell:Cell in cells)
+                if (!cell.used)
+                    return cell;
+
+            return null;
         }
 
         private function makeModel():void {
@@ -41,9 +59,9 @@ package {
             var d:Date;
 
             d = new Date();
-            trace("Making Voronoi diagram...");
+            Util.log("Making Voronoi diagram...");
             var voronoi:Voronoi = new Voronoi(points, bounds);
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
 
             cells = new Vector.<Cell>();
             corners = new Vector.<Corner>();
@@ -54,7 +72,7 @@ package {
              */
 
             d = new Date();
-            trace("Making cell dictionary...");
+            Util.log("Making cell dictionary...");
             var cellsDictionary:Dictionary = new Dictionary();
             for each (var point:Point in points) {
                 var cell:Cell = new Cell();
@@ -63,13 +81,13 @@ package {
                 cells.push(cell);
                 cellsDictionary[point] = cell;
             }
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
 
             d = new Date();
-            trace("Making voronoi regions...")
+            Util.log("Making voronoi regions...");
             for each (cell in cells)
                 voronoi.region(cell.point);
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
 
             /**
              * Corners
@@ -110,7 +128,7 @@ package {
              */
 
             d = new Date();
-            trace("Making edges...");
+            Util.log("Making edges...");
             var libEdges:Vector.<com.nodename.delaunay.Edge> = voronoi.edges();
             for each (var libEdge:com.nodename.delaunay.Edge in libEdges) {
                 var dEdge:Segment = libEdge.delaunayLine();
@@ -129,14 +147,14 @@ package {
                 setupEdge(edge);
             }
 
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
 
             /**
              * Clean Up Borders
              */
 
             d = new Date();
-            trace("Cleaning borders...");
+            Util.log("Cleaning borders...");
             for (var i:int = 0; i < cells.length; i++) {
                 cell = cells[i];
                 for each (var corner:Corner in cell.corners) {
@@ -158,19 +176,19 @@ package {
                 }
             }
 
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
 
             /**
              * Associative Mapping
              */
 
             d = new Date();
-            trace("Preparing up associative mapping...");
+            Util.log("Setting up associative mapping...");
             cellsByPoints = {};
             for each (cell in cells)
                 cellsByPoints[JSON.stringify(cell.point)] = cell;
 
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
         }
 
         public function getCellByPoint(p:Point):Cell {
@@ -235,7 +253,7 @@ package {
 
         public function makePoints():void {
             var d:Date = new Date();
-            trace("Choosing random points...")
+            Util.log("Choosing random points...");
 
             points = new Vector.<Point>();
             quadTree = new QuadTree(bounds);
@@ -244,10 +262,10 @@ package {
             var queue:Vector.<Point> = new Vector.<Point>();
 
             // The minimum distance between each point
-            var relax:Number = 10;
+            var m:Number = 15;
 
             var point:Point = new Point(int(rand.next() * bounds.width), int(rand.next() * bounds.height));
-            var box:Rectangle = new Rectangle(0, 0, 2 * relax, 2 * relax);
+            var box:Rectangle = new Rectangle(0, 0, 2 * m, 2 * m);
 
             queue.push(point);
             points.push(point);
@@ -258,8 +276,8 @@ package {
                 var candidate:Point = null;
 
                 for (var i:int = 0; i < 5; i++) {
-                    var angle:int = rand.next() * 360;
-                    var distance:int = rand.between(relax, 2 * relax);
+                    var angle:Number = rand.next() * 2 * Math.PI;
+                    var distance:int = rand.between(m, 2 * m);
 
                     candidate = new Point();
                     candidate.x = int(point.x + distance * Math.cos(angle));
@@ -269,8 +287,8 @@ package {
                         candidate = null;
                     } else {
                         // Check point distance to nearby points
-                        box.x = candidate.x - relax;
-                        box.y = candidate.y - relax;
+                        box.x = candidate.x - m;
+                        box.y = candidate.y - m;
                         if (quadTree.query(box).length > 0)
                             candidate = null;
                         else break;
@@ -287,9 +305,9 @@ package {
                 }
             }
 
-            trace(points.length + " points");
+            Util.log(points.length + " points");
 
-            trace(Util.secondsSince(d));
+            Util.log(Util.secondsSince(d));
         }
     }
 }

@@ -1,4 +1,4 @@
-package {
+package util {
     public class Color {
         public static const white:uint = 0xffffff;
         public static const grey:uint = 0xcccccc;
