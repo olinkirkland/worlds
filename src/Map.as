@@ -47,9 +47,12 @@ package {
         }
 
         public function nextUnusedCell():Cell {
-            for each(var cell:Cell in cells)
+            var i:int = 0;
+            for each(var cell:Cell in cells) {
+                i++;
                 if (!cell.used)
                     return cell;
+            }
 
             return null;
         }

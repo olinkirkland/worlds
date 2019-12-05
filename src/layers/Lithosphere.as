@@ -1,4 +1,6 @@
 package layers {
+    import flash.utils.Dictionary;
+
     import graph.Cell;
 
     import util.Rand;
@@ -59,38 +61,78 @@ package layers {
             }
 
             // Ensure there are no tectonic plate pieces floating
-//            do {
-//                var fragments:Vector.<Cell> = getPlateFragments();
-//            } while (fragments.length > 0)
-            getPlateFragments();
+            do {
+                var fragments:Vector.<Cell> = getPlateFragments();
+                for (var i:int = 0; i < fragments.length; i++) {
+                    cell = fragments[i];
+                    for each (neighbor in cell.neighbors) {
+                        if (cell.tectonicPlate != neighbor.tectonicPlate) {
+                            cell.tectonicPlate.removeCell(cell);
+                            neighbor.tectonicPlate.addCell(cell);
+                            fragments.removeAt(i--);
+                            break;
+                        }
+                    }
+                }
+            } while (fragments.length > 0)
         }
 
         private function getPlateFragments():Vector.<Cell> {
             map.unuseCells();
 
             // Fragments are Cells that are not connected to the largest plate body with the same index
-            // Determine Plate bodies
+            // Determine plate bodies
             var bodies:Array = [];
             var queue:Vector.<Cell> = new Vector.<Cell>();
+            var cell:Cell = map.cells[0];
+            cell.used = true;
             queue.push(map.cells[0]);
-            var currentIndex:int;
+            var currentTectonicPlate:TectonicPlate = cell.tectonicPlate;
+            var currentBody:Vector.<Cell> = new Vector.<Cell>();
+
             while (queue.length > 0) {
-                var cell:Cell = queue.shift();
-                cell.used = true;
+                cell = queue.shift();
+                currentBody.push(cell);
 
                 for each (var neighbor:Cell in cell.neighbors) {
-                    if (neighbor.tectonicPlate == cell.tectonicPlate) {
-
+                    if (!neighbor.used && neighbor.tectonicPlate == cell.tectonicPlate) {
+                        neighbor.used = true;
                         queue.push(neighbor);
                     }
                 }
 
-                if (queue.length == 0 && map.nextUnusedCell())
-                    queue.push(map.nextUnusedCell());
+                if (queue.length == 0) {
+                    // Empty
+                    bodies.push(currentBody);
+                    currentBody = new Vector.<Cell>();
+                    cell = map.nextUnusedCell();
+                    if (cell) {
+                        currentTectonicPlate = cell.tectonicPlate;
+                        queue.push(cell);
+                        cell.used = true;
+                    }
+                }
             }
 
-
+            // Determine the fragments by identifying the smallest bodies with a corresponding body belonging to the same tectonic plate
             var fragments:Vector.<Cell> = new Vector.<Cell>();
+            var bodiesDictionary:Dictionary = new Dictionary();
+            for each (var body:Vector.<Cell> in bodies) {
+                var t:TectonicPlate = Cell(body[0]).tectonicPlate;
+                // Largest body is the largest body of that tectonic plate
+                if (!bodiesDictionary[t]) {
+                    bodiesDictionary[t] = body;
+                } else {
+                    var bodyInDictionary:Vector.<Cell> = bodiesDictionary[t];
+                    if (body.length > bodyInDictionary.length) {
+                        fragments = fragments.concat(bodyInDictionary);
+                        bodiesDictionary[t] = body;
+                    } else {
+                        fragments = fragments.concat(body);
+                    }
+                }
+            }
+
             return fragments;
         }
     }
