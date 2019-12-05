@@ -102,7 +102,7 @@
 
                 for each (var edge:Edge in cell.edges) {
                     if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.blue);
+                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
                 }
 
                 for each (edge in cell.edges) {
