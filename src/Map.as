@@ -35,10 +35,8 @@ package {
             bounds = new Rectangle(0, 0, width, height);
             rand = new Rand(seed);
 
-            var t:Date = new Date();
             makePoints();
             makeModel();
-            Util.log("Total time taken: " + Util.secondsSince(t));
         }
 
         public function unuseCells():void {

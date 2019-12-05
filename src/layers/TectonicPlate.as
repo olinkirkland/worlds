@@ -3,6 +3,8 @@ package layers {
 
     import mx.utils.UIDUtil;
 
+    import util.Rand;
+
     public class TectonicPlate {
         public var index:int;
         public var color:uint;
@@ -10,7 +12,7 @@ package layers {
 
         public function TectonicPlate(index:int):void {
             this.index = index;
-            color = Math.random() * 0xffffff;
+            color = new Rand(index*99).next() * 0xffffff;
 
             cells = new Vector.<Cell>();
         }

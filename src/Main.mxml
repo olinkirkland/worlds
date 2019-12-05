@@ -41,13 +41,13 @@
                 layer1.graphics.clear();
 
                 var p:Point = new Point(event.stageX, event.stageY);
-                var size:int = 20;
+                var size:int = 40;
                 var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
                 var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
 
                 if (cell) {
-                    drawDot(layer1.graphics, cell.point, Color.black, 4);
-                    trace(cell.tectonicPlatePower);
+                    //drawDot(layer1.graphics, cell.point, Color.black, 4);
+                    trace(cell.tectonicPlate.index);
                 }
             });
 
@@ -71,9 +71,13 @@
         }
 
         private function createNewMap():void {
+            var d:Date = new Date();
+
             map = new Map(width, height, seed++);
             lithosphere = new Lithosphere(map);
             draw();
+
+            Util.log("Total time taken: " + Util.secondsSince(d));
         }
 
         private function draw():void {
@@ -90,6 +94,8 @@
             for each (var cell:Cell in map.cells) {
                 if (cell.tectonicPlate)
                     fillCell(g, cell, cell.tectonicPlate.color);
+                if (cell.fragment)
+                    drawDot(g, cell.point, Color.black, 7);
 
 //                for each (var corner:Corner in cell.corners)
 //                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);

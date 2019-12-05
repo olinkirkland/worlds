@@ -7,6 +7,9 @@ package graph {
         public var index:int;
         public var used:Boolean;
 
+        //temp
+        public var fragment:Boolean;
+
         // Graph
         public var point:Point;
         public var neighbors:Vector.<Cell>;

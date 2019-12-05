@@ -20,7 +20,7 @@ package layers {
             Util.log("Making lithosphere...");
             pickStartingCells(rand.between(15, 20));
             expandPlates();
-            Util.log("Time taken: " + Util.secondsSince(t));
+            Util.log(Util.secondsSince(t));
         }
 
         private function pickStartingCells(plateCount:int):void {
@@ -60,21 +60,25 @@ package layers {
                 }
             }
 
-            // Ensure there are no tectonic plate pieces floating
-            do {
+            // Ensure there are no tectonic plate fragments
+            while (getPlateFragments().length > 0) {
                 var fragments:Vector.<Cell> = getPlateFragments();
-                for (var i:int = 0; i < fragments.length; i++) {
-                    cell = fragments[i];
-                    for each (neighbor in cell.neighbors) {
-                        if (cell.tectonicPlate != neighbor.tectonicPlate) {
-                            cell.tectonicPlate.removeCell(cell);
-                            neighbor.tectonicPlate.addCell(cell);
-                            fragments.removeAt(i--);
-                            break;
+                for each (cell in fragments)
+                    cell.fragment = true;
+                do {
+                    for (var i:int = 0; i < fragments.length; i++) {
+                        cell = fragments[i];
+                        for each (neighbor in cell.neighbors) {
+                            if (cell.tectonicPlate != neighbor.tectonicPlate) {
+                                cell.tectonicPlate.removeCell(cell);
+                                neighbor.tectonicPlate.addCell(cell);
+                                fragments.removeAt(i--);
+                                break;
+                            }
                         }
                     }
-                }
-            } while (fragments.length > 0)
+                } while (fragments.length > 0)
+            }
         }
 
         private function getPlateFragments():Vector.<Cell> {
