@@ -7,9 +7,6 @@ package graph {
         public var index:int;
         public var used:Boolean;
 
-        //temp
-        public var fragment:Boolean;
-
         // Graph
         public var point:Point;
         public var neighbors:Vector.<Cell>;
@@ -19,6 +16,7 @@ package graph {
         // Lithosphere
         public var tectonicPlate:TectonicPlate;
         public var tectonicPlatePower:Number = 0;
+        public var tectonicPlateBorder:Boolean;
 
         public function Cell() {
             neighbors = new Vector.<Cell>();

@@ -63,8 +63,6 @@ package layers {
             // Ensure there are no tectonic plate fragments
             while (getPlateFragments().length > 0) {
                 var fragments:Vector.<Cell> = getPlateFragments();
-                for each (cell in fragments)
-                    cell.fragment = true;
                 do {
                     for (var i:int = 0; i < fragments.length; i++) {
                         cell = fragments[i];
@@ -78,6 +76,14 @@ package layers {
                         }
                     }
                 } while (fragments.length > 0)
+            }
+
+            // Determine the tectonic plate borders
+            for each (cell in map.cells) {
+                for each (neighbor in cell.neighbors) {
+                    if (cell.tectonicPlate != neighbor.tectonicPlate)
+                        cell.tectonicPlateBorder = true;
+                }
             }
         }
 

@@ -94,8 +94,8 @@
             for each (var cell:Cell in map.cells) {
                 if (cell.tectonicPlate)
                     fillCell(g, cell, cell.tectonicPlate.color);
-                if (cell.fragment)
-                    drawDot(g, cell.point, Color.black, 7);
+                if (cell.tectonicPlateBorder)
+                    drawDot(g, cell.point, Color.black, 5);
 
 //                for each (var corner:Corner in cell.corners)
 //                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);

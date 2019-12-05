@@ -12,7 +12,7 @@ package layers {
 
         public function TectonicPlate(index:int):void {
             this.index = index;
-            color = new Rand(index*99).next() * 0xffffff;
+            color = new Rand(index * 99).next() * 0xffffff;
 
             cells = new Vector.<Cell>();
         }
