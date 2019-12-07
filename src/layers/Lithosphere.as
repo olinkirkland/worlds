@@ -7,10 +7,13 @@ package layers {
     import util.Util;
 
     public class Lithosphere {
+        private static var tectonicPowerImbalance:int = 0;
+
         private var rand:Rand;
         private var map:Map;
 
         public var tectonicPlates:Object = {};
+        public var totalArea:Number;
 
         public function Lithosphere(map:Map) {
             this.map = map;
@@ -31,7 +34,7 @@ package layers {
                     var t:TectonicPlate = new TectonicPlate(i);
                     tectonicPlates[t.index] = t;
                     t.addCell(cell);
-                    cell.tectonicPlatePower = 100;
+                    cell.tectonicPlatePower = 100 + (rand.next() * tectonicPowerImbalance);
                 }
             }
         }
@@ -48,7 +51,7 @@ package layers {
                     var cell:Cell = queue.shift();
                     for each (var neighbor:Cell in cell.neighbors) {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower) {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (rand.next() * 2);
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - rand.next();
                             if (neighbor.tectonicPlate)
                                 neighbor.tectonicPlate.removeCell(neighbor);
 
@@ -85,7 +88,18 @@ package layers {
                         cell.tectonicPlateBorder = true;
                 }
             }
+
+            // Calculate the area for each tectonic plate
+            totalArea = 0;
+            for each (tectonicPlate in tectonicPlates) {
+                tectonicPlate.calculateArea();
+                totalArea += tectonicPlate.area;
+            }
+
+            for each (tectonicPlate in tectonicPlates)
+                tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
         }
+
 
         private function getPlateFragments():Vector.<Cell> {
             map.unuseCells();

@@ -24,5 +24,9 @@ package util {
 
             return closest;
         }
+
+        public static function round(n:Number, places:int = 2):Number {
+            return Number(n.toFixed(places));
+        }
     }
 }

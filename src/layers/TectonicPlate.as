@@ -4,11 +4,14 @@ package layers {
     import mx.utils.UIDUtil;
 
     import util.Rand;
+    import util.Util;
 
     public class TectonicPlate {
         public var index:int;
         public var color:uint;
         public var cells:Vector.<Cell>;
+        public var area:Number;
+        public var areaPercent:Number;
 
         public function TectonicPlate(index:int):void {
             this.index = index;
@@ -30,6 +33,13 @@ package layers {
                     break;
                 }
             }
+        }
+
+        public function calculateArea():void {
+            area = 0;
+            for each (var cell:Cell in cells)
+                area += cell.area;
+            area = Util.round(area);
         }
     }
 }

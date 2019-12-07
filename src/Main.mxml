@@ -47,7 +47,7 @@
 
                 if (cell) {
                     //drawDot(layer1.graphics, cell.point, Color.black, 4);
-                    trace(cell.tectonicPlate.index);
+                    trace(cell.tectonicPlate.areaPercent);
                 }
             });
 

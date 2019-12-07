@@ -62,18 +62,12 @@ package {
             d = new Date();
             Util.log("Making Voronoi diagram...");
             var voronoi:Voronoi = new Voronoi(points, bounds);
-            Util.log(Util.secondsSince(d));
 
             cells = new Vector.<Cell>();
             corners = new Vector.<Corner>();
             edges = new Vector.<Edge>();
 
-            /**
-             * Cells
-             */
-
-            d = new Date();
-            Util.log("Making cell dictionary...");
+            // Make cell dictionary
             var cellsDictionary:Dictionary = new Dictionary();
             for each (var point:Point in points) {
                 var cell:Cell = new Cell();
@@ -188,6 +182,17 @@ package {
             cellsByPoints = {};
             for each (cell in cells)
                 cellsByPoints[JSON.stringify(cell.point)] = cell;
+
+            Util.log(Util.secondsSince(d));
+
+            /**
+             * Cell Area
+             */
+
+            d = new Date();
+            Util.log("Calculating cell areas...");
+            for each (cell in cells)
+                cell.calculateArea();
 
             Util.log(Util.secondsSince(d));
         }

@@ -12,6 +12,7 @@ package graph {
         public var neighbors:Vector.<Cell>;
         public var edges:Vector.<Edge>;
         public var corners:Vector.<Corner>;
+        public var area:Number;
 
         // Lithosphere
         public var tectonicPlate:TectonicPlate;
@@ -22,6 +23,25 @@ package graph {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+        }
+
+        public function calculateArea():void {
+            area = 0;
+            for each (var edge:Edge in edges) {
+                var triangleArea:Number = 0;
+                if (edge.v0 && edge.v1) {
+                    var a:Number = Point.distance(edge.v0.point, point);
+                    var b:Number = Point.distance(point, edge.v1.point);
+                    var c:Number = Point.distance(edge.v1.point, edge.v0.point);
+
+                    // Use Heron's Formula to determine the triangle's area
+                    var p:Number = (a + b + c) / 2;
+                    triangleArea = Math.sqrt(p * (p - a) * (p - b) * (p - c));
+                }
+                area += triangleArea;
+            }
+
+            area = Number(area.toFixed(2));
         }
     }
 }
