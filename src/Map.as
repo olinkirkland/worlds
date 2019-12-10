@@ -246,7 +246,7 @@ package {
             // The minimum distance between each point
             var relax:Number = 10;
 
-            var point:Point = new Point(int(rand.next() * bounds.width), int(rand.next() * bounds.height));
+            var point:Point = new Point(int(bounds.width/2), int(bounds.height/2));
             var box:Rectangle = new Rectangle(0, 0, 2 * relax, 2 * relax);
 
             queue.push(point);
