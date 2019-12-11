@@ -264,25 +264,34 @@ package {
             points = new Vector.<Point>();
             quadTree = new QuadTree(bounds);
 
+            // The minimum distance between each point
+            var m:Number = 10;
+
             // Create binding points (left and right)
             var bindingPoints:Array = [];
+            var p:Point = new Point();
 
             // Left binding
-
+            while (p.y < bounds.height - m) {
+                p = new Point(5 * m, p.y + m);
+                addPoint(p);
+            }
 
             // Right binding
-
+            p = new Point();
+            while (p.y < bounds.height - m) {
+                p = new Point(bounds.width - (5 * m), p.y + m);
+                addPoint(p);
+            }
 
             // The active point queue
             var queue:Vector.<Point> = new Vector.<Point>();
 
-            // The minimum distance between each point
-            var m:Number = 10;
-
-            var point:Point = new Point(int(rand.next() * bounds.width), int(rand.next() * bounds.height));
+            var point:Point = new Point(int(bounds.width / 2), int(bounds.height / 2));
             var box:Rectangle = new Rectangle(0, 0, 2 * m, 2 * m);
 
             addPoint(point);
+            queue.push(point);
 
             while (queue.length > 0) {
                 point = queue[0];
@@ -310,6 +319,7 @@ package {
 
                 if (candidate) {
                     addPoint(candidate);
+                    queue.push(candidate);
                 } else {
                     // Remove the first point in queue
                     queue.shift();
@@ -321,7 +331,6 @@ package {
             Util.log(Util.secondsSince(d));
 
             function addPoint(p:Point):void {
-                queue.push(p);
                 points.push(p);
                 quadTree.insert(p);
             }
