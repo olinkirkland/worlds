@@ -10,6 +10,7 @@
         import graph.Edge;
 
         import layers.Lithosphere;
+        import layers.TectonicPlate;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -47,7 +48,7 @@
 
                 if (cell) {
                     //drawDot(layer1.graphics, cell.point, Color.black, 4);
-                    trace(cell.tectonicPlate.areaPercent);
+                    trace(cell.tectonicPlate.type);
                 }
             });
 
@@ -93,9 +94,10 @@
 
             for each (var cell:Cell in map.cells) {
                 if (cell.tectonicPlate)
+//                    fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.OCEANIC ? 0xff0000 : 0xffff00);
                     fillCell(g, cell, cell.tectonicPlate.color);
                 if (cell.tectonicPlateBorder)
-                    drawDot(g, cell.point, Color.black, 5);
+                    drawDot(g, cell.point, Color.black, 3);
 
 //                for each (var corner:Corner in cell.corners)
 //                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);

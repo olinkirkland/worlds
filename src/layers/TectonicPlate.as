@@ -1,13 +1,17 @@
 package layers {
     import graph.Cell;
 
-    import mx.utils.UIDUtil;
-
     import util.Rand;
     import util.Util;
 
     public class TectonicPlate {
+        // Types
+        public static var CONTINENTAL:String = "continentalPlate";
+        public static var OCEANIC:String = "oceanicPlate";
+
+        // Properties
         public var index:int;
+        public var type:String;
         public var color:uint;
         public var cells:Vector.<Cell>;
         public var area:Number;

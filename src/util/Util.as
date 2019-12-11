@@ -28,5 +28,13 @@ package util {
         public static function round(n:Number, places:int = 2):Number {
             return Number(n.toFixed(places));
         }
+
+        public static function objectToArray(object:Object):Array {
+            var arr:Array = [];
+            for each (var o:Object in object)
+                arr.push(o);
+            
+            return arr;
+        }
     }
 }

@@ -21,7 +21,7 @@ package layers {
 
             var t:Date = new Date();
             Util.log("Making lithosphere...");
-            pickStartingCells(rand.between(15, 20));
+            pickStartingCells(rand.between(10, 15));
             expandPlates();
             Util.log(Util.secondsSince(t));
         }
@@ -51,7 +51,7 @@ package layers {
                     var cell:Cell = queue.shift();
                     for each (var neighbor:Cell in cell.neighbors) {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower) {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - rand.next();
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (rand.next() > .5 ? rand.next() * 10 : 0);
                             if (neighbor.tectonicPlate)
                                 neighbor.tectonicPlate.removeCell(neighbor);
 
@@ -98,6 +98,15 @@ package layers {
 
             for each (tectonicPlate in tectonicPlates)
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
+
+            // Set plates to either oceanic or continental
+            var platesArray:Array = Util.objectToArray(tectonicPlates);
+            platesArray.sortOn("area");
+            var currentAreaPercent:Number = 0;
+            for each (tectonicPlate in platesArray) {
+                tectonicPlate.type = currentAreaPercent < .3 ? TectonicPlate.CONTINENTAL : TectonicPlate.OCEANIC;
+                currentAreaPercent += tectonicPlate.areaPercent;
+            }
         }
 
 
