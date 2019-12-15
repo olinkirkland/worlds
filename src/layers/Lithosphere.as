@@ -34,7 +34,7 @@ package layers {
                     var t:TectonicPlate = new TectonicPlate(i);
                     tectonicPlates[t.index] = t;
                     t.addCell(cell);
-                    cell.tectonicPlatePower = 100 + (rand.next() * tectonicPowerImbalance);
+                    cell.tectonicPlatePower = rand.next() * tectonicPowerImbalance;
                 }
             }
         }

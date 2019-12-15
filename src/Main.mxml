@@ -47,8 +47,7 @@
                 var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
 
                 if (cell) {
-                    //drawDot(layer1.graphics, cell.point, Color.black, 4);
-                    trace(cell.tectonicPlate.type);
+                    trace(cell.tectonicPlate.index);
                 }
             });
 
@@ -74,7 +73,7 @@
         private function createNewMap():void {
             var d:Date = new Date();
 
-            map = new Map(width, height, seed++);
+            map = new Map(1500, 1000, seed++);
             lithosphere = new Lithosphere(map);
             draw();
 
@@ -89,15 +88,15 @@
             g.clear();
             g.lineStyle();
             g.beginFill(Color.black);
-            g.drawRect(0, 0, width, height);
+            g.drawRect(0, 0, map.width, map.height);
             g.endFill();
 
             for each (var cell:Cell in map.cells) {
                 if (cell.tectonicPlate)
 //                    fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.OCEANIC ? 0xff0000 : 0xffff00);
                     fillCell(g, cell, cell.tectonicPlate.color);
-                if (cell.tectonicPlateBorder)
-                    drawDot(g, cell.point, Color.black, 3);
+//                if (cell.tectonicPlateBorder)
+//                    drawDot(g, cell.point, Color.black, 3);
 
 //                for each (var corner:Corner in cell.corners)
 //                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);
@@ -112,6 +111,17 @@
 //                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
                 }
             }
+
+            for each (var p:Point in map.bindingPointsLeft.concat(map.bindingPointsRight))
+                drawDot(g, p, Color.black, 3);
+
+            // Center
+
+            layer0.x = (width - map.width) / 2;
+            layer0.y = (height - map.height) / 2;
+            layer1.x = (width - map.width) / 2;
+            layer1.y = (height - map.height) / 2;
+
         }
 
         private function fillCell(g:Graphics, cell:Cell, color:uint):void {

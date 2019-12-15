@@ -15,8 +15,11 @@ package {
     import util.Util;
 
     public class Map {
-
+        public var seed:int;
         public var rand:Rand = new Rand();
+
+        public var width:int;
+        public var height:int;
 
         // Model
         public var points:Vector.<Point>;
@@ -30,8 +33,14 @@ package {
 
         // Associative Mapping
         private var cellsByPoints:Object;
+        public var bindingPointsLeft:Array = [];
+        public var bindingPointsRight:Array = [];
 
         public function Map(width:int, height:int, seed:int = 1) {
+            this.width = width;
+            this.height = height;
+            this.seed = seed;
+
             bounds = new Rectangle(0, 0, width, height);
             rand = new Rand(seed);
 
@@ -265,24 +274,7 @@ package {
             quadTree = new QuadTree(bounds);
 
             // The minimum distance between each point
-            var m:Number = 10;
-
-            // Create binding points (left and right)
-            var bindingPoints:Array = [];
-            var p:Point = new Point();
-
-            // Left binding
-            while (p.y < bounds.height - m) {
-                p = new Point(5 * m, p.y + m);
-                addPoint(p);
-            }
-
-            // Right binding
-            p = new Point();
-            while (p.y < bounds.height - m) {
-                p = new Point(bounds.width - (5 * m), p.y + m);
-                addPoint(p);
-            }
+            var m:Number = 20;
 
             // The active point queue
             var queue:Vector.<Point> = new Vector.<Point>();
@@ -297,7 +289,7 @@ package {
                 point = queue[0];
                 var candidate:Point = null;
 
-                for (var i:int = 0; i < 5; i++) {
+                for (var i:int = 0; i < 10; i++) {
                     var angle:Number = rand.next() * 2 * Math.PI;
                     var distance:int = rand.between(m, 2 * m);
 

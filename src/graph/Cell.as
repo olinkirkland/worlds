@@ -16,7 +16,7 @@ package graph {
 
         // Lithosphere
         public var tectonicPlate:TectonicPlate;
-        public var tectonicPlatePower:Number = 0;
+        public var tectonicPlatePower:Number = Number.NEGATIVE_INFINITY;
         public var tectonicPlateBorder:Boolean;
 
         public function Cell() {
