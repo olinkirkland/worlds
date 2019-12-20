@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
                xmlns:s="library://ns.adobe.com/flex/spark"
-               width="100%" height="100%" frameRate="60"
+               width="100%"
+               height="100%"
+               frameRate="60"
                creationComplete="onCreationComplete(event)">
 
     <fx:Script>
@@ -18,12 +20,11 @@
         import util.Color;
         import util.Util;
 
+
         public static var map:Map;
         public static var lithosphere:Lithosphere;
-
         private var layer0:UIComponent;
         private var layer1:UIComponent;
-
         private var seed:int = 1;
 
         public function onCreationComplete(event:FlexEvent):void {
@@ -31,94 +32,84 @@
             addElement(layer0);
             layer1 = new UIComponent();
             addElement(layer1);
-
             createNewMap();
-
-            addEventListener(MouseEvent.RIGHT_CLICK, function (event:MouseEvent):void {
-                createNewMap();
-            });
-
-            addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
-                layer1.graphics.clear();
-
-                var p:Point = new Point(event.stageX, event.stageY);
-                var size:int = 40;
-                var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
-                var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
-
-                if (cell) {
-                    trace(cell.tectonicPlate.index);
-                }
-            });
-
-//            addEventListener(MouseEvent.MOUSE_MOVE, function (event:MouseEvent):void {
-//                layer1.graphics.clear();
-//
-//                var p:Point = new Point(event.stageX, event.stageY);
-//                var size:int = 50;
-//                var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
-//                var arr:Array = map.quadTree.query(range);
-//                for each (p in arr) {
-//                    var cell:Cell = map.getCellByPoint(p);
-//                    if (cell) {
-//                        drawDot(layer1.graphics, p, Color.yellow, 2);
-//                    }
-//                }
-//
-//                layer1.graphics.lineStyle(1, Color.red);
-//                layer1.graphics.drawRect(range.x, range.y, range.width, range.height);
-//            });
+            addEventListener(MouseEvent.RIGHT_CLICK,
+                    function (event:MouseEvent):void {
+                        createNewMap();
+                    });
+            addEventListener(MouseEvent.CLICK,
+                    function (event:MouseEvent):void {
+                        layer1.graphics.clear();
+                        var p:Point = new Point(event.localX,
+                                event.localY);
+                        var size:int = 40;
+                        var range:Rectangle = new Rectangle(p.x - size / 2,
+                                p.y - size / 2,
+                                size,
+                                size);
+                        var cell:Cell = map.getCellByPoint(Util.closestPoint(p,
+                                map.quadTree.query(range)));
+                        if (cell) {
+                            trace(cell.tectonicPlate.index);
+                            drawDot(layer1.graphics,
+                                    cell.tectonicPlate.cells[0].point,
+                                    Color.black,
+                                    5);
+                        }
+                    });
         }
 
         private function createNewMap():void {
             var d:Date = new Date();
-
-            map = new Map(1600, 1000, seed++);
+            map = new Map(1600,
+                    1000,
+                    seed++);
             lithosphere = new Lithosphere(map);
             draw();
-
-            Util.log("Total time taken: " + Util.secondsSince(d));
+            Util.log("Total time taken: " + "  " + Util.secondsSince(d));
         }
 
         private function draw():void {
             layer1.graphics.clear();
-
             var g:Graphics = layer0.graphics;
-
             g.clear();
             g.lineStyle();
             g.beginFill(Color.black);
-            g.drawRect(0, 0, map.width, map.height);
+            g.drawRect(0,
+                    0,
+                    map.width,
+                    map.height);
             g.endFill();
-
             for each (var cell:Cell in map.cells) {
-                if (cell.tectonicPlate)
-//                    fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.OCEANIC ? 0xff0000 : 0xffff00);
-                    fillCell(g, cell, cell.tectonicPlate.color);
-//                if (cell.tectonicPlateBorder)
-//                    drawDot(g, cell.point, Color.black, 3);
+                if (cell.tectonicPlate) {
+                    fillCell(g,
+                            cell,
+                            cell.tectonicPlate.type == TectonicPlate.OCEANIC ? 0xff0000 : 0xffff00);
+                }
 
-//                for each (var corner:Corner in cell.corners)
-//                    drawDot(g, corner.point, corner.border ? Color.yellow : Color.green, 3);
+                fillCell(g,
+                        cell,
+                        cell.tectonicPlate.color);
+
+                if (cell.tectonicPlateBorder) {
+                    //					drawDot(g,
+                    //							cell.point,
+                    //							Color.black,
+                    //							3);
+                }
 
                 for each (var edge:Edge in cell.edges) {
-                    if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
+                    if (edge.v0 && edge.v1) {
+                        drawLine(g,
+                                edge.v0.point,
+                                edge.v1.point,
+                                Color.black);
+                    }
                 }
-
                 for each (edge in cell.edges) {
-//                    if (edge.d0 && edge.d1)
-//                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
+                    //                    if (edge.d0 && edge.d1)
+                    //                        drawLine(g, edge.d0.point, edge.d1.point, Color.red);
                 }
-            }
-
-            for each (var p:Point in map.bindingPointsLeft.concat(map.bindingPointsRight)) {
-                drawDot(g, p, Color.black, 5);
-                drawDot(g, p, Color.white, 3);
-            }
-
-            for each (p in map.borderPoints) {
-                drawDot(g, p, Color.red, 2);
             }
 
             // Center
@@ -128,29 +119,45 @@
             layer1.y = (height - map.height) / 2;
         }
 
-        private function fillCell(g:Graphics, cell:Cell, color:uint):void {
+        private function fillCell(g:Graphics,
+                                  cell:Cell,
+                                  color:uint):void {
             // Draw a filled cell
             g.beginFill(color);
             for each (var edge:Edge in cell.edges) {
                 if (edge.v0 && edge.v1) {
-                    g.moveTo(edge.v0.point.x, edge.v0.point.y);
-                    g.lineTo(cell.point.x, cell.point.y);
-                    g.lineTo(edge.v1.point.x, edge.v1.point.y);
+                    g.moveTo(edge.v0.point.x,
+                            edge.v0.point.y);
+                    g.lineTo(cell.point.x,
+                            cell.point.y);
+                    g.lineTo(edge.v1.point.x,
+                            edge.v1.point.y);
                 }
             }
             g.endFill();
         }
 
-        private function drawDot(g:Graphics, point:Point, color:uint, size:int):void {
+        private function drawDot(g:Graphics,
+                                 point:Point,
+                                 color:uint,
+                                 size:int):void {
             g.beginFill(color);
-            g.drawCircle(point.x, point.y, size);
+            g.drawCircle(point.x,
+                    point.y,
+                    size);
             g.endFill();
         }
 
-        private function drawLine(g:Graphics, point1:Point, point2:Point, color:uint):void {
-            g.lineStyle(1, color);
-            g.moveTo(point1.x, point1.y);
-            g.lineTo(point2.x, point2.y);
+        private function drawLine(g:Graphics,
+                                  point1:Point,
+                                  point2:Point,
+                                  color:uint):void {
+            g.lineStyle(1,
+                    color);
+            g.moveTo(point1.x,
+                    point1.y);
+            g.lineTo(point2.x,
+                    point2.y);
             g.lineStyle();
         }
         ]]>

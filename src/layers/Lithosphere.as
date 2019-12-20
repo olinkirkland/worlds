@@ -6,6 +6,7 @@ package layers {
     import util.Rand;
     import util.Util;
 
+
     public class Lithosphere {
         private static var tectonicPowerImbalance:int = 0;
 
@@ -15,16 +16,16 @@ package layers {
         public var tectonicPlates:Object = {};
         public var totalArea:Number;
 
+
         public function Lithosphere(map:Map) {
             this.map = map;
             rand = new Rand(map.rand.seed);
 
-            var t:Date = new Date();
-            Util.log("Making lithosphere...");
-            pickStartingCells(rand.between(10, 15));
+            pickStartingCells(rand.between(10,
+                    15));
             expandPlates();
-            Util.log(Util.secondsSince(t));
         }
+
 
         private function pickStartingCells(plateCount:int):void {
             for (var i:int = 0; i < plateCount; i++) {
@@ -39,21 +40,28 @@ package layers {
             }
         }
 
+
         private function expandPlates():void {
+            var n:int = 1;
             for each (var tectonicPlate:TectonicPlate in tectonicPlates) {
+                var t:Date = new Date();
+                Util.log("> Making tectonic plate (" + (n++) + ")...");
+
                 map.unuseCells();
                 var queue:Vector.<Cell> = new Vector.<Cell>();
                 // There's only one cell in here right now
-                if (tectonicPlate.cells.length > 0)
+                if (tectonicPlate.cells.length > 0) {
                     queue.push(tectonicPlate.cells[0]);
+                }
 
                 while (queue.length > 0) {
                     var cell:Cell = queue.shift();
                     for each (var neighbor:Cell in cell.neighbors) {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower) {
                             neighbor.tectonicPlatePower = cell.tectonicPlatePower - (rand.next() > .5 ? rand.next() * 10 : 0);
-                            if (neighbor.tectonicPlate)
+                            if (neighbor.tectonicPlate) {
                                 neighbor.tectonicPlate.removeCell(neighbor);
+                            }
 
                             tectonicPlate.addCell(neighbor);
                             queue.push(neighbor);
@@ -61,36 +69,47 @@ package layers {
                         }
                     }
                 }
+
+                Util.log("  " + Util.secondsSince(t));
             }
 
             // Ensure there are no tectonic plate fragments
-            if (false)
-            while (getPlateFragments().length > 0) {
+            var pass:int = 0;
+            do {
                 var fragments:Vector.<Cell> = getPlateFragments();
-                do {
-                    for (var i:int = 0; i < fragments.length; i++) {
-                        cell = fragments[i];
-                        for each (neighbor in cell.neighbors) {
-                            if (cell.tectonicPlate != neighbor.tectonicPlate) {
-                                cell.tectonicPlate.removeCell(cell);
-                                neighbor.tectonicPlate.addCell(cell);
-                                fragments.removeAt(i--);
-                                break;
-                            }
+
+                t = new Date();
+                Util.log("> Removing tectonic fragments (" + fragments.length + ")...");
+
+                for (var i:int = 0; i < fragments.length; i++) {
+                    cell = fragments[i];
+                    var neighbors:Vector.<Cell> = cell.neighbors.concat();
+                    while (neighbors.length > 0) {
+                        neighbor = Cell(neighbors.removeAt(int(rand.next() * neighbors.length)));
+                        if (cell.tectonicPlate != neighbor.tectonicPlate) {
+                            cell.tectonicPlate.removeCell(cell);
+                            neighbor.tectonicPlate.addCell(cell);
+                            fragments.removeAt(i--);
+                            break;
                         }
                     }
-                } while (fragments.length > 0)
-            }
+                }
+                pass++;
+                Util.log("  " + Util.secondsSince(t));
+            } while (getPlateFragments().length > 0 && pass < 10);
 
             // Determine the tectonic plate borders
-            for each (cell in map.cells) {
-                for each (neighbor in cell.neighbors) {
+            t = new Date();
+            Util.log("> Determining tectonic plate borders...");
+            for each (cell in map.cells)
+                for each (neighbor in cell.neighbors)
                     if (cell.tectonicPlate != neighbor.tectonicPlate)
                         cell.tectonicPlateBorder = true;
-                }
-            }
+            Util.log("  " + Util.secondsSince(t));
 
             // Calculate the area for each tectonic plate
+            t = new Date();
+            Util.log("> Calculating tectonic plate area...");
             totalArea = 0;
             for each (tectonicPlate in tectonicPlates) {
                 tectonicPlate.calculateArea();
@@ -99,8 +118,11 @@ package layers {
 
             for each (tectonicPlate in tectonicPlates)
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
+            Util.log("  " + Util.secondsSince(t));
 
             // Set plates to either oceanic or continental
+            t = new Date();
+            Util.log("> Determining tectonic plate types...");
             var platesArray:Array = Util.objectToArray(tectonicPlates);
             platesArray.sortOn("area");
             var currentAreaPercent:Number = 0;
@@ -108,6 +130,7 @@ package layers {
                 tectonicPlate.type = currentAreaPercent < .3 ? TectonicPlate.CONTINENTAL : TectonicPlate.OCEANIC;
                 currentAreaPercent += tectonicPlate.areaPercent;
             }
+            Util.log("  " + Util.secondsSince(t));
         }
 
 
