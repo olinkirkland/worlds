@@ -33,6 +33,7 @@ package {
 
         // Associative Mapping
         private var cellsByPoints:Object;
+        public var borderPoints:Array = [];
         public var bindingPointsLeft:Array = [];
         public var bindingPointsRight:Array = [];
 
@@ -62,6 +63,10 @@ package {
             }
 
             return null;
+        }
+
+        public function getCellByPoint(p:Point):Cell {
+            return cellsByPoints[JSON.stringify(p)];
         }
 
         private function makeModel():void {
@@ -178,6 +183,10 @@ package {
                         break;
                     }
                 }
+
+                if (bindingPointsLeft.indexOf(cell.point)) {
+
+                }
             }
 
             Util.log(Util.secondsSince(d));
@@ -204,10 +213,6 @@ package {
                 cell.calculateArea();
 
             Util.log(Util.secondsSince(d));
-        }
-
-        public function getCellByPoint(p:Point):Cell {
-            return cellsByPoints[JSON.stringify(p)];
         }
 
         private function setupEdge(edge:Edge):void {
@@ -276,6 +281,8 @@ package {
             // The minimum distance between each point
             var m:Number = 20;
 
+            makeBorderAndBindingPoints(m);
+
             // The active point queue
             var queue:Vector.<Point> = new Vector.<Point>();
 
@@ -321,10 +328,41 @@ package {
             Util.log(points.length + " points");
 
             Util.log(Util.secondsSince(d));
+        }
 
-            function addPoint(p:Point):void {
-                points.push(p);
-                quadTree.insert(p);
+        private function addPoint(p:Point):void {
+            points.push(p);
+            quadTree.insert(p);
+        }
+
+        private function makeBorderAndBindingPoints(m:Number):void {
+            var p:Point;
+
+            // Make the border points
+            // Top and Bottom
+            p = new Point(m, m);
+            while (p.x < bounds.width) {
+                borderPoints.push(p);
+                addPoint(p);
+
+                p = new Point(p.x, bounds.height - m);
+                borderPoints.push(p);
+                addPoint(p);
+
+                p = new Point(p.x + m, m);
+            }
+
+            // Left and Right
+            p = new Point(m, 2 * m);
+            while (p.y < bounds.height - m) {
+                borderPoints.push(p);
+                addPoint(p);
+
+                p = new Point(bounds.width - m, p.y);
+                borderPoints.push(p);
+                addPoint(p);
+
+                p = new Point(p.x, p.y + m);
             }
         }
     }

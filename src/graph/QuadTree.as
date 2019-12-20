@@ -32,19 +32,19 @@ package graph {
             return found;
         }
 
-        public function insert(point:Point):Boolean {
-            if (!bounds.contains(point.x, point.y))
+        public function insert(p:Point):Boolean {
+            if (!bounds.contains(p.x, p.y))
                 return false;
 
-            if (!this.point && quads.length == 0) {
-                this.point = point;
+            if (!point && quads.length == 0) {
+                point = p;
             } else {
                 if (!divided)
                     divide();
 
                 // Send this point to the child quads
                 for each (var q:QuadTree in quads)
-                    if (q.insert(point))
+                    if (q.insert(p))
                         return true;
             }
 

@@ -64,6 +64,7 @@ package layers {
             }
 
             // Ensure there are no tectonic plate fragments
+            if (false)
             while (getPlateFragments().length > 0) {
                 var fragments:Vector.<Cell> = getPlateFragments();
                 do {

@@ -73,7 +73,7 @@
         private function createNewMap():void {
             var d:Date = new Date();
 
-            map = new Map(1500, 1000, seed++);
+            map = new Map(1600, 1000, seed++);
             lithosphere = new Lithosphere(map);
             draw();
 
@@ -112,16 +112,20 @@
                 }
             }
 
-            for each (var p:Point in map.bindingPointsLeft.concat(map.bindingPointsRight))
-                drawDot(g, p, Color.black, 3);
+            for each (var p:Point in map.bindingPointsLeft.concat(map.bindingPointsRight)) {
+                drawDot(g, p, Color.black, 5);
+                drawDot(g, p, Color.white, 3);
+            }
+
+            for each (p in map.borderPoints) {
+                drawDot(g, p, Color.red, 2);
+            }
 
             // Center
-
             layer0.x = (width - map.width) / 2;
             layer0.y = (height - map.height) / 2;
             layer1.x = (width - map.width) / 2;
             layer1.y = (height - map.height) / 2;
-
         }
 
         private function fillCell(g:Graphics, cell:Cell, color:uint):void {
