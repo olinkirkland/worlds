@@ -8,37 +8,50 @@
 
     <fx:Script>
         <![CDATA[
+        import global.Color;
+        import global.Util;
+
         import graph.Cell;
         import graph.Edge;
 
-        import layers.Lithosphere;
         import layers.TectonicPlate;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
 
-        import global.Color;
-        import global.Util;
-
-
         public static var map:Map;
-        public static var lithosphere:Lithosphere;
-        private var layer0:UIComponent;
-        private var layer1:UIComponent;
+
         private var seed:int = 1;
+        private var seaLevel:Number = .3;
+
+        private var layerOutlines:UIComponent;
+        private var layerTectonicPlates:UIComponent;
+        private var layerHeightMap:UIComponent;
+        private var layerOcean:UIComponent;
 
         public function onApplicationComplete(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
             setTimeout(createNewMap, 100);
 
-            layer0 = new UIComponent();
-            addElement(layer0);
-            layer1 = new UIComponent();
-            addElement(layer1);
+            // Set up layers
+            layerOutlines = new UIComponent();
+            layerTectonicPlates = new UIComponent();
+            layerHeightMap = new UIComponent();
+            layerOcean = new UIComponent();
 
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerOcean, layerOutlines];
+            for each (var layer:UIComponent in drawLayers)
+                addElement(layer);
+
+            // Interactivity
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-
             addEventListener(MouseEvent.CLICK, onClick);
+        }
+
+        private function draw():void {
+            drawOutlines();
+            drawTectonicPlates();
+            drawColorHeightMap();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -47,92 +60,101 @@
                     createNewMap();
                     break;
                 case Keyboard.Q:
-                    drawTectonicPlatesByColor();
+                    toggleLayer(layerOutlines);
                     break;
                 case Keyboard.W:
-                    drawTectonicPlatesByType();
+                    toggleLayer(layerHeightMap);
                     break;
                 case Keyboard.E:
-                    drawHeightMap();
+                    toggleLayer(layerTectonicPlates);
+                    break;
+                case Keyboard.R:
+                    toggleLayer(layerOcean);
                     break;
                 default:
                     break;
             }
         }
 
+        private function toggleLayer(layer:UIComponent):void {
+            layer.visible = !layer.visible;
+        }
+
         private function onClick(event:MouseEvent):void {
-            layer1.graphics.clear();
+            layerOcean.graphics.clear();
             var p:Point = new Point(event.localX, event.localY);
             var size:int = 40;
             var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
             var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
+            if (!cell)
+                return;
 
-            var str:String = "Cell " + cell.index;
-            for each (var neighbor:Cell in cell.neighbors) {
-                if (cell.tectonicPlate != neighbor.tectonicPlate) {
-                    var edge:Edge = cell.sharedEdge(neighbor);
-                    if (edge) {
-                        var edgeAngle:int = Util.angleBetweenTwoPoints(edge.d0.point, edge.d1.point);
-                        var angleToEdge:int = Util.angleBetweenTwoPoints(cell.point, neighbor.point);
-                        var difference:int = Util.differenceBetweenTwoDegrees(edgeAngle, angleToEdge);
-                        str += "\nEdge (" + edge.d0.point.x + "," + edge.d0.point.y + "),(" + edge.d1.point.x + "," + edge.d1.point.y + ")";
-                        str += "\nedgeAngle=" + edgeAngle + " ### angleToEdge=" + angleToEdge + " ### difference=" + difference;
-                    }
-                }
-            }
-
-            trace(str);
+            trace(cell.height);
         }
 
         private function createNewMap():void {
             var d:Date = new Date();
             map = new Map(1600, 1000, seed++);
-
-            lithosphere = new Lithosphere(map);
-            drawTectonicPlatesByColor();
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
+
+            draw();
         }
 
         private function drawHeightMap():void {
-            var g:Graphics = layer0.graphics;
+            var g:Graphics = layerHeightMap.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells) {
+                fillCell(g, cell, Util.colorBetweenColors(Color.black, Color.white, cell.height));
+
+                for each (var edge:Edge in cell.edges)
+                    if (edge.v0 && edge.v1)
+                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
+            }
+        }
+
+        private function drawColorHeightMap():void {
+            var g:Graphics = layerHeightMap.graphics;
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.green, cell.height));
+                fillCell(g, cell, colorFromHeightMap(cell.height));
         }
 
-        private function drawTectonicPlatesByColor():void {
-            var g:Graphics = layer0.graphics;
+        private function colorFromHeightMap(height:Number):uint {
+            var colors:Array = [Color.darkBlue, Color.blue, Color.green, Color.yellow, Color.orange, Color.red];
+
+            var preciseIndex:Number = (colors.length - 1) * height;
+            var index:int = Math.floor(preciseIndex);
+
+            var color:uint = colors[index];
+            if (index < colors.length - 1)
+                color = Util.colorBetweenColors(colors[index], colors[index + 1], preciseIndex - index);
+
+            return color;
+        }
+
+        private function drawOutlines():void {
+            var g:Graphics = layerOutlines.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                for each (var edge:Edge in cell.edges)
+                    if (edge.v0 && edge.v1)
+                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
+        }
+
+        private function drawTectonicPlates():void {
+            var g:Graphics = layerTectonicPlates.graphics;
             g.clear();
 
             for each (var cell:Cell in map.cells) {
                 if (cell.tectonicPlate)
                     fillCell(g, cell, cell.tectonicPlate.color);
 
-                for each (var edge:Edge in cell.edges)
-                    if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
-
                 // Draw tectonic plate direction
                 if (cell.tectonicPlateBorder)
-                    drawPointer(g, cell.point, cell.tectonicPlateDirection);
-            }
-        }
-
-        private function drawTectonicPlatesByType():void {
-            var g:Graphics = layer0.graphics;
-            g.clear();
-
-            for each (var cell:Cell in map.cells) {
-                if (cell.tectonicPlate)
-                    fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.OCEANIC ? Color.blue : Color.green);
-
-                for each (var edge:Edge in cell.edges)
-                    if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
-
-                // Draw tectonic plate direction
-                drawPointer(g, cell.point, cell.tectonicPlateDirection);
+                    drawPointer(g, cell.point, cell.tectonicPlateDirection, Color.black);
             }
         }
 
@@ -162,10 +184,10 @@
             g.lineStyle();
         }
 
-        private function drawPointer(g:Graphics, point:Point, direction:Number):void {
+        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint):void {
             // Draw pointer
-            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction - 90), 6);
-            g.lineStyle(1, Color.black);
+            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), 6);
+            g.lineStyle(2, color);
             g.beginFill(Color.white);
             g.drawCircle(point.x, point.y, 4);
             g.endFill();

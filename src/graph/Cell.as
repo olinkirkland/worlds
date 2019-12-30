@@ -8,7 +8,7 @@ package graph {
         public var used:Boolean;
 
         // Properties
-        public var height:Number = 0;
+        public var height:Number;
 
         // Graph
         public var point:Point;
@@ -21,7 +21,7 @@ package graph {
         public var tectonicPlate:TectonicPlate;
         public var tectonicPlatePower:Number = Number.NEGATIVE_INFINITY;
         public var tectonicPlateBorder:Boolean;
-        
+
         public function Cell() {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();

@@ -2,9 +2,14 @@ package {
     import com.nodename.delaunay.Voronoi;
     import com.nodename.geom.Segment;
 
+    import flash.display.BitmapData;
+    import flash.display.BitmapDataChannel;
+
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
+
+    import global.Color;
 
     import global.Global;
 
@@ -12,6 +17,9 @@ package {
 
     import global.Rand;
     import global.Util;
+
+    import layers.Lithosphere;
+    import layers.TectonicPlate;
 
 
     public class Map {
@@ -28,6 +36,9 @@ package {
         // Quadtree
         public var quadTree:QuadTree;
         private var bounds:Rectangle;
+
+        // Controllers
+        public var lithosphere:Lithosphere;
 
         // Associative Mapping
         private var cellsByPoints:Object;
@@ -52,6 +63,84 @@ package {
 
             makePoints();
             makeModel();
+
+            lithosphere = new Lithosphere(this);
+            addPerlinNoiseToHeightMap();
+
+            smoothHeightMap();
+        }
+
+        private function addPerlinNoiseToHeightMap():void {
+            var d:Date = new Date();
+            Util.log("> Adding Perlin noise to height map...");
+
+            var bmpd:BitmapData = new BitmapData(width, height);
+            var seed:uint = Global.rand.seed;
+            bmpd.perlinNoise(bmpd.width, bmpd.height, 6, seed, true, false, BitmapDataChannel.GREEN, true);
+
+            var i:int, j:int;
+
+            var perlin:Array = [];
+            for (i = 0; i < bmpd.width; i++) {
+                perlin.push([]);
+                for (j = 0; j < bmpd.height; j++)
+                    perlin[i][j] = bmpd.getPixel(i, j);
+            }
+
+            var min:int = Number.POSITIVE_INFINITY;
+            var max:int = Number.NEGATIVE_INFINITY;
+            for (i = 0; i < perlin.length; i++) {
+                for (j = 0; j < perlin[0].length; j++) {
+                    var p:uint = perlin[i][j];
+                    if (p < min) min = p;
+                    if (p > max) max = p;
+                }
+            }
+
+            max -= min;
+
+            for (i = 0; i < perlin.length; i++) {
+                for (j = 0; j < perlin[0].length; j++) {
+                    perlin[i][j] -= min;
+                    perlin[i][j] /= max;
+                }
+            }
+
+            var perlinModifier:Number = .1;
+            for each (var cell:Cell in cells)
+                cell.height += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
+
+            Util.log("  " + Util.secondsSince(d));
+        }
+
+        private function smoothHeightMap():void {
+            var d:Date = new Date();
+            Util.log("> Smoothing height map...");
+
+            // Limit cell heights
+            for each (var cell:Cell in cells) {
+                if (cell.height < 0)
+                    cell.height = 0;
+                if (cell.height > 1)
+                    cell.height = 1;
+            }
+
+            for (var i:int = 0; i < 3; i++) {
+                for each (cell in cells) {
+                    var averageHeight:Number = 0;
+                    for each (var neighbor:Cell in cell.neighbors)
+                        averageHeight += neighbor.height;
+
+                    for (var j:int = 0; j < (cell.tectonicPlateBorder ? 3 : 1); j++)
+                        averageHeight += cell.height;
+
+
+                    averageHeight /= cell.neighbors.length + j;
+                    cell.height = averageHeight;
+                }
+            }
+
+            Util.log("  " + Util.secondsSince(d));
         }
 
 

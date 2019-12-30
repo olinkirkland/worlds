@@ -107,13 +107,6 @@ package layers {
                 }
             }
 
-            for each (cell in borderCells) {
-                // Determine the cell's height based on its neighbors
-                var changedHeight:Number = 0;
-            }
-
-            Util.log("  " + Util.secondsSince(t));
-
             // Calculate the area for each tectonic plate
             t = new Date();
             Util.log("> Calculating tectonic plate area...");
@@ -122,21 +115,59 @@ package layers {
                 tectonicPlate.calculateArea();
                 totalArea += tectonicPlate.area;
             }
-
             for each (tectonicPlate in tectonicPlates)
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
-
             Util.log("  " + Util.secondsSince(t));
 
             // Set plates to either oceanic or continental
             t = new Date();
-            Util.log("> Determining tectonic plate types...");
+            Util.log("> Determining tectonic plate types and setting their heights...");
             var platesArray:Array = Util.toArray(tectonicPlates);
             platesArray.sortOn("area");
             var currentAreaPercent:Number = 0;
             for each (tectonicPlate in platesArray) {
                 tectonicPlate.type = currentAreaPercent < .3 ? TectonicPlate.CONTINENTAL : TectonicPlate.OCEANIC;
                 currentAreaPercent += tectonicPlate.areaPercent;
+            }
+
+            for each (tectonicPlate in platesArray) {
+
+                var height:Number = 0;
+                if (tectonicPlate.type == TectonicPlate.CONTINENTAL)
+                    height = Global.rand.between(.3, .5);
+                else if (tectonicPlate.type == TectonicPlate.OCEANIC)
+                    height = Global.rand.between(.1, .3);
+                for each(cell in tectonicPlate.cells)
+                    cell.height = height;
+            }
+            Util.log("  " + Util.secondsSince(t));
+
+            // Set initial heights for borders
+            // Cells pointing toward an edge will create a mountain
+            // Cells pointing away from an edge will create a trench
+            t = new Date();
+            Util.log("> Setting initial heights for tectonic plate borders...");
+            for each (cell in borderCells) {
+                // Determine the cell's height based on its neighbors
+                var changedHeight:Number = 0;
+                var margin:int = 45;
+                for each (neighbor in cell.neighbors) {
+                    if (cell.tectonicPlate != neighbor.tectonicPlate) {
+                        var edge:Edge = cell.sharedEdge(neighbor);
+                        if (edge) {
+                            var degreesToNeighbor:int = Util.degreesBetweenTwoPoints(cell.point, neighbor.point);
+                            var difference:int = Util.differenceBetweenTwoDegrees(cell.tectonicPlateDirection, degreesToNeighbor);
+                            if (difference > 360 - margin || difference < 0 + margin) {
+                                cell.height = 1;
+                                break;
+                            }
+                            if (difference > 180 - margin && difference < 180 + margin) {
+                                cell.height = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             Util.log("  " + Util.secondsSince(t));
         }

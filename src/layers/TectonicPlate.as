@@ -33,7 +33,6 @@ package layers {
             color = Global.rand.next() * 0xffffff;
 
             direction = Global.rand.between(0, 360);
-            trace("dir=" + direction);
         }
 
         public function addCell(cell:Cell):void {

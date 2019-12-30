@@ -53,8 +53,8 @@ package global {
             return (r << 16 | g << 8 | b);
         }
 
-        public static function angleBetweenTwoPoints(p1:Point, p2:Point):Number {
-            return radiansToDegrees(Math.atan((p2.x - p1.x) / (p2.y - p1.y)));
+        public static function degreesBetweenTwoPoints(p1:Point, p2:Point):Number {
+            return radiansToDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
         }
 
 
@@ -63,7 +63,7 @@ package global {
         }
 
         public static function radiansToDegrees(value:Number):Number {
-            return value * 180 / Math.PI
+            return value * 180 / Math.PI;
         }
 
         public static function degreesToRadians(value:Number):Number {
