@@ -1,4 +1,4 @@
-package util {
+package global {
     public class Rand {
         public var seed:Number;
         private const max:Number = 1 / int.MAX_VALUE;

@@ -1,8 +1,13 @@
 package layers {
+    import flash.geom.Point;
+    import flash.geom.Rectangle;
+
+    import global.Global;
+
     import graph.Cell;
 
-    import util.Rand;
-    import util.Util;
+    import global.Rand;
+    import global.Util;
 
     public class TectonicPlate {
         // Types
@@ -11,17 +16,24 @@ package layers {
 
         // Properties
         public var index:int;
+        public var bounds:Rectangle;
+        public var centroid:Point;
         public var type:String;
         public var color:uint;
         public var cells:Vector.<Cell>;
         public var area:Number;
         public var areaPercent:Number;
+        public var direction:int;
 
         public function TectonicPlate(index:int):void {
             this.index = index;
-            color = new Rand(index * 99).next() * 0xffffff;
 
             cells = new Vector.<Cell>();
+
+            color = Global.rand.next() * 0xffffff;
+
+            direction = Global.rand.between(0, 360);
+            trace("dir=" + direction);
         }
 
         public function addCell(cell:Cell):void {

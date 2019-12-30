@@ -66,10 +66,10 @@
         <minimizable>false</minimizable>
 
         <!-- Whether the user can maximize the window. Optional. Default true. -->
-        <maximizable>false</maximizable>
+        <maximizable>true</maximizable>
 
         <!-- Whether the user can resize the window. Optional. Default true. -->
-        <resizable>false</resizable>
+        <resizable>true</resizable>
 
         <!-- The window's initial width in pixels. Optional. -->
         <width>1920</width>
@@ -78,7 +78,7 @@
         <height>1080</height>
 
         <!-- The window's initial x position. Optional. -->
-        <!--<x></x>-->
+        <x>3840</x>
 
         <!-- The window's initial y position. Optional. -->
         <!--<y></y>-->

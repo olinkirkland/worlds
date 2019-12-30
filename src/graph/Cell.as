@@ -7,6 +7,9 @@ package graph {
         public var index:int;
         public var used:Boolean;
 
+        // Properties
+        public var height:Number = 0;
+
         // Graph
         public var point:Point;
         public var neighbors:Vector.<Cell>;
@@ -18,11 +21,15 @@ package graph {
         public var tectonicPlate:TectonicPlate;
         public var tectonicPlatePower:Number = Number.NEGATIVE_INFINITY;
         public var tectonicPlateBorder:Boolean;
-
+        
         public function Cell() {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+        }
+
+        public function get tectonicPlateDirection():int {
+            return tectonicPlate.direction;
         }
 
         public function calculateArea():void {
@@ -42,6 +49,16 @@ package graph {
             }
 
             area = Number(area.toFixed(2));
+        }
+
+        public function sharedEdge(neighbor:Cell):Edge {
+            for each (var edge:Edge in edges) {
+                if (edge.d0 == neighbor || edge.d1 == neighbor) {
+                    return edge;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -1,27 +1,23 @@
 package layers {
     import flash.utils.Dictionary;
 
-    import graph.Cell;
+    import global.Global;
+    import global.Util;
 
-    import util.Rand;
-    import util.Util;
-
+    import graph.*;
 
     public class Lithosphere {
         private static var tectonicPowerImbalance:int = 0;
 
-        private var rand:Rand;
         private var map:Map;
 
         public var tectonicPlates:Object = {};
         public var totalArea:Number;
 
-
         public function Lithosphere(map:Map) {
             this.map = map;
-            rand = new Rand(map.rand.seed);
 
-            pickStartingCells(rand.between(10,
+            pickStartingCells(Global.rand.between(10,
                     15));
             expandPlates();
         }
@@ -29,13 +25,13 @@ package layers {
 
         private function pickStartingCells(plateCount:int):void {
             for (var i:int = 0; i < plateCount; i++) {
-                var cell:Cell = map.cells[int(rand.next() * map.cells.length)];
+                var cell:Cell = map.cells[int(Global.rand.next() * map.cells.length)];
 
                 if (!cell.tectonicPlate) {
                     var t:TectonicPlate = new TectonicPlate(i);
                     tectonicPlates[t.index] = t;
                     t.addCell(cell);
-                    cell.tectonicPlatePower = rand.next() * tectonicPowerImbalance;
+                    cell.tectonicPlatePower = Global.rand.next() * tectonicPowerImbalance;
                 }
             }
         }
@@ -58,7 +54,7 @@ package layers {
                     var cell:Cell = queue.shift();
                     for each (var neighbor:Cell in cell.neighbors) {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower) {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (rand.next() > .5 ? rand.next() * 10 : 0);
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Global.rand.next() > .5 ? Global.rand.next() * 10 : 0);
                             if (neighbor.tectonicPlate) {
                                 neighbor.tectonicPlate.removeCell(neighbor);
                             }
@@ -85,7 +81,7 @@ package layers {
                     cell = fragments[i];
                     var neighbors:Vector.<Cell> = cell.neighbors.concat();
                     while (neighbors.length > 0) {
-                        neighbor = Cell(neighbors.removeAt(int(rand.next() * neighbors.length)));
+                        neighbor = Cell(neighbors.removeAt(int(Global.rand.next() * neighbors.length)));
                         if (cell.tectonicPlate != neighbor.tectonicPlate) {
                             cell.tectonicPlate.removeCell(cell);
                             neighbor.tectonicPlate.addCell(cell);
@@ -101,10 +97,21 @@ package layers {
             // Determine the tectonic plate borders
             t = new Date();
             Util.log("> Determining tectonic plate borders...");
-            for each (cell in map.cells)
-                for each (neighbor in cell.neighbors)
-                    if (cell.tectonicPlate != neighbor.tectonicPlate)
+            var borderCells:Vector.<Cell> = new Vector.<Cell>();
+            for each (cell in map.cells) {
+                for each (neighbor in cell.neighbors) {
+                    if (cell.tectonicPlate != neighbor.tectonicPlate) {
                         cell.tectonicPlateBorder = true;
+                        borderCells.push(cell);
+                    }
+                }
+            }
+
+            for each (cell in borderCells) {
+                // Determine the cell's height based on its neighbors
+                var changedHeight:Number = 0;
+            }
+
             Util.log("  " + Util.secondsSince(t));
 
             // Calculate the area for each tectonic plate
@@ -118,12 +125,13 @@ package layers {
 
             for each (tectonicPlate in tectonicPlates)
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
+
             Util.log("  " + Util.secondsSince(t));
 
             // Set plates to either oceanic or continental
             t = new Date();
             Util.log("> Determining tectonic plate types...");
-            var platesArray:Array = Util.objectToArray(tectonicPlates);
+            var platesArray:Array = Util.toArray(tectonicPlates);
             platesArray.sortOn("area");
             var currentAreaPercent:Number = 0;
             for each (tectonicPlate in platesArray) {
