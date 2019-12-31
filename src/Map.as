@@ -46,6 +46,9 @@ package {
         public var leftWrapPoints:Array = [];
         public var rightWrapPoints:Array = [];
 
+        // Properties
+        public var seaLevel:Number = .3;
+
 
         public function Map(width:int,
                             height:int,
@@ -66,8 +69,45 @@ package {
 
             lithosphere = new Lithosphere(this);
             addPerlinNoiseToHeightMap();
-
             smoothHeightMap();
+
+            determineOcean();
+        }
+
+        private function determineOcean():void {
+            var d:Date = new Date();
+            Util.log("> Filling ocean with water...");
+
+            // Determine biggest tectonic plate
+            var biggestTectonicPlate:TectonicPlate;
+            for each (var tectonicPlate:TectonicPlate in lithosphere.tectonicPlates)
+                if (!biggestTectonicPlate || tectonicPlate.area > biggestTectonicPlate.area)
+                    biggestTectonicPlate = tectonicPlate;
+
+            // Find lowest cell on plate
+            var lowestCell:Cell;
+            for each (var cell:Cell in biggestTectonicPlate.cells)
+                if (!lowestCell || cell.height < lowestCell.height)
+                    lowestCell = cell;
+
+            unuseCells();
+
+            var queue:Vector.<Cell> = new Vector.<Cell>();
+            cell = lowestCell;
+            cell.used = true;
+            queue.push(cell);
+            while (queue.length > 0) {
+                cell = queue.shift();
+                cell.ocean = true;
+
+                for each (var neighbor:Cell in cell.neighbors)
+                    if (!neighbor.used && neighbor.height < seaLevel) {
+                        neighbor.used = true;
+                        queue.push(neighbor);
+                    }
+            }
+
+            Util.log("  " + Util.secondsSince(d));
         }
 
         private function addPerlinNoiseToHeightMap():void {

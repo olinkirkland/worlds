@@ -22,24 +22,25 @@
         public static var map:Map;
 
         private var seed:int = 1;
-        private var seaLevel:Number = .3;
 
         private var layerOutlines:UIComponent;
         private var layerTectonicPlates:UIComponent;
         private var layerHeightMap:UIComponent;
         private var layerOcean:UIComponent;
+        private var layerRelief:UIComponent;
 
         public function onApplicationComplete(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
-            setTimeout(createNewMap, 100);
+            setTimeout(makeNewMap, 100);
 
             // Set up layers
             layerOutlines = new UIComponent();
             layerTectonicPlates = new UIComponent();
             layerHeightMap = new UIComponent();
             layerOcean = new UIComponent();
+            layerRelief = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerOcean, layerOutlines];
+            var drawLayers:Array = [layerRelief, layerTectonicPlates, layerHeightMap, layerOcean, layerOutlines];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
@@ -52,12 +53,14 @@
             drawOutlines();
             drawTectonicPlates();
             drawColorHeightMap();
+            drawOcean();
+            drawRelief();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
             switch (event.keyCode) {
                 case Keyboard.N:
-                    createNewMap();
+                    makeNewMap();
                     break;
                 case Keyboard.Q:
                     toggleLayer(layerOutlines);
@@ -71,6 +74,9 @@
                 case Keyboard.R:
                     toggleLayer(layerOcean);
                     break;
+                case Keyboard.T:
+                    toggleLayer(layerRelief);
+                    break;
                 default:
                     break;
             }
@@ -81,7 +87,6 @@
         }
 
         private function onClick(event:MouseEvent):void {
-            layerOcean.graphics.clear();
             var p:Point = new Point(event.localX, event.localY);
             var size:int = 40;
             var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
@@ -89,10 +94,10 @@
             if (!cell)
                 return;
 
-            trace(cell.height);
+            trace("@cell " + cell.index + ", cell.height=" + cell.height);
         }
 
-        private function createNewMap():void {
+        private function makeNewMap():void {
             var d:Date = new Date();
             map = new Map(1600, 1000, seed++);
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
@@ -100,16 +105,43 @@
             draw();
         }
 
-        private function drawHeightMap():void {
-            var g:Graphics = layerHeightMap.graphics;
+        private function drawOcean():void {
+            var g:Graphics = layerOcean.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                fillCell(g, cell, (cell.ocean ? Color.blue : Color.green));
+        }
+
+        private function drawRelief():void {
+            var g:Graphics = layerRelief.graphics;
             g.clear();
 
             for each (var cell:Cell in map.cells) {
-                fillCell(g, cell, Util.colorBetweenColors(Color.black, Color.white, cell.height));
+                // Create triangles
+                var triangles:Array = [];
+                for each (var edge:Edge in cell.edges) {
+                    var triangle:Object = {points: [edge.v0.point, edge.v1.point, cell.point]};
+                    triangle.color = Color.random;
 
-                for each (var edge:Edge in cell.edges)
-                    if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
+                    // Todo
+                    // Determine the slope of the triangle's Z side
+                    // For steeper slopes, the relief should be more intense
+                    // For softer slopes, the relief should be very minimal
+                    // Choose a direction of light
+                    // If light is coming from the top left, the bottom right relief will be darker (shadow)
+                    // OPT: and the top left will be bright (illumination)?
+
+                    triangles.push(triangle);
+                }
+
+                for each (triangle in triangles) {
+                    g.beginFill(triangle.color);
+                    g.moveTo(triangle.points[0].x, triangle.points[0].y);
+                    g.lineTo(triangle.points[1].x, triangle.points[1].y);
+                    g.lineTo(triangle.points[2].x, triangle.points[2].y);
+                    g.endFill();
+                }
             }
         }
 

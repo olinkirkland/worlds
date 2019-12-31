@@ -8,7 +8,10 @@ package graph {
         public var used:Boolean;
 
         // Properties
-        public var height:Number;
+        public var height:Number = 0;
+
+        // Flags
+        public var ocean:Boolean = false;
 
         // Graph
         public var point:Point;
@@ -26,6 +29,16 @@ package graph {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+        }
+
+        public function reset():void {
+            used = false;
+            height = 0;
+            ocean = false;
+
+            tectonicPlate = null;
+            tectonicPlatePower = Number.NEGATIVE_INFINITY;
+            tectonicPlateBorder = false;
         }
 
         public function get tectonicPlateDirection():int {
