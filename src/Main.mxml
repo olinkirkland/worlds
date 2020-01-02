@@ -142,7 +142,7 @@
             for each (var cell:Cell in map.cells) {
                 // Create triangles
                 for each (var edge:Edge in cell.edges) {
-                    g.beginFill(Color.black, calculateLighting(cell, edge.v0, edge.v1));
+                    g.beginFill(Color.black, calculateLighting(cell, edge.v0, edge.v1) * .8);
                     g.moveTo(cell.point.x, cell.point.y);
                     g.lineTo(edge.v0.point.x, edge.v0.point.y);
                     g.lineTo(edge.v1.point.x, edge.v1.point.y);
