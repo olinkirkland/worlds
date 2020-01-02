@@ -12,12 +12,15 @@
         import global.Util;
 
         import graph.Cell;
+        import graph.Corner;
         import graph.Edge;
 
         import layers.TectonicPlate;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
+
+        import spark.filters.BlurFilter;
 
         public static var map:Map;
 
@@ -26,21 +29,25 @@
         private var layerOutlines:UIComponent;
         private var layerTectonicPlates:UIComponent;
         private var layerHeightMap:UIComponent;
-        private var layerOcean:UIComponent;
+        private var layerContinents:UIComponent;
         private var layerRelief:UIComponent;
+        private var layerOcean:UIComponent;
 
         public function onApplicationComplete(event:FlexEvent):void {
-            NativeApplication.nativeApplication.activeWindow.maximize();
-            setTimeout(makeNewMap, 100);
+            setTimeout(function ():void {
+                NativeApplication.nativeApplication.activeWindow.maximize();
+                setTimeout(makeNewMap, 100);
+            }, 100);
 
             // Set up layers
             layerOutlines = new UIComponent();
             layerTectonicPlates = new UIComponent();
             layerHeightMap = new UIComponent();
-            layerOcean = new UIComponent();
+            layerContinents = new UIComponent();
             layerRelief = new UIComponent();
+            layerOcean = new UIComponent();
 
-            var drawLayers:Array = [layerRelief, layerTectonicPlates, layerHeightMap, layerOcean, layerOutlines];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerOutlines];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
@@ -53,8 +60,9 @@
             drawOutlines();
             drawTectonicPlates();
             drawColorHeightMap();
-            drawOcean();
+            drawContinents();
             drawRelief();
+            drawOcean();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -66,16 +74,19 @@
                     toggleLayer(layerOutlines);
                     break;
                 case Keyboard.W:
-                    toggleLayer(layerHeightMap);
+                    toggleLayer(layerRelief);
                     break;
                 case Keyboard.E:
-                    toggleLayer(layerTectonicPlates);
+                    toggleLayer(layerContinents);
                     break;
                 case Keyboard.R:
                     toggleLayer(layerOcean);
                     break;
                 case Keyboard.T:
-                    toggleLayer(layerRelief);
+                    toggleLayer(layerHeightMap);
+                    break;
+                case Keyboard.Y:
+                    toggleLayer(layerTectonicPlates);
                     break;
                 default:
                     break;
@@ -99,10 +110,19 @@
 
         private function makeNewMap():void {
             var d:Date = new Date();
-            map = new Map(1600, 1000, seed++);
+            map = new Map(1200, 600, seed++);
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
 
             draw();
+        }
+
+        private function drawContinents():void {
+            var g:Graphics = layerContinents.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                if (!cell.ocean)
+                    fillCell(g, cell, Color.green);
         }
 
         private function drawOcean():void {
@@ -110,8 +130,10 @@
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, (cell.ocean ? Color.blue : Color.green));
+                if (cell.ocean)
+                    fillCell(g, cell, Color.blue);
         }
+
 
         private function drawRelief():void {
             var g:Graphics = layerRelief.graphics;
@@ -119,28 +141,60 @@
 
             for each (var cell:Cell in map.cells) {
                 // Create triangles
-                var triangles:Array = [];
                 for each (var edge:Edge in cell.edges) {
-                    var triangle:Object = {points: [edge.v0.point, edge.v1.point, cell.point]};
-                    triangle.color = Color.random;
-
-                    // Todo
-                    // Determine the slope of the triangle's Z side
-                    // For steeper slopes, the relief should be more intense
-                    // For softer slopes, the relief should be very minimal
-                    // Choose a direction of light
-                    // If light is coming from the top left, the bottom right relief will be darker (shadow)
-                    // OPT: and the top left will be bright (illumination)?
-
-                    triangles.push(triangle);
-                }
-
-                for each (triangle in triangles) {
-                    g.beginFill(triangle.color);
-                    g.moveTo(triangle.points[0].x, triangle.points[0].y);
-                    g.lineTo(triangle.points[1].x, triangle.points[1].y);
-                    g.lineTo(triangle.points[2].x, triangle.points[2].y);
+                    g.beginFill(Color.black, calculateLighting(cell, edge.v0, edge.v1));
+                    g.moveTo(cell.point.x, cell.point.y);
+                    g.lineTo(edge.v0.point.x, edge.v0.point.y);
+                    g.lineTo(edge.v1.point.x, edge.v1.point.y);
                     g.endFill();
+                }
+            }
+        }
+
+        public function calculateLighting(p:Cell, r:Corner, s:Corner):Number {
+            var lightVector:Vector3D = new Vector3D(-1, -1, 0);
+            var A:Vector3D = new Vector3D(p.point.x, p.point.y, p.height);
+            var B:Vector3D = new Vector3D(r.point.x, r.point.y, r.height);
+            var C:Vector3D = new Vector3D(s.point.x, s.point.y, s.height);
+            var normal:Vector3D = B.subtract(A).crossProduct(C.subtract(A));
+            if (normal.z < 0)
+                normal.scaleBy(-1);
+            normal.normalize();
+            var light:Number = 0.5 + 35 * normal.dotProduct(lightVector);
+            if (light < 0) light = 0;
+            if (light > 1) light = 1;
+            return light;
+        }
+
+        private function drawReliefOld2():void {
+            var g:Graphics = layerRelief.graphics;
+            g.clear();
+
+            for each (var edge:Edge in map.edges) {
+                // Create quad
+                var quadPoints:Array = [];
+                if (edge.d0 && edge.d1 && edge.v0 && edge.v1) {
+                    quadPoints.push(edge.d0.point, edge.v0.point, edge.d1.point, edge.v1.point);
+
+                    // Determine the quad's slope
+                    var cell:Cell = map.getCellByPoint(edge.d0.point);
+                    var neighbor:Cell = map.getCellByPoint(edge.d1.point);
+
+                    var slope:Number = 200 * (neighbor.height - cell.height) / Util.getDistanceBetweenTwoPoints(cell.point, neighbor.point);
+                    slope = Math.abs(slope);
+
+                    // Determine the aspect of the quad (which direction it's facing)
+                    var aspect:Number = Util.degreesBetweenTwoPoints(cell.point, neighbor.point);
+                    if (aspect < 0) aspect += 360;
+                    aspect = (Util.differenceBetweenTwoDegrees(aspect, 235));
+
+                    if (aspect > 140 && slope > .5 && !neighbor.ocean) {
+                        g.beginFill(Color.black, .6);
+                        g.moveTo(quadPoints[0].x, quadPoints[0].y);
+                        for (var i:int = 1; i < quadPoints.length; i++)
+                            g.lineTo(quadPoints[i].x, quadPoints[i].y);
+                        g.endFill();
+                    }
                 }
             }
         }
@@ -190,9 +244,9 @@
             }
         }
 
-        private function fillCell(g:Graphics, cell:Cell, color:uint):void {
+        private function fillCell(g:Graphics, cell:Cell, color:uint, alpha:Number = 1):void {
             // Draw a filled cell
-            g.beginFill(color);
+            g.beginFill(color, alpha);
             for each (var edge:Edge in cell.edges) {
                 if (edge.v0 && edge.v1) {
                     g.moveTo(edge.v0.point.x, edge.v0.point.y);

@@ -53,6 +53,10 @@ package global {
             return (r << 16 | g << 8 | b);
         }
 
+        public static function getDistanceBetweenTwoPoints(point1:Point, point2:Point):Number {
+            return Math.sqrt((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
+        }
+
         public static function degreesBetweenTwoPoints(p1:Point, p2:Point):Number {
             return radiansToDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
         }
