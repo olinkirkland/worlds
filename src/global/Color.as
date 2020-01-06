@@ -11,7 +11,6 @@ package global {
         public static const blue:uint = 0x1e90ff;
         public static const darkBlue:uint = 0x00008b;
 
-
         private static var all:Array = [red, green, yellow, blue];
 
         public static function get random():uint {

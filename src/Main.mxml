@@ -152,7 +152,7 @@
         }
 
         public function calculateLighting(p:Cell, r:Corner, s:Corner):Number {
-            var lightVector:Vector3D = new Vector3D(-1, -1, 0);
+            var lightVector:Vector3D = new Vector3D(1, 1, 0);
             var A:Vector3D = new Vector3D(p.point.x, p.point.y, p.height);
             var B:Vector3D = new Vector3D(r.point.x, r.point.y, r.height);
             var C:Vector3D = new Vector3D(s.point.x, s.point.y, s.height);
@@ -164,39 +164,6 @@
             if (light < 0) light = 0;
             if (light > 1) light = 1;
             return light;
-        }
-
-        private function drawReliefOld2():void {
-            var g:Graphics = layerRelief.graphics;
-            g.clear();
-
-            for each (var edge:Edge in map.edges) {
-                // Create quad
-                var quadPoints:Array = [];
-                if (edge.d0 && edge.d1 && edge.v0 && edge.v1) {
-                    quadPoints.push(edge.d0.point, edge.v0.point, edge.d1.point, edge.v1.point);
-
-                    // Determine the quad's slope
-                    var cell:Cell = map.getCellByPoint(edge.d0.point);
-                    var neighbor:Cell = map.getCellByPoint(edge.d1.point);
-
-                    var slope:Number = 200 * (neighbor.height - cell.height) / Util.getDistanceBetweenTwoPoints(cell.point, neighbor.point);
-                    slope = Math.abs(slope);
-
-                    // Determine the aspect of the quad (which direction it's facing)
-                    var aspect:Number = Util.degreesBetweenTwoPoints(cell.point, neighbor.point);
-                    if (aspect < 0) aspect += 360;
-                    aspect = (Util.differenceBetweenTwoDegrees(aspect, 235));
-
-                    if (aspect > 140 && slope > .5 && !neighbor.ocean) {
-                        g.beginFill(Color.black, .6);
-                        g.moveTo(quadPoints[0].x, quadPoints[0].y);
-                        for (var i:int = 1; i < quadPoints.length; i++)
-                            g.lineTo(quadPoints[i].x, quadPoints[i].y);
-                        g.endFill();
-                    }
-                }
-            }
         }
 
         private function drawColorHeightMap():void {

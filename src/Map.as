@@ -71,7 +71,9 @@ public class Map {
         addPerlinNoiseToHeightMap();
         smoothHeightMap();
         determineOcean();
-        addHeightToCorners();
+        stretchHeightMap();
+
+        setCornerHeights();
     }
 
     private function determineOcean():void {
@@ -146,7 +148,7 @@ public class Map {
             }
         }
 
-        var perlinModifier:Number = .1;
+        var perlinModifier:Number = .3;
         for each (var cell:Cell in cells)
             cell.height += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
 
@@ -183,7 +185,21 @@ public class Map {
         Util.log("  " + Util.secondsSince(d));
     }
 
-    public function addHeightToCorners():void {
+    private function stretchHeightMap():void {
+        var d:Date = new Date();
+        Util.log("> Stretching height...");
+
+        var tallest:Number = Number.NEGATIVE_INFINITY;
+        for each (var cell:Cell in cells)
+            if (cell.height > tallest)
+                    tallest = cell.height;
+        for each (cell in cells)
+            cell.height /= tallest;
+
+        Util.log("  " + Util.secondsSince(d));
+    }
+
+    public function setCornerHeights():void {
         var d:Date = new Date();
         Util.log("> Assigning heights to corners...");
 
@@ -488,7 +504,7 @@ public class Map {
         quadTree = new QuadTree(bounds);
 
         // The minimum distance between each point
-        var m:Number = 12;
+        var m:Number = 6;
 
         // Size of the left wrap
         var leftWrapWidth:Number = m * 6;
