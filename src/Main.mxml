@@ -16,6 +16,7 @@
         import graph.Edge;
 
         import layers.TectonicPlate;
+        import layers.WindParticle;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -32,6 +33,7 @@
         private var layerContinents:UIComponent;
         private var layerRelief:UIComponent;
         private var layerOcean:UIComponent;
+        private var layerWind:UIComponent;
 
         public function onApplicationComplete(event:FlexEvent):void {
             setTimeout(function ():void {
@@ -46,10 +48,18 @@
             layerContinents = new UIComponent();
             layerRelief = new UIComponent();
             layerOcean = new UIComponent();
+            layerWind = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerOutlines];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
+
+            // Initial layers
+            var initialLayers:Array = [layerWind, layerContinents];
+            for each (layer in drawLayers)
+                layer.visible = false;
+            for each (layer in initialLayers)
+                layer.visible = true;
 
             // Interactivity
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -63,6 +73,7 @@
             drawContinents();
             drawRelief();
             drawOcean();
+            drawWind();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -87,6 +98,9 @@
                     break;
                 case Keyboard.Y:
                     toggleLayer(layerTectonicPlates);
+                    break;
+                case Keyboard.U:
+                    toggleLayer(layerWind);
                     break;
                 default:
                     break;
@@ -132,6 +146,14 @@
             for each (var cell:Cell in map.cells)
                 if (cell.ocean)
                     fillCell(g, cell, Color.blue);
+        }
+
+        private function drawWind():void {
+            var g:Graphics = layerWind.graphics;
+            g.clear();
+
+            for each (var w:WindParticle in map.wind.windParticles)
+                drawPointer(g, w.point, w.direction, Color.red);
         }
 
 
@@ -239,12 +261,12 @@
 
         private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint):void {
             // Draw pointer
-            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), 6);
             g.lineStyle(2, color);
-            g.beginFill(Color.white);
-            g.drawCircle(point.x, point.y, 4);
+            g.beginFill(color);
+            g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);
+            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), 6);
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }

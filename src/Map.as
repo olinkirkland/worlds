@@ -20,9 +20,10 @@ import global.Util;
 
 import layers.Lithosphere;
 import layers.TectonicPlate;
+    import layers.Wind;
 
 
-public class Map {
+    public class Map {
     public var seed:int;
     public var width:int;
     public var height:int;
@@ -39,6 +40,7 @@ public class Map {
 
     // Controllers
     public var lithosphere:Lithosphere;
+    public var wind:Wind;
 
     // Associative Mapping
     private var cellsByPoints:Object;
@@ -68,12 +70,14 @@ public class Map {
         makeModel();
 
         lithosphere = new Lithosphere(this);
+
         addPerlinNoiseToHeightMap();
         smoothHeightMap();
         determineOcean();
-        stretchHeightMap();
-
+        //stretchHeightMap();
         setCornerHeights();
+
+        wind = new Wind(this);
     }
 
     private function determineOcean():void {
