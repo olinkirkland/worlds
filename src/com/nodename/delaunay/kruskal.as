@@ -15,7 +15,7 @@ package com.nodename.delaunay {
 
         switch (myType) {
                 // note that the compare functions are the reverse of what you'd expect
-                // because (see below) we traverse the lineSegments in reverse order for strength
+                // because (see below) we traverse the lineSegments in reverse order for speed
             case "maximum":
                 lineSegments.sort(Segment.compareLengths);
                 break;
@@ -85,7 +85,7 @@ function find(node:Node):Node {
         return node;
     } else {
         var root:Node = find(node.parent);
-        // this line is just to strength up subsequent finds by keeping the trees depth low:
+        // this line is just to speed up subsequent finds by keeping the trees depth low:
         node.parent = root;
         return root;
     }

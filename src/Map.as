@@ -92,7 +92,7 @@ package {
 
         private function determineWind():void {
             var d:Date = new Date();
-            Util.log("> Simulating wind...");
+            Util.log("> Calculating wind...");
             wind = new Wind(this);
 
             Util.log("  " + Util.secondsSince(d));

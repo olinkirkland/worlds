@@ -89,7 +89,6 @@
             drawRelief();
             drawOcean();
             drawWind();
-            drawDebug();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -133,13 +132,10 @@
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
-            var size:int = 40;
-            var range:Rectangle = new Rectangle(p.x - size / 2, p.y - size / 2, size, size);
-            var cell:Cell = map.getCellByPoint(Util.closestPoint(p, map.quadTree.query(range)));
-            if (!cell)
-                return;
-
-            trace("@cell " + cell.index + ", cell.height=" + cell.height);
+            var w:AirParticle = map.wind.getClosestAirParticle(p);
+//            layerDebug.graphics.clear();
+//            drawDot(layerDebug.graphics, w.point, Color.blue, 5);
+            trace(w.speed, w.direction);
         }
 
         private function makeMap():void {
@@ -171,15 +167,7 @@
             g.clear();
 
             for each (var w:AirParticle in map.wind.airParticles)
-                drawPointer(g, w.point, w.direction, Color.red, w.strength);
-        }
-
-        private function drawDebug():void {
-            var g:Graphics = layerDebug.graphics;
-            g.clear();
-
-            g.lineStyle(1, Color.orange);
-            g.drawRect(0, 0, map.width, map.height);
+                drawPointer(g, w.point, w.direction, Util.colorBetweenColors(Color.blue, Color.white, w.speed), w.speed * 10);
         }
 
 
