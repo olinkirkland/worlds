@@ -27,6 +27,7 @@
 
         private var seed:int = 1;
 
+        private var layerDebug:UIComponent;
         private var layerOutlines:UIComponent;
         private var layerTectonicPlates:UIComponent;
         private var layerHeightMap:UIComponent;
@@ -38,9 +39,11 @@
         public function onApplicationComplete(event:FlexEvent):void {
             setTimeout(function ():void {
                 NativeApplication.nativeApplication.activeWindow.maximize();
-                setTimeout(makeNewMap, 100);
+                setTimeout(onMaximized, 100);
             }, 100);
+        }
 
+        public function onMaximized():void {
             // Set up layers
             layerOutlines = new UIComponent();
             layerTectonicPlates = new UIComponent();
@@ -49,17 +52,29 @@
             layerRelief = new UIComponent();
             layerOcean = new UIComponent();
             layerWind = new UIComponent();
+            layerDebug = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerContinents];
+            //var initialLayers:Array = [layerWind, layerContinents, layerOutlines, layerDebug];
+            var initialLayers:Array = [layerTectonicPlates, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
             for each (layer in initialLayers)
                 layer.visible = true;
+
+            // Make Map
+            makeMap();
+            draw();
+
+            // Center
+            for each (layer in drawLayers) {
+                layer.x = (width - map.width) / 2;
+                layer.y = (height - map.height) / 2;
+            }
 
             // Interactivity
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
@@ -74,12 +89,17 @@
             drawRelief();
             drawOcean();
             drawWind();
+            drawDebug();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
             switch (event.keyCode) {
-                case Keyboard.N:
-                    makeNewMap();
+                case Keyboard.SPACE:
+                    toggleLayer(layerDebug);
+                    break;
+                case Keyboard.ENTER:
+                    makeMap();
+                    draw();
                     break;
                 case Keyboard.Q:
                     toggleLayer(layerOutlines);
@@ -122,12 +142,10 @@
             trace("@cell " + cell.index + ", cell.height=" + cell.height);
         }
 
-        private function makeNewMap():void {
+        private function makeMap():void {
             var d:Date = new Date();
             map = new Map(1200, 600, seed++);
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
-
-            draw();
         }
 
         private function drawContinents():void {
@@ -145,7 +163,7 @@
 
             for each (var cell:Cell in map.cells)
                 if (cell.ocean)
-                    fillCell(g, cell, Color.blue);
+                    fillCell(g, cell, Color.blue, .6);
         }
 
         private function drawWind():void {
@@ -154,6 +172,14 @@
 
             for each (var w:WindParticle in map.wind.windParticles)
                 drawPointer(g, w.point, w.direction, Color.red);
+        }
+
+        private function drawDebug():void {
+            var g:Graphics = layerDebug.graphics;
+            g.clear();
+
+            g.lineStyle(1, Color.orange);
+            g.drawRect(0, 0, map.width, map.height);
         }
 
 
