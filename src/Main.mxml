@@ -16,7 +16,7 @@
         import graph.Edge;
 
         import layers.TectonicPlate;
-        import layers.WindParticle;
+        import layers.AirParticle;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -59,7 +59,7 @@
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerDebug];
+            var initialLayers:Array = [layerWind, layerDebug, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -170,12 +170,8 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            for each (var w:WindParticle in map.wind.windParticles) {
-                var color:uint = Util.colorBetweenColors(Color.white, Color.red, w.speed / 100);
-                if (w.from)
-                    drawLine(g, w.point, w.from.point, color);
-                drawPointer(g, w.point, w.direction, color);
-            }
+            for each (var w:AirParticle in map.wind.airParticles)
+                drawPointer(g, w.point, w.direction, Color.red, w.strength);
         }
 
         private function drawDebug():void {
@@ -292,14 +288,14 @@
             g.lineStyle();
         }
 
-        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint):void {
+        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint, distance:Number = 7):void {
             // Draw pointer
             g.lineStyle(2, color);
             g.beginFill(color);
             g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);
-            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), 6);
+            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), distance);
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }
