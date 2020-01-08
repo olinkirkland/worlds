@@ -25,7 +25,7 @@ package {
 
     public class Map {
         // Constants
-        private const spacing:Number = 6;
+        private const spacing:Number = 10;
 
         // Properties
         public var seed:int;
@@ -40,7 +40,7 @@ package {
 
         // Quadtree
         public var quadTree:QuadTree;
-        private var bounds:Rectangle;
+        public var bounds:Rectangle;
 
         // Controllers
         public var lithosphere:Lithosphere;
@@ -85,8 +85,17 @@ package {
             setCornerHeights();
 
             this.width -= (leftWrapWidth - 2 * spacing);
+            bounds.width = this.width;
 
+            determineWind();
+        }
+
+        private function determineWind():void {
+            var d:Date = new Date();
+            Util.log("> Simulating wind...");
             wind = new Wind(this);
+
+            Util.log("  " + Util.secondsSince(d));
         }
 
         private function determineOcean():void {

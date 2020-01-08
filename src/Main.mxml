@@ -40,7 +40,7 @@
             setTimeout(function ():void {
                 NativeApplication.nativeApplication.activeWindow.maximize();
                 setTimeout(onMaximized, 100);
-            }, 100);
+            }, 200);
         }
 
         public function onMaximized():void {
@@ -59,8 +59,8 @@
                 addElement(layer);
 
             // Initial layers
-            //var initialLayers:Array = [layerWind, layerContinents, layerOutlines, layerDebug];
-            var initialLayers:Array = [layerTectonicPlates, layerDebug];
+            var initialLayers:Array = [layerWind, layerDebug];
+            //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
             for each (layer in initialLayers)
@@ -170,8 +170,12 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            for each (var w:WindParticle in map.wind.windParticles)
-                drawPointer(g, w.point, w.direction, Color.red);
+            for each (var w:WindParticle in map.wind.windParticles) {
+                var color:uint = Util.colorBetweenColors(Color.white, Color.red, w.speed / 100);
+                if (w.from)
+                    drawLine(g, w.point, w.from.point, color);
+                drawPointer(g, w.point, w.direction, color);
+            }
         }
 
         private function drawDebug():void {
@@ -201,16 +205,19 @@
 
         public function calculateLighting(p:Cell, r:Corner, s:Corner):Number {
             var lightVector:Vector3D = new Vector3D(1, 1, 0);
-            var A:Vector3D = new Vector3D(p.point.x, p.point.y, p.height);
-            var B:Vector3D = new Vector3D(r.point.x, r.point.y, r.height);
-            var C:Vector3D = new Vector3D(s.point.x, s.point.y, s.height);
-            var normal:Vector3D = B.subtract(A).crossProduct(C.subtract(A));
+            var a:Vector3D = new Vector3D(p.point.x, p.point.y, p.height);
+            var b:Vector3D = new Vector3D(r.point.x, r.point.y, r.height);
+            var c:Vector3D = new Vector3D(s.point.x, s.point.y, s.height);
+
+            var normal:Vector3D = b.subtract(a).crossProduct(c.subtract(a));
             if (normal.z < 0)
                 normal.scaleBy(-1);
             normal.normalize();
+
             var light:Number = 0.5 + 35 * normal.dotProduct(lightVector);
             if (light < 0) light = 0;
-            if (light > 1) light = 1;
+            else if (light > 1) light = 1;
+
             return light;
         }
 

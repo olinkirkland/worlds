@@ -61,7 +61,6 @@ package global {
             return radiansToDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
         }
 
-
         public static function differenceBetweenTwoDegrees(d1:Number, d2:Number):Number {
             return Math.abs((d1 + 180 - d2) % 360 - 180);
         }

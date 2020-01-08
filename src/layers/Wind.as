@@ -1,6 +1,8 @@
 package layers {
     import flash.geom.Point;
 
+    import global.Direction;
+
     public class Wind {
         private var map:Map;
 
@@ -13,10 +15,21 @@ package layers {
 
             windParticles = new Vector.<WindParticle>();
             // Spawn starting wind particles on the top and bottom of the map pointing toward the center
-            for (var i:int = horizontalSpacing; i < map.width; i += horizontalSpacing) {
-                for (var j:int = verticalSpacing; j < map.height; j += verticalSpacing) {
-                    var w:WindParticle = new WindParticle(new Point(i, j), 90);
-                    windParticles.push(w);
+            var w:WindParticle;
+            //for (var i:int = horizontalSpacing; i < map.width; i += horizontalSpacing) {
+            // Polar
+            windParticles.push(new WindParticle(new Point(map.width / 2, map.height / 2), Direction.SOUTH, 100, 1));
+            //windParticles.push(new WindParticle(new Point(i, map.height - verticalSpacing), Direction.NORTH, 100, 2));
+            //}
+
+            var queue:Vector.<WindParticle> = windParticles.concat();
+            while (queue.length > 0) {
+                w = queue.pop();
+                var v:WindParticle = w.step();
+                //map.bounds.contains(v.point.x, v.point.y) &&
+                if (v.speed > .2) {
+                    windParticles.push(v);
+                    queue.push(v);
                 }
             }
         }
