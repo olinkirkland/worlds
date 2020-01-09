@@ -15,13 +15,8 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.TectonicPlate;
-        import layers.AirParticle;
-
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
-
-        import spark.filters.BlurFilter;
 
         public static var map:Map;
 
