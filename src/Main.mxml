@@ -132,10 +132,10 @@
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
-            var w:AirParticle = map.wind.getClosestAirParticle(p);
+            //var w:AirParticle = map.wind.getClosestAirParticle(p);
 //            layerDebug.graphics.clear();
 //            drawDot(layerDebug.graphics, w.point, Color.blue, 5);
-            trace(w.speed, w.direction);
+            //trace(w.speed, w.direction);
         }
 
         private function makeMap():void {
@@ -166,8 +166,8 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            for each (var w:AirParticle in map.wind.airParticles)
-                drawPointer(g, w.point, w.direction, Util.colorBetweenColors(Color.blue, Color.white, w.speed), w.speed * 10);
+//            for each (var w:AirParticle in map.wind.airParticles)
+//                drawPointer(g, w.point, w.direction, Util.colorBetweenColors(Color.blue, Color.white, w.speed), w.speed * 10);
         }
 
 
@@ -283,7 +283,7 @@
             g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);
-            var head:Point = Util.pointFromAngleAndDistance(point, Util.degreesToRadians(direction), distance);
+            var head:Point = Util.pointFromDegreesAndDistance(point, direction, distance);
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }

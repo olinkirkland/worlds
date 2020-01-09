@@ -73,8 +73,9 @@ package global {
             return value * Math.PI / 180
         }
 
-        public static function pointFromAngleAndDistance(point:Point, angle:Number, distance:Number):Point {
-            return new Point(point.x + Math.cos(angle) * distance, point.y + Math.sin(angle) * distance);
+        public static function pointFromDegreesAndDistance(point:Point, degrees:Number, distance:Number):Point {
+            var radians:Number = degreesToRadians(degrees);
+            return new Point(point.x + Math.cos(radians) * distance, point.y + Math.sin(radians) * distance);
         }
     }
 }

@@ -34,6 +34,10 @@ package graph {
             return found;
         }
 
+        public function queryFromPoint(point:Point, diameter:Number):Array {
+            return query(new Rectangle(point.x - diameter / 2, point.y - diameter / 2, diameter, diameter));
+        }
+
 
         public function insert(p:Point):Boolean {
             if (!bounds.contains(p.x, p.y))
