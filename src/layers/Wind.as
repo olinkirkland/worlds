@@ -1,6 +1,8 @@
 package layers {
     import flash.geom.Point;
 
+    import global.Direction;
+
     import graph.Cell;
 
 
@@ -16,11 +18,10 @@ package layers {
             hexes = [];
             grid = [[]];
 
-            var radius:Number = 15;
-
-            var offset:Point = new Point(15, 30);
-            var width:int = (map.width) / (Math.sqrt(3) * radius);
-            var height:int = (map.height - 30) / (radius * 2 * 0.75);
+            var radius:Number = 50;
+            var offset:Point = new Point(30, 30);
+            var width:int = (map.width - 40) / (Math.sqrt(3) * radius);
+            var height:int = (map.height - 40) / (radius * 2 * 0.75);
 
             for (var i:int = 0; i < width; i++) {
                 grid [i] = [];
@@ -32,7 +33,7 @@ package layers {
 
                     var p:Point = new Point(offset.x + x,
                             offset.y + y);
-                    var hex:WindCell = new WindCell(p,
+                    var hex:WindHex = new WindHex(p,
                             radius);
 
                     points.push(p);
@@ -43,7 +44,7 @@ package layers {
 
             for (i = 0; i < width; i++) {
                 for (j = 0; j < height; j++) {
-                    var h:WindCell = grid[i][j];
+                    var h:WindHex = grid[i][j];
                     var odd:Boolean = j % 2 == 1;
 
                     // E
@@ -114,27 +115,73 @@ package layers {
             }
 
             // Smoothing for hexes that don't have any points under them
-            /*for each (h in hexes) {
+            for each (h in hexes) {
                 if (h.height < 0) {
                     h.height = 0;
                     i = 0;
-                    for each (var n:WindCell in h.neighbors)
+                    for each (var n:WindHex in h.neighbors)
                         if (n.height >= 0) {
                             h.height += n.height;
                             i++;
                         }
                     h.height /= i;
                 }
-            }*/
+            }
 
-            for each (h in hexes) {
-                h.angle = 90;
-                h.strength = 5;
+            applyInitialWinds();
+        }
+
+        private function applyInitialWinds():void {
+            /**
+             * Apply Initial Winds
+             */
+
+            var queue:Array = [];
+
+            for (var i:int = 0; i < grid.length; i++) {
+                for (var j:int = 0; j < grid[i].length; j++) {
+                    var h:WindHex = grid[i][j];
+                    // Default
+                    h.angle = Direction.SOUTH;
+                    h.strength = 0;
+
+                    // North Polar Wind
+                    if (j == 0) {
+                        queue.push(h);
+                        h.angle = Direction.SOUTH;
+                        h.strength = 20;
+                    }
+
+                    // South Polar Wind
+//                    if (j == grid[i].length - 1) {
+//                        queue.push(h);
+//                        h.angle = Direction.NORTH;
+//                        h.strength = 20;
+//                    }
+                }
+            }
+
+            /**
+             * Propagate Wind
+             */
+
+            for each (h in hexes)
+                h.used = false;
+
+            i = 0;
+            while (queue.length > 0) {
+                h = queue.shift();
+                h.index = i++;
+                var targets:Array = h.propagate();
+                if (!h.used)
+                    queue = queue.concat(targets);
+
+                h.used = true;
             }
         }
 
-        public function hexFromPoint(p:Point):WindCell {
-            for each (var hex:WindCell in hexes) {
+        public function hexFromPoint(p:Point):WindHex {
+            for each (var hex:WindHex in hexes) {
                 if (hex.point.equals(p)) {
                     return hex;
                 }

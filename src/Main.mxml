@@ -15,7 +15,7 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.WindCell;
+        import layers.WindHex;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -56,7 +56,7 @@
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerDebug, layerContinents, layerOcean];
+            var initialLayers:Array = [layerWind, layerDebug];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -163,12 +163,9 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            for each (var hex:WindCell in map.wind.hexes) {
-//                g.lineStyle(1,
-//                        0x000000);
-//                g.drawCircle(hex.point.x,
-//                        hex.point.y,
-//                        3);
+            for each (var hex:WindHex in map.wind.hexes) {
+                g.lineStyle(1,
+                        0x000000);
                 g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
                 g.moveTo(hex.corners[hex.corners.length - 1].x,
                         hex.corners[hex.corners.length - 1].y);
@@ -178,7 +175,16 @@
                             corner.y);
                 }
 
-                drawPointer(g, hex.point, hex.angle, Color.black, hex.strength);
+                var txt:TextField = new TextField();
+                layerWind.addChild(txt);
+                txt.autoSize = TextFieldAutoSize.CENTER;
+                txt.width = txt.textWidth + 5;
+                txt.textColor = Color.green;
+                txt.text = "" + int(hex.strength * 100);
+                txt.x = hex.point.x - txt.width / 2;
+                txt.y = hex.point.y - txt.height * 1.5;
+
+                drawPointer(g, hex.point, hex.angle, Color.white, hex.strength);
                 g.endFill();
             }
         }

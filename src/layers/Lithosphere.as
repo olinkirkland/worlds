@@ -160,7 +160,7 @@ public class Lithosphere {
 
                     var edge:Edge = cell.sharedEdge(neighbor);
                     if (edge) {
-                        var degreesToNeighbor:int = Util.degreesBetweenTwoPoints(cell.point, neighbor.point);
+                        var degreesToNeighbor:int = Util.angleBetweenTwoPoints(cell.point, neighbor.point);
                         var difference:int = Util.differenceBetweenTwoDegrees(cell.tectonicPlateDirection, degreesToNeighbor);
                         if (difference > 360 - margin || difference < 0 + margin) {
                             cell.height = 1;

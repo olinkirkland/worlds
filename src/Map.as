@@ -109,9 +109,9 @@ package {
                     biggestTectonicPlate = tectonicPlate;
 
             // Find lowest cell on plate
-            var lowestCell:Cell;
+            var lowestCell:Cell = biggestTectonicPlate.cells[0];
             for each (var cell:Cell in biggestTectonicPlate.cells)
-                if (!lowestCell || cell.height < lowestCell.height)
+                if (cell.height < lowestCell.height)
                     lowestCell = cell;
 
             unuseCells();
