@@ -34,8 +34,8 @@ package graph {
             return found;
         }
 
-        public function queryFromPoint(point:Point, diameter:Number):Array {
-            return query(new Rectangle(point.x - diameter / 2, point.y - diameter / 2, diameter, diameter));
+        public function queryFromPoint(point:Point, radius:Number):Array {
+            return query(new Rectangle(point.x - radius, point.y - radius, radius*2, radius*2));
         }
 
 

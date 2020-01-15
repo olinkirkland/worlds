@@ -58,23 +58,23 @@ package global {
         }
 
         public static function degreesBetweenTwoPoints(p1:Point, p2:Point):Number {
-            return radiansToDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
+            return toDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
         }
 
         public static function differenceBetweenTwoDegrees(d1:Number, d2:Number):Number {
             return Math.abs((d1 + 180 - d2) % 360 - 180);
         }
 
-        public static function radiansToDegrees(value:Number):Number {
+        public static function toDegrees(value:Number):Number {
             return value * 180 / Math.PI;
         }
 
-        public static function degreesToRadians(value:Number):Number {
+        public static function toRadians(value:Number):Number {
             return value * Math.PI / 180
         }
 
         public static function pointFromDegreesAndDistance(point:Point, degrees:Number, distance:Number):Point {
-            var radians:Number = degreesToRadians(degrees);
+            var radians:Number = toRadians(degrees);
             return new Point(point.x + Math.cos(radians) * distance, point.y + Math.sin(radians) * distance);
         }
     }

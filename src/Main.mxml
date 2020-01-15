@@ -15,7 +15,7 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.WindNode;
+        import layers.WindCell;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -163,21 +163,23 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            for each (var hex:WindNode in map.wind.hexes) {
-                g.lineStyle(1,
-                        0x000000);
-                g.drawCircle(hex.point.x,
-                        hex.point.y,
-                        3);
+            for each (var hex:WindCell in map.wind.hexes) {
+//                g.lineStyle(1,
+//                        0x000000);
+//                g.drawCircle(hex.point.x,
+//                        hex.point.y,
+//                        3);
+                g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
                 g.moveTo(hex.corners[hex.corners.length - 1].x,
                         hex.corners[hex.corners.length - 1].y);
                 for (var i:int = 0; i < hex.corners.length; i++) {
                     var corner:Point = hex.corners[i];
                     g.lineTo(corner.x,
                             corner.y);
-                    g.moveTo(corner.x,
-                            corner.y);
                 }
+
+                drawPointer(g, hex.point, hex.angle, Color.black, hex.strength);
+                g.endFill();
             }
         }
 

@@ -2,18 +2,25 @@ package layers
 {
 	import flash.geom.Point;
 
+	import global.Util;
 
-	public class WindNode
+
+	public class WindCell
 	{
 		public var point : Point;
 		public var radius : Number;
+		public var height: Number;
+
+		public var angle: Number;
+		public var strength:Number;
 
 		public var corners : Array;
 		public var neighbors : Object;
 
 
-		public function WindNode(point : Point,
-                                 radius : Number)
+
+		public function WindCell(point : Point,
+								 radius : Number)
 		{
 			this.point  = point;
 			this.radius = radius;
@@ -41,7 +48,7 @@ package layers
 			                 point.y + radius * Math.sin(angle));
 		}
 
-		public function addNeighbor(hex : WindNode,
+		public function addNeighbor(hex : WindCell,
 		                            degrees : Number) : void
 		{
 			neighbors[degrees] = hex;
