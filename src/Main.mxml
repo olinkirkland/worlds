@@ -166,7 +166,8 @@
             for each (var hex:WindHex in map.wind.hexes) {
                 g.lineStyle(1,
                         0x000000);
-                g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
+                //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
+                g.beginFill(Color.darkBlue);
                 g.moveTo(hex.corners[hex.corners.length - 1].x,
                         hex.corners[hex.corners.length - 1].y);
                 for (var i:int = 0; i < hex.corners.length; i++) {

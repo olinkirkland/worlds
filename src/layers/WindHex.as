@@ -43,15 +43,15 @@ package layers {
                 targetAngle2 -= 360;
 
             var totalPortion:Number = Util.differenceBetweenTwoDegrees(targetAngle1, targetAngle2);
-            var targetPortion1:Number = Util.differenceBetweenTwoDegrees(targetAngle1, angle) / totalPortion * strength * .9;
-            var targetPortion2:Number = Util.differenceBetweenTwoDegrees(targetAngle2, angle) / totalPortion * strength * .9;
+            var targetPortion2:Number = Util.differenceBetweenTwoDegrees(targetAngle1, angle) / totalPortion * strength;
+            var targetPortion1:Number = Util.differenceBetweenTwoDegrees(targetAngle2, angle) / totalPortion * strength;
 
             if (strength < 0.1)
                 return [];
 
             var target1:WindHex = neighbors[String(targetAngle1)];
             if (target1)
-                target1.incomingForce(targetAngle1, targetPortion1);
+                target1.incomingForce(this, targetPortion1);
 
             var targets:Array = [];
             if (target1)
@@ -59,17 +59,21 @@ package layers {
 
             var target2:WindHex = neighbors[String(targetAngle2)];
             if (target2 && targetPortion2 > 0) {
-                target2.incomingForce(targetAngle2, targetPortion2);
+                target2.incomingForce(this, targetPortion2);
                 targets.push(target2);
             }
 
             return targets;
         }
 
-        public function incomingForce(incomingAngle:Number, incomingStrength:Number):void {
+        public function incomingForce(from:WindHex, incomingStrength:Number):void {
+            incomingStrength *= .9;
+
             // Combine the incoming force with the current one (vector sum)
             var origin:Point = new Point(0, 0);
             var destination:Point = Util.pointFromDegreesAndDistance(origin, angle, strength);
+            var incomingAngle:Number = Util.angleBetweenTwoPoints(from.point, point);
+
             var combinedDestination:Point = Util.pointFromDegreesAndDistance(destination, incomingAngle, incomingStrength);
             trace("angle: " + angle + ", strength: " + strength);
             angle = int(Util.angleBetweenTwoPoints(origin, combinedDestination));
