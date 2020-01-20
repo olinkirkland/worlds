@@ -1,4 +1,4 @@
-package layers {
+package layers.moisture {
     import flash.geom.Point;
     import flash.utils.setTimeout;
 
@@ -9,16 +9,14 @@ package layers {
 
     public class Wind {
         public var points:Array;
-        public var hexes:Array;
 
         private var grid:Array;
 
-        public var start:WindHex;
+        public var start:Gust;
 
 
         public function Wind(map:Map) {
             points = [];
-            hexes = [];
             grid = [[]];
 
             var radius:Number = 50;
@@ -36,7 +34,7 @@ package layers {
 
                     var p:Point = new Point(offset.x + x,
                             offset.y + y);
-                    var hex:WindHex = new WindHex(p,
+                    var hex:Gust = new Gust(p,
                             radius);
 
                     points.push(p);
@@ -47,7 +45,7 @@ package layers {
 
             for (i = 0; i < width; i++) {
                 for (j = 0; j < height; j++) {
-                    var h:WindHex = grid[i][j];
+                    var h:Gust = grid[i][j];
                     var odd:Boolean = j % 2 == 1;
 
                     // E
@@ -122,7 +120,7 @@ package layers {
                 if (h.height < 0) {
                     h.height = 0;
                     i = 0;
-                    for each (var n:WindHex in h.neighbors)
+                    for each (var n:Gust in h.neighbors)
                         if (n.height >= 0) {
                             h.height += n.height;
                             i++;
@@ -135,7 +133,7 @@ package layers {
         }
 
         public function reset():void {
-            for each (var h:WindHex in hexes)
+            for each (var h:Gust in hexes)
                 h.reset();
         }
 
@@ -148,7 +146,7 @@ package layers {
 
             for (var i:int = 0; i < grid.length; i++) {
                 for (var j:int = 0; j < grid[i].length; j++) {
-                    var h:WindHex = grid[i][j];
+                    var h:Gust = grid[i][j];
                     // Default
                     h.angle = Direction.SOUTH;
                     h.strength = 0;
@@ -177,7 +175,7 @@ package layers {
              * Propagate Wind
              */
 
-            for each (var h:WindHex in hexes)
+            for each (var h:Gust in hexes)
                 h.used = false;
 
             var i:int = 0;
@@ -189,7 +187,7 @@ package layers {
                 h.index = i++;
                 var targets:Array = h.propagate();
 
-                for each (var target:WindHex in targets) {
+                for each (var target:Gust in targets) {
                     var containsTarget:Boolean = false;
                     for each (h in queue) {
                         if (h == target) {
@@ -206,9 +204,9 @@ package layers {
             }
         }
 
-        public function closestHexToPoint(p:Point):WindHex {
-            var closest:WindHex = hexes[0];
-            for each (var h:WindHex in hexes) {
+        public function closestHexToPoint(p:Point):Gust {
+            var closest:Gust = hexes[0];
+            for each (var h:Gust in hexes) {
                 if (Point.distance(h.point, p) < Point.distance(closest.point, p))
                     closest = h;
             }
@@ -216,8 +214,8 @@ package layers {
             return closest;
         }
 
-        public function hexFromPoint(p:Point):WindHex {
-            for each (var h:WindHex in hexes) {
+        public function hexFromPoint(p:Point):Gust {
+            for each (var h:Gust in hexes) {
                 if (h.point.equals(p)) {
                     return h;
                 }

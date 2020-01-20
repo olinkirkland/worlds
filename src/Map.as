@@ -18,9 +18,9 @@ package {
     import global.Rand;
     import global.Util;
 
-    import layers.Lithosphere;
-    import layers.TectonicPlate;
-    import layers.Wind;
+    import layers.tectonics.Lithosphere;
+    import layers.tectonics.TectonicPlate;
+    import layers.moisture.Wind;
 
 
     public class Map {

@@ -1,4 +1,4 @@
-package layers {
+package layers.tectonics {
 import flash.utils.Dictionary;
 
 import global.Global;

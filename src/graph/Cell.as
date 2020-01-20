@@ -1,7 +1,7 @@
 package graph {
     import flash.geom.Point;
 
-    import layers.TectonicPlate;
+    import layers.tectonics.TectonicPlate;
 
     public class Cell {
         public var index:int;

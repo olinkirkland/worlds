@@ -1,4 +1,4 @@
-package layers {
+package layers.tectonics {
     import flash.geom.Point;
     import flash.geom.Rectangle;
 

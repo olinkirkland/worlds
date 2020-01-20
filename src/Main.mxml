@@ -16,7 +16,7 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.WindHex;
+        import layers.moisture.Gust;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -138,7 +138,7 @@
             var p:Point = new Point(event.localX, event.localY);
             map.wind.reset();
 
-            var w:WindHex = map.wind.closestHexToPoint(p);
+            var w:Gust = map.wind.closestHexToPoint(p);
             w.angle = Direction.SOUTH;
             w.strength = 30;
 
@@ -176,7 +176,7 @@
             while (layerWind.numChildren > 0)
                 layerWind.removeChildAt(0);
 
-            for each (var hex:WindHex in map.wind.hexes) {
+            for each (var hex:Gust in map.wind.hexes) {
                 g.lineStyle(1,
                         0x000000);
                 //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
