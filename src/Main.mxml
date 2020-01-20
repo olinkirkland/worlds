@@ -9,6 +9,7 @@
     <fx:Script>
         <![CDATA[
         import global.Color;
+        import global.Direction;
         import global.Util;
 
         import graph.Cell;
@@ -86,6 +87,12 @@
             drawRelief();
             drawOcean();
             drawWind();
+
+            var t:Timer = new Timer(100);
+            t.addEventListener(TimerEvent.TIMER, function (e:TimerEvent):void {
+                drawWind();
+            });
+            t.start();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -129,10 +136,13 @@
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
-            //var w:AirParticle = map.wind.getClosestAirParticle(p);
-//            layerDebug.graphics.clear();
-//            drawDot(layerDebug.graphics, w.point, Color.blue, 5);
-            //trace(w.speed, w.direction);
+            map.wind.reset();
+
+            var w:WindHex = map.wind.closestHexToPoint(p);
+            w.angle = Direction.SOUTH;
+            w.strength = 30;
+
+            map.wind.propagate([w]);
         }
 
         private function makeMap():void {
@@ -163,11 +173,14 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
+            while (layerWind.numChildren > 0)
+                layerWind.removeChildAt(0);
+
             for each (var hex:WindHex in map.wind.hexes) {
                 g.lineStyle(1,
                         0x000000);
                 //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
-                g.beginFill(Color.darkBlue);
+                g.beginFill(hex.strength > 0 ? Color.blue : Color.darkBlue);
                 g.moveTo(hex.corners[hex.corners.length - 1].x,
                         hex.corners[hex.corners.length - 1].y);
                 for (var i:int = 0; i < hex.corners.length; i++) {
@@ -181,11 +194,15 @@
                 txt.autoSize = TextFieldAutoSize.CENTER;
                 txt.width = txt.textWidth + 5;
                 txt.textColor = Color.green;
-                txt.text = "" + int(hex.strength * 100);
+                var f:TextFormat = new TextFormat();
+                f.align = TextFormatAlign.CENTER;
+                txt.defaultTextFormat = f;
+                txt.text = hex.index + "\n" + hex.strength.toFixed(2);
                 txt.x = hex.point.x - txt.width / 2;
-                txt.y = hex.point.y - txt.height * 1.5;
+                txt.y = hex.point.y - txt.height - 10;
+                txt.visible = hex.index >= 0;
 
-                drawPointer(g, hex.point, hex.angle, Color.white, hex.strength);
+                drawPointer(g, hex.point, hex.angle, Color.white, Math.max(hex.strength, 10));
                 g.endFill();
             }
         }

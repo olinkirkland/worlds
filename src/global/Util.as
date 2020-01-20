@@ -62,7 +62,9 @@ package global {
         }
 
         public static function differenceBetweenTwoDegrees(d1:Number, d2:Number):Number {
-            return Math.abs((d1 + 180 - d2) % 360 - 180);
+            var m:Number = Math.abs((d1 + 180 - d2) % 360 - 180);
+            trace("diff-deg", d1, d2, m);
+            return m;
         }
 
         public static function toDegrees(value:Number):Number {

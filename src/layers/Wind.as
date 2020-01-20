@@ -1,5 +1,6 @@
 package layers {
     import flash.geom.Point;
+    import flash.utils.setTimeout;
 
     import global.Direction;
 
@@ -11,6 +12,8 @@ package layers {
         public var hexes:Array;
 
         private var grid:Array;
+
+        public var start:WindHex;
 
 
         public function Wind(map:Map) {
@@ -52,14 +55,14 @@ package layers {
                     y = j;
                     if (x >= grid.length)
                         x = 0;
-                    h.addNeighbor(grid[x][y], 0);
+                    h.setNeighbor(grid[x][y], 0);
 
                     // W
                     x = i - 1;
                     y = j;
                     if (x < 0)
                         x = grid.length - 1;
-                    h.addNeighbor(grid[x][y], 180);
+                    h.setNeighbor(grid[x][y], 180);
 
                     // NE
                     x = odd ? i + 1 : i;
@@ -67,7 +70,7 @@ package layers {
                     if (x >= grid.length)
                         x = 0;
                     if (y >= 0)
-                        h.addNeighbor(grid[x][y], 300);
+                        h.setNeighbor(grid[x][y], 300);
 
                     // NW
                     x = odd ? i : i - 1;
@@ -75,7 +78,7 @@ package layers {
                     if (x < 0)
                         x = grid.length - 1;
                     if (y >= 0)
-                        h.addNeighbor(grid[x][y], 240);
+                        h.setNeighbor(grid[x][y], 240);
 
                     // SE
                     x = odd ? i + 1 : i;
@@ -83,7 +86,7 @@ package layers {
                     if (x >= grid.length)
                         x = 0;
                     if (y < grid[x].length)
-                        h.addNeighbor(grid[x][y], 60);
+                        h.setNeighbor(grid[x][y], 60);
 
                     // SW
                     x = odd ? i : i - 1;
@@ -91,7 +94,7 @@ package layers {
                     if (x < 0)
                         x = grid.length - 1;
                     if (y < grid[x].length)
-                        h.addNeighbor(grid[x][y], 120);
+                        h.setNeighbor(grid[x][y], 120);
                 }
             }
 
@@ -131,6 +134,11 @@ package layers {
             applyInitialWinds();
         }
 
+        public function reset():void {
+            for each (var h:WindHex in hexes)
+                h.reset();
+        }
+
         private function applyInitialWinds():void {
             /**
              * Apply Initial Winds
@@ -149,7 +157,7 @@ package layers {
                     if (j == 0) {
                         queue.push(h);
                         h.angle = Direction.SOUTH;
-                        h.strength = 20;
+                        h.strength = 30;
                     }
 
                     // South Polar Wind
@@ -161,29 +169,57 @@ package layers {
                 }
             }
 
+//            propagate(queue);
+        }
+
+        public function propagate(queue:Array):void {
             /**
              * Propagate Wind
              */
 
-            for each (h in hexes)
+            for each (var h:WindHex in hexes)
                 h.used = false;
 
-            i = 0;
-            while (queue.length > 0) {
+            var i:int = 0;
+            if (queue.length > 0)
+                setTimeout(pr, 250);
+
+            function pr():void {
                 h = queue.shift();
                 h.index = i++;
                 var targets:Array = h.propagate();
-                if (!h.used)
-                    queue = queue.concat(targets);
 
-                h.used = true;
+                for each (var target:WindHex in targets) {
+                    var containsTarget:Boolean = false;
+                    for each (h in queue) {
+                        if (h == target) {
+                            containsTarget = true;
+                            break;
+                        }
+                    }
+                    if (!containsTarget)
+                        queue.push(target);
+                }
+
+                if (queue.length > 0)
+                    setTimeout(pr, 250);
             }
         }
 
+        public function closestHexToPoint(p:Point):WindHex {
+            var closest:WindHex = hexes[0];
+            for each (var h:WindHex in hexes) {
+                if (Point.distance(h.point, p) < Point.distance(closest.point, p))
+                    closest = h;
+            }
+
+            return closest;
+        }
+
         public function hexFromPoint(p:Point):WindHex {
-            for each (var hex:WindHex in hexes) {
-                if (hex.point.equals(p)) {
-                    return hex;
+            for each (var h:WindHex in hexes) {
+                if (h.point.equals(p)) {
+                    return h;
                 }
             }
 
