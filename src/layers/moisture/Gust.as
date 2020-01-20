@@ -10,8 +10,10 @@ package layers.moisture {
         public var used:Boolean;
 
         public var point:Point;
-        public var radius:Number;
+        public var size:Number;
         public var height:Number;
+
+        public var corners:Array;
 
         public var angle:Number;
         public var strength:Number;
@@ -22,24 +24,26 @@ package layers.moisture {
 
 
         public function Gust(point:Point,
-                             radius:Number) {
+                             size:Number) {
             this.point = point;
-            this.radius = radius;
+            this.size = size;
+
+            corners = [point, new Point(point.x + size, point.y), new Point(point.x + size, point.y + size), new Point(point.x, point.y + size)];
 
             neighbors = {0: null, 90: null, 180: null, 270: null};
         }
 
         public function sendForce():Array {
-
+            return [];
         }
 
         public function receiveForce(incomingAngle:Number, incomingStrength:Number):void {
 
         }
 
-        public function setNeighbor(hex:Gust,
+        public function setNeighbor(gust:Gust,
                                     degrees:Number):void {
-            neighbors[degrees] = hex;
+            neighbors[degrees] = gust;
         }
 
         public function reset():void {

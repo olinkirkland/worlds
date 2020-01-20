@@ -138,7 +138,7 @@
             var p:Point = new Point(event.localX, event.localY);
             map.wind.reset();
 
-            var w:Gust = map.wind.closestHexToPoint(p);
+            var w:Gust = map.wind.closestGustToPoint(p);
             w.angle = Direction.SOUTH;
             w.strength = 30;
 
@@ -176,15 +176,15 @@
             while (layerWind.numChildren > 0)
                 layerWind.removeChildAt(0);
 
-            for each (var hex:Gust in map.wind.hexes) {
+            for each (var gust:Gust in map.wind.gusts) {
                 g.lineStyle(1,
                         0x000000);
-                //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, hex.height));
-                g.beginFill(hex.strength > 0 ? Color.blue : Color.darkBlue);
-                g.moveTo(hex.corners[hex.corners.length - 1].x,
-                        hex.corners[hex.corners.length - 1].y);
-                for (var i:int = 0; i < hex.corners.length; i++) {
-                    var corner:Point = hex.corners[i];
+                //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, gust.height));
+                g.beginFill(gust.strength > 0 ? Color.blue : Color.darkBlue);
+                g.moveTo(gust.corners[gust.corners.length - 1].x,
+                        gust.corners[gust.corners.length - 1].y);
+                for (var i:int = 0; i < gust.corners.length; i++) {
+                    var corner:Point = gust.corners[i];
                     g.lineTo(corner.x,
                             corner.y);
                 }
@@ -197,12 +197,12 @@
                 var f:TextFormat = new TextFormat();
                 f.align = TextFormatAlign.CENTER;
                 txt.defaultTextFormat = f;
-                txt.text = hex.index + "\n" + hex.strength.toFixed(2);
-                txt.x = hex.point.x - txt.width / 2;
-                txt.y = hex.point.y - txt.height - 10;
-                txt.visible = hex.index >= 0;
+                txt.text = gust.index + "\n" + gust.strength.toFixed(2);
+                txt.x = gust.point.x - txt.width / 2;
+                txt.y = gust.point.y - txt.height - 10;
+                txt.visible = gust.index >= 0;
 
-                drawPointer(g, hex.point, hex.angle, Color.white, Math.max(hex.strength, 10));
+                drawPointer(g, gust.point, gust.angle, Color.white, Math.max(gust.strength, 10));
                 g.endFill();
             }
         }
