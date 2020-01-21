@@ -33,16 +33,18 @@
         private var layerRelief:UIComponent;
         private var layerOcean:UIComponent;
         private var layerWind:UIComponent;
+        private var layerPrecipitation:UIComponent;
 
         public function onApplicationComplete(event:FlexEvent):void {
             setTimeout(function ():void {
                 NativeApplication.nativeApplication.activeWindow.maximize();
-                setTimeout(onMaximized, 100);
-            }, 200);
+                setTimeout(onMaximized, 200);
+            }, 300);
         }
 
         public function onMaximized():void {
             // Set up layers
+            layerDebug = new UIComponent();
             layerOutlines = new UIComponent();
             layerTectonicPlates = new UIComponent();
             layerHeightMap = new UIComponent();
@@ -50,14 +52,14 @@
             layerRelief = new UIComponent();
             layerOcean = new UIComponent();
             layerWind = new UIComponent();
-            layerDebug = new UIComponent();
+            layerPrecipitation = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerPrecipitation, layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerDebug];
+            var initialLayers:Array = [layerWind, layerPrecipitation, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -87,12 +89,7 @@
             drawRelief();
             drawOcean();
             drawWind();
-
-            var t:Timer = new Timer(100);
-            t.addEventListener(TimerEvent.TIMER, function (e:TimerEvent):void {
-                //drawWind();
-            });
-            t.start();
+            drawPrecipitation();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -166,25 +163,19 @@
             var g:Graphics = layerWind.graphics;
             g.clear();
 
-            while (layerWind.numChildren > 0)
-                layerWind.removeChildAt(0);
-
-            for each (var gust:Gust in map.wind.gusts) {
-//                g.beginFill(Util.colorBetweenColors(Color.black, Color.red, gust.height));
-//                g.moveTo(gust.corners[gust.corners.length - 1].x,
-//                        gust.corners[gust.corners.length - 1].y);
-//                for (var i:int = 0; i < gust.corners.length; i++) {
-//                    var corner:Point = gust.corners[i];
-//                    g.lineTo(corner.x,
-//                            corner.y);
-//                }
-
+            for each (var gust:Gust in map.wind.gusts)
                 if (gust.strength > 0)
                     drawPointer(g, gust.point, gust.angle, Color.white, 5, gust.strength / 30);
-                g.endFill();
-            }
         }
 
+        private function drawPrecipitation():void {
+            var g:Graphics = layerPrecipitation.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                if (cell.precipitation)
+                    fillCell(g, cell, Color.darkBlue, cell.precipitation);
+        }
 
         private function drawRelief():void {
             var g:Graphics = layerRelief.graphics;

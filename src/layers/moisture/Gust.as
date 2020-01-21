@@ -20,6 +20,7 @@ package layers.moisture {
 
         public var neighbors:Object;
         public var ocean:Boolean;
+        public var moisture:Number;
 
 
         public function Gust(point:Point,
@@ -42,7 +43,7 @@ package layers.moisture {
             if (strength == 0)
                 return [];
 
-            var carry:Boolean
+            var carry:Boolean;
             var neighbor:Gust = neighbors[angle];
             if (neighbor) {
                 var f:Number = strength * ((1 - (neighbor.height - height) * 2));
