@@ -183,24 +183,22 @@ package {
 
             // Limit cell heights
             for each (var cell:Cell in cells) {
-                if (cell.height < 0)
-                    cell.height = 0;
-                if (cell.height > 1)
-                    cell.height = 1;
+                cell.height = Math.min(1, cell.height);
+                cell.height = Math.max(0, cell.height);
             }
 
             for (var i:int = 0; i < 3; i++) {
                 for each (cell in cells) {
-                    var averageHeight:Number = 0;
+                    var average:Number = 0;
                     for each (var neighbor:Cell in cell.neighbors)
-                        averageHeight += neighbor.height;
+                        average += neighbor.height;
 
                     for (var j:int = 0; j < (cell.tectonicPlateBorder ? 3 : 1); j++)
-                        averageHeight += cell.height;
+                        average += cell.height;
 
 
-                    averageHeight /= cell.neighbors.length + j;
-                    cell.height = averageHeight;
+                    average /= cell.neighbors.length + j;
+                    cell.height = average;
                 }
             }
 

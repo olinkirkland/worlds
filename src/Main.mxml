@@ -4,12 +4,12 @@
                width="100%"
                height="100%"
                frameRate="60"
+               preinitialize="onPreinitialize(event)"
                applicationComplete="onApplicationComplete(event)">
 
     <fx:Script>
         <![CDATA[
         import global.Color;
-        import global.Direction;
         import global.Util;
 
         import graph.Cell;
@@ -35,14 +35,11 @@
         private var layerWind:UIComponent;
         private var layerPrecipitation:UIComponent;
 
-        public function onApplicationComplete(event:FlexEvent):void {
-            setTimeout(function ():void {
-                NativeApplication.nativeApplication.activeWindow.maximize();
-                setTimeout(onMaximized, 200);
-            }, 300);
+        public function onPreinitialize(event:FlexEvent):void {
+            NativeApplication.nativeApplication.activeWindow.maximize();
         }
 
-        public function onMaximized():void {
+        public function onApplicationComplete(event:FlexEvent):void {
             // Set up layers
             layerDebug = new UIComponent();
             layerOutlines = new UIComponent();
@@ -54,12 +51,12 @@
             layerWind = new UIComponent();
             layerPrecipitation = new UIComponent();
 
-            var drawLayers:Array = [layerPrecipitation, layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerPrecipitation, layerContinents, layerOcean];
+            var initialLayers:Array = [layerPrecipitation, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -122,6 +119,9 @@
                 case Keyboard.U:
                     toggleLayer(layerWind);
                     break;
+                case Keyboard.I:
+                    toggleLayer(layerPrecipitation);
+                    break;
                 default:
                     break;
             }
@@ -173,8 +173,11 @@
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                if (cell.precipitation)
-                    fillCell(g, cell, Color.darkBlue, cell.precipitation);
+                fillCell(g, cell, Color.darkBlue, cell.precipitation);
+
+//            for each (var gust:Gust in map.wind.gusts)
+//                if (gust.precipitation > 0)
+//                    drawDot(g, gust.point, Color.darkBlue, gust.precipitation);
         }
 
         private function drawRelief():void {

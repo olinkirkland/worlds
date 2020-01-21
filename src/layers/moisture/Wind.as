@@ -9,18 +9,21 @@ package layers.moisture {
 
 
     public class Wind {
-        public var points:Array;
+        private var map:Map;
+        private var size:Number = 10;
 
+        private var points:Array;
         private var grid:Array;
         public var gusts:Array;
 
 
         public function Wind(map:Map) {
+            this.map = map;
+
             points = [];
             grid = [[]];
             gusts = [];
 
-            var size:Number = 10;
             var offset:Point = new Point(20, 20);
             var width:int = map.width - 40;
             var height:int = map.height - 40;
@@ -77,8 +80,7 @@ package layers.moisture {
                 if (ocean) {
                     gust.ocean = true;
                     gust.height = map.seaLevel;
-                }
-                else {
+                } else {
                     averageHeight /= quadPoints.length;
                     gust.height = averageHeight >= 0 ? averageHeight : -1;
                 }
@@ -92,21 +94,21 @@ package layers.moisture {
                     for each (var neighbor:Gust in gust.neighbors)
                         if (neighbor && neighbor.height >= 0) {
                             gust.height += neighbor.height;
+
+                            if (neighbor.ocean)
+                                gust.ocean = true;
+
                             i++;
                         }
                     gust.height /= i;
                 }
             }
 
-            applyInitialWinds();
+            startWinds();
+            applyPrecipitationToCells();
         }
 
-        public function reset():void {
-            for each (var h:Gust in gusts)
-                h.reset();
-        }
-
-        private function applyInitialWinds():void {
+        private function startWinds():void {
             /**
              * Apply Initial Winds
              */
@@ -119,6 +121,7 @@ package layers.moisture {
                     // Default
                     gust.angle = Direction.SOUTH;
                     gust.strength = 0;
+                    gust.moisture = 0;
 
                     // North Polar Wind
                     if (j == 0) {
@@ -144,14 +147,9 @@ package layers.moisture {
              * Propagate Wind
              */
 
-            for each (var gust:Gust in gusts)
-                gust.used = false;
-
-            pr();
-
-            function pr():void {
-                gust = queue.shift();
-                var targets:Array = gust.sendForce();
+            while (queue.length > 0) {
+                var gust:Gust = queue.shift();
+                var targets:Array = gust.send();
 
                 for each (var target:Gust in targets) {
                     var containsTarget:Boolean = false;
@@ -164,30 +162,35 @@ package layers.moisture {
                     if (!containsTarget)
                         queue.push(target);
                 }
-
-                if (queue.length > 0)
-                    pr();
             }
         }
 
-        public function closestGustToPoint(p:Point):Gust {
-            var closest:Gust = gusts[0];
-            for each (var h:Gust in gusts) {
-                if (Point.distance(h.point, p) < Point.distance(closest.point, p))
-                    closest = h;
-            }
-
-            return closest;
-        }
-
-        public function gustFromPoint(p:Point):Gust {
-            for each (var h:Gust in gusts) {
-                if (h.point.equals(p)) {
-                    return h;
+        private function applyPrecipitationToCells():void {
+            for each (var gust:Gust in gusts) {
+                var quadPoints:Array = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
+                for each (var p:Point in quadPoints) {
+                    var cell:Cell = map.getCellByPoint(p);
+                    if (!cell.precipitation)
+                        cell.precipitation = gust.precipitation;
+                    else
+                        cell.precipitation = (cell.precipitation + gust.precipitation) / 2;
                 }
             }
 
-            return null;
+            // Average out the precipitation
+            for (var i:int = 0; i < 1; i++) {
+                for each (cell in map.cells) {
+                    if (!cell.ocean) {
+                        var average:Number = 0;
+                        for each (var neighbor:Cell in cell.neighbors)
+                            if (neighbor.precipitation)
+                                average += neighbor.precipitation;
+
+                        average /= cell.neighbors.length;
+                        cell.precipitation = average;
+                    }
+                }
+            }
         }
     }
 }

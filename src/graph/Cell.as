@@ -25,20 +25,13 @@ package graph {
         public var tectonicPlatePower:Number = Number.NEGATIVE_INFINITY;
         public var tectonicPlateBorder:Boolean;
 
+        // Moisture
+        public var precipitation:Number;
+
         public function Cell() {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
-        }
-
-        public function reset():void {
-            used = false;
-            height = 0;
-            ocean = false;
-
-            tectonicPlate = null;
-            tectonicPlatePower = Number.NEGATIVE_INFINITY;
-            tectonicPlateBorder = false;
         }
 
         public function get tectonicPlateDirection():int {
