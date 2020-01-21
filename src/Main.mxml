@@ -90,7 +90,7 @@
 
             var t:Timer = new Timer(100);
             t.addEventListener(TimerEvent.TIMER, function (e:TimerEvent):void {
-                drawWind();
+                //drawWind();
             });
             t.start();
         }
@@ -136,13 +136,6 @@
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
-            map.wind.reset();
-
-            var w:Gust = map.wind.closestGustToPoint(p);
-            w.angle = Direction.SOUTH;
-            w.strength = 30;
-
-            map.wind.propagate([w]);
         }
 
         private function makeMap():void {
@@ -177,32 +170,17 @@
                 layerWind.removeChildAt(0);
 
             for each (var gust:Gust in map.wind.gusts) {
-                g.lineStyle(1,
-                        0x000000);
-                //g.beginFill(Util.colorBetweenColors(Color.black, Color.red, gust.height));
-                g.beginFill(gust.strength > 0 ? Color.blue : Color.darkBlue);
-                g.moveTo(gust.corners[gust.corners.length - 1].x,
-                        gust.corners[gust.corners.length - 1].y);
-                for (var i:int = 0; i < gust.corners.length; i++) {
-                    var corner:Point = gust.corners[i];
-                    g.lineTo(corner.x,
-                            corner.y);
-                }
+//                g.beginFill(Util.colorBetweenColors(Color.black, Color.red, gust.height));
+//                g.moveTo(gust.corners[gust.corners.length - 1].x,
+//                        gust.corners[gust.corners.length - 1].y);
+//                for (var i:int = 0; i < gust.corners.length; i++) {
+//                    var corner:Point = gust.corners[i];
+//                    g.lineTo(corner.x,
+//                            corner.y);
+//                }
 
-                var txt:TextField = new TextField();
-                layerWind.addChild(txt);
-                txt.autoSize = TextFieldAutoSize.CENTER;
-                txt.width = txt.textWidth + 5;
-                txt.textColor = Color.green;
-                var f:TextFormat = new TextFormat();
-                f.align = TextFormatAlign.CENTER;
-                txt.defaultTextFormat = f;
-                txt.text = gust.index + "\n" + gust.strength.toFixed(2);
-                txt.x = gust.point.x - txt.width / 2;
-                txt.y = gust.point.y - txt.height - 10;
-                txt.visible = gust.index >= 0;
-
-                drawPointer(g, gust.point, gust.angle, Color.white, Math.max(gust.strength, 10));
+                if (gust.strength > 0)
+                    drawPointer(g, gust.point, gust.angle, Color.white, 5, gust.strength / 30);
                 g.endFill();
             }
         }
@@ -313,10 +291,10 @@
             g.lineStyle();
         }
 
-        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint, distance:Number = 7):void {
+        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint, distance:Number = 7, pointerAlpha:Number = 1):void {
             // Draw pointer
-            g.lineStyle(2, color);
-            g.beginFill(color);
+            g.lineStyle(2, color, pointerAlpha);
+            g.beginFill(color, pointerAlpha);
             g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);

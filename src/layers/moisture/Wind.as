@@ -20,15 +20,16 @@ package layers.moisture {
             grid = [[]];
             gusts = [];
 
-            var size:Number = 30;
-            var width:int = map.width;
-            var height:int = map.height;
+            var size:Number = 10;
+            var offset:Point = new Point(20, 20);
+            var width:int = map.width - 40;
+            var height:int = map.height - 40;
 
             var gust:Gust;
-            for (var i:int = 0; i < width; i++) {
+            for (var i:int = 0; i < width / size; i++) {
                 grid [i] = [];
-                for (var j:int = 0; j < height; j++) {
-                    var p:Point = new Point(i * size, j * size);
+                for (var j:int = 0; j < height / size; j++) {
+                    var p:Point = new Point(i * size + offset.x, j * size + offset.y);
                     gust = new Gust(p,
                             size);
 
@@ -45,19 +46,19 @@ package layers.moisture {
 
                     // North
                     if (i > 0)
-                        gust.setNeighbor(grid[i - 1][j], Direction.NORTH);
+                        gust.setNeighbor(grid[i - 1][j], Direction.WEST);
 
                     // East
                     if (j < grid[i].length - 1)
-                        gust.setNeighbor(grid[i][j + 1], Direction.EAST);
+                        gust.setNeighbor(grid[i][j + 1], Direction.SOUTH);
 
                     // South
                     if (i < grid.length - 1)
-                        gust.setNeighbor(grid[i + 1][j], Direction.SOUTH);
+                        gust.setNeighbor(grid[i + 1][j], Direction.EAST);
 
                     // West
                     if (j > 0)
-                        gust.setNeighbor(grid[i][j - 1], Direction.WEST);
+                        gust.setNeighbor(grid[i][j - 1], Direction.NORTH);
                 }
             }
 
@@ -73,8 +74,10 @@ package layers.moisture {
                         ocean = true;
                 }
 
-                if (ocean)
+                if (ocean) {
+                    gust.ocean = true;
                     gust.height = map.seaLevel;
+                }
                 else {
                     averageHeight /= quadPoints.length;
                     gust.height = averageHeight >= 0 ? averageHeight : -1;
@@ -82,13 +85,12 @@ package layers.moisture {
             }
 
             // Smoothing for gusts that don't have any points under them
-            trace(gusts.length);
             for each (gust in gusts) {
                 if (gust.height < 0) {
                     gust.height = 0;
                     i = 0;
                     for each (var neighbor:Gust in gust.neighbors)
-                        if (neighbor.height >= 0) {
+                        if (neighbor && neighbor.height >= 0) {
                             gust.height += neighbor.height;
                             i++;
                         }
@@ -113,28 +115,28 @@ package layers.moisture {
 
             for (var i:int = 0; i < grid.length; i++) {
                 for (var j:int = 0; j < grid[i].length; j++) {
-                    var h:Gust = grid[i][j];
+                    var gust:Gust = grid[i][j];
                     // Default
-                    h.angle = Direction.SOUTH;
-                    h.strength = 0;
+                    gust.angle = Direction.SOUTH;
+                    gust.strength = 0;
 
                     // North Polar Wind
                     if (j == 0) {
-                        queue.push(h);
-                        h.angle = Direction.SOUTH;
-                        h.strength = 30;
+                        queue.push(gust);
+                        gust.angle = Direction.SOUTH;
+                        gust.strength = 20;
                     }
 
                     // South Polar Wind
-//                    if (j == grid[i].length - 1) {
-//                        queue.push(h);
-//                        h.angle = Direction.NORTH;
-//                        h.strength = 20;
-//                    }
+                    if (j == grid[i].length - 1) {
+                        queue.push(gust);
+                        gust.angle = Direction.NORTH;
+                        gust.strength = 20;
+                    }
                 }
             }
 
-//            propagate(queue);
+            propagate(queue);
         }
 
         public function propagate(queue:Array):void {
@@ -145,13 +147,10 @@ package layers.moisture {
             for each (var gust:Gust in gusts)
                 gust.used = false;
 
-            var i:int = 0;
-            if (queue.length > 0)
-                setTimeout(pr, 250);
+            pr();
 
             function pr():void {
                 gust = queue.shift();
-                gust.index = i++;
                 var targets:Array = gust.sendForce();
 
                 for each (var target:Gust in targets) {
@@ -167,7 +166,7 @@ package layers.moisture {
                 }
 
                 if (queue.length > 0)
-                    setTimeout(pr, 250);
+                    pr();
             }
         }
 
