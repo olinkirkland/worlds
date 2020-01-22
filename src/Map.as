@@ -21,6 +21,7 @@ package {
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
     import layers.moisture.Wind;
+    import layers.temperature.Temperature;
 
 
     public class Map {
@@ -45,6 +46,7 @@ package {
         // Controllers
         public var lithosphere:Lithosphere;
         public var wind:Wind;
+        public var temperature:Temperature;
 
         // Point Mapping
         private var cellsByPoints:Object;
@@ -88,6 +90,8 @@ package {
             bounds.width = this.width;
 
             determineWind();
+            determineTemperature();
+            determineRivers();
         }
 
         private function determineWind():void {
@@ -96,6 +100,20 @@ package {
             wind = new Wind(this);
 
             Util.log("  " + Util.secondsSince(d));
+        }
+
+        private function determineTemperature():void {
+            var d:Date = new Date();
+            Util.log("> Calculating temperature...");
+            temperature = new Temperature(this);
+
+            Util.log("  " + Util.secondsSince(d));
+        }
+
+        private function determineRivers():void {
+            // Determine the water flow
+            // Water travels from higher cells to lower cells
+
         }
 
         private function determineOcean():void {

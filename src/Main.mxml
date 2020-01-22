@@ -34,6 +34,7 @@
         private var layerOcean:UIComponent;
         private var layerWind:UIComponent;
         private var layerPrecipitation:UIComponent;
+        private var layerTemperature:UIComponent;
 
         public function onPreinitialize(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
@@ -50,13 +51,14 @@
             layerOcean = new UIComponent();
             layerWind = new UIComponent();
             layerPrecipitation = new UIComponent();
+            layerTemperature = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerPrecipitation, layerContinents, layerOcean];
+            var initialLayers:Array = [layerTemperature, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -87,6 +89,7 @@
             drawOcean();
             drawWind();
             drawPrecipitation();
+            drawTemperature();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -122,6 +125,9 @@
                 case Keyboard.I:
                     toggleLayer(layerPrecipitation);
                     break;
+                case Keyboard.O:
+                    toggleLayer(layerTemperature);
+                    break;
                 default:
                     break;
             }
@@ -133,6 +139,12 @@
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
+            var arr:Array = map.quadTree.queryFromPoint(p, 10);
+            if (arr.length > 0) {
+                var c:Cell = map.getCellByPoint(arr[0]);
+                trace(c.point);
+                trace(c.temperature);
+            }
         }
 
         private function makeMap():void {
@@ -174,10 +186,14 @@
 
             for each (var cell:Cell in map.cells)
                 fillCell(g, cell, Color.darkBlue, cell.precipitation);
+        }
 
-//            for each (var gust:Gust in map.wind.gusts)
-//                if (gust.precipitation > 0)
-//                    drawDot(g, gust.point, Color.darkBlue, gust.precipitation);
+        private function drawTemperature():void {
+            var g:Graphics = layerTemperature.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
         }
 
         private function drawRelief():void {

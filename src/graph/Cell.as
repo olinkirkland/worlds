@@ -28,6 +28,9 @@ package graph {
         // Moisture
         public var precipitation:Number;
 
+        // Temperature
+        public var temperature:Number;
+
         public function Cell() {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
