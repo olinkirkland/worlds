@@ -89,17 +89,9 @@ package {
             this.width -= (leftWrapWidth - 2 * spacing);
             bounds.width = this.width;
 
-            determineWind();
             determineTemperature();
+            determineWind();
             determineRivers();
-        }
-
-        private function determineWind():void {
-            var d:Date = new Date();
-            Util.log("> Calculating wind...");
-            wind = new Wind(this);
-
-            Util.log("  " + Util.secondsSince(d));
         }
 
         private function determineTemperature():void {
@@ -110,10 +102,23 @@ package {
             Util.log("  " + Util.secondsSince(d));
         }
 
-        private function determineRivers():void {
-            // Determine the water flow
-            // Water travels from higher cells to lower cells
+        private function determineWind():void {
+            var d:Date = new Date();
+            Util.log("> Calculating wind...");
+            wind = new Wind(this);
 
+            Util.log("  " + Util.secondsSince(d));
+        }
+
+        private function determineRivers():void {
+            var d:Date = new Date();
+            Util.log("> Calculating wind...");
+
+            // Apply precipitation to the water cycle
+            for each (var cell:Cell in cells)
+                cell.addWater(cell.precipitation);
+
+            Util.log(" " + Util.secondsSince(d));
         }
 
         private function determineOcean():void {

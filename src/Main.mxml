@@ -35,6 +35,8 @@
         private var layerWind:UIComponent;
         private var layerPrecipitation:UIComponent;
         private var layerTemperature:UIComponent;
+        private var layerSurfaceWater:UIComponent;
+        private var layerGroundWater:UIComponent;
 
         public function onPreinitialize(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
@@ -52,13 +54,15 @@
             layerWind = new UIComponent();
             layerPrecipitation = new UIComponent();
             layerTemperature = new UIComponent();
+            layerSurfaceWater = new UIComponent();
+            layerGroundWater = new UIComponent();
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerSurfaceWater, layerGroundWater, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerTemperature, layerContinents, layerOcean];
+            var initialLayers:Array = [layerSurfaceWater, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -90,6 +94,8 @@
             drawWind();
             drawPrecipitation();
             drawTemperature();
+            drawSurfaceWater();
+            drawGroundWater();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -128,6 +134,12 @@
                 case Keyboard.O:
                     toggleLayer(layerTemperature);
                     break;
+                case Keyboard.P:
+                    toggleLayer(layerSurfaceWater);
+                    break;
+                case Keyboard.A:
+                    toggleLayer(layerGroundWater);
+                    break;
                 default:
                     break;
             }
@@ -143,7 +155,8 @@
             if (arr.length > 0) {
                 var c:Cell = map.getCellByPoint(arr[0]);
                 trace(c.point);
-                trace(c.temperature);
+                trace(c.surfaceWater);
+                trace(c.groundWater);
             }
         }
 
@@ -194,6 +207,22 @@
 
             for each (var cell:Cell in map.cells)
                 fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
+        }
+
+        private function drawSurfaceWater():void {
+            var g:Graphics = layerSurfaceWater.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                fillCell(g, cell, Color.darkBlue, cell.surfaceWater);
+        }
+
+        private function drawGroundWater():void {
+            var g:Graphics = layerGroundWater.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                fillCell(g, cell, Color.darkBlue, cell.groundWater);
         }
 
         private function drawRelief():void {

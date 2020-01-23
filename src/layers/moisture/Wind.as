@@ -191,6 +191,10 @@ package layers.moisture {
                     }
                 }
             }
+
+            for each (cell in map.cells)
+                if (!cell.precipitation)
+                    cell.precipitation = 0;
         }
     }
 }
