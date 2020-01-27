@@ -29,9 +29,8 @@ package graph {
         // Water Cycle
         public var precipitation:Number;
         public var water:Number = 0;
-
-        // todo determine groundWaterCapacity by rock porosity
-        public var groundWaterCapacity:Number = .1;
+        public var outflows:Object;
+        public var inflows:Object;
 
         // Temperature
         public var temperature:Number;
@@ -40,6 +39,35 @@ package graph {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+        }
+
+        public function calculateOutflows():void {
+            outflows = {};
+            var heightDifferenceTotal:Number = 0;
+            for each (var neighbor:Cell in neighbors) {
+                var diff:Number = heightWithWater - neighbor.heightWithWater;
+                // Only store positive values (we only care about neighbors with a lower heightWithWater)
+                outflows[neighbor.index] = Math.max(0, diff);
+                heightDifferenceTotal += outflows[neighbor.index];
+            }
+
+            var outflowTotal:Number = 0;
+            for each (neighbor in neighbors) {
+                outflowTotal += outflows[neighbor.index];
+                outflows[neighbor.index] /= heightDifferenceTotal;
+            }
+
+            var outflowScale:Number = Math.min(1, water / outflowTotal);
+            for (var i:String in outflows)
+                outflows[i] *= outflowScale;
+        }
+
+        public function calculateInflows():void {
+
+        }
+
+        public function get heightWithWater():Number {
+            return height + water;
         }
 
         public function get tectonicPlateDirection():int {

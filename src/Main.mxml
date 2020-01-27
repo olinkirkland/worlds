@@ -161,7 +161,14 @@
             var arr:Array = map.quadTree.queryFromPoint(p, 10);
             if (arr.length > 0) {
                 var c:Cell = map.getCellByPoint(arr[0]);
-                //trace(c);
+                trace(c.water + " + " + c.height + " = " + c.heightWithWater);
+                trace("Outflows");
+                var n:Number = 0;
+                for (var i:String in c.outflows) {
+                    n += c.outflows[i];
+                    trace("Neighbor " + i + ": " + c.outflows[i]);
+                }
+                trace("Total: " + n + " (=" + c.water + "?)");
             }
         }
 

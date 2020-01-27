@@ -13,15 +13,22 @@ package layers.geography {
              * Precipitation
              */
 
-            // Apply water to cells from precipitation
             for each (var cell:Cell in map.cells)
                 cell.water += cell.precipitation;
 
+            calculateFlows();
+        }
+
+        private function calculateFlows():void {
             /**
              * Runoff
              */
 
+            for each (var cell:Cell in map.cells)
+                cell.calculateOutflows();
 
+            for each (cell in map.cells)
+                cell.calculateInflows();
         }
     }
 }
