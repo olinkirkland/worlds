@@ -1,12 +1,10 @@
-package layers.moisture {
+package layers.wind {
     import flash.geom.Point;
     import flash.geom.Rectangle;
-    import flash.utils.setTimeout;
 
     import global.Direction;
 
     import graph.Cell;
-
 
     public class Wind {
         private var map:Map;
@@ -180,15 +178,13 @@ package layers.moisture {
             // Average out the precipitation
             for (var i:int = 0; i < 1; i++) {
                 for each (cell in map.cells) {
-                    if (!cell.ocean) {
-                        var average:Number = 0;
-                        for each (var neighbor:Cell in cell.neighbors)
-                            if (neighbor.precipitation)
-                                average += neighbor.precipitation;
+                    var average:Number = 0;
+                    for each (var neighbor:Cell in cell.neighbors)
+                        if (neighbor.precipitation)
+                            average += neighbor.precipitation;
 
-                        average /= cell.neighbors.length;
-                        cell.precipitation = average;
-                    }
+                    average /= cell.neighbors.length;
+                    cell.precipitation = average;
                 }
             }
 

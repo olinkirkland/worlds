@@ -36,6 +36,16 @@ package global {
             return arr;
         }
 
+        public static function capitalizeFirstLetter(str:String):String {
+            if (str.length == 0)
+                return str;
+
+            if (str.length == 1)
+                return str.charAt(0).toUpperCase();
+            else
+                return str.charAt(0).toUpperCase() + str.substr(1);
+        }
+
         public static function colorBetweenColors(color1:uint = 0xFFFFFF, color2:uint = 0x000000, percent:Number = 0.5):uint {
             if (percent < 0)
                 percent = 0;

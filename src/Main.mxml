@@ -16,7 +16,7 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.moisture.Gust;
+        import layers.wind.Gust;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
@@ -35,8 +35,7 @@
         private var layerWind:UIComponent;
         private var layerPrecipitation:UIComponent;
         private var layerTemperature:UIComponent;
-        private var layerSurfaceWater:UIComponent;
-        private var layerGroundWater:UIComponent;
+        private var layerWater:UIComponent;
 
         public function onPreinitialize(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
@@ -45,24 +44,34 @@
         public function onApplicationComplete(event:FlexEvent):void {
             // Set up layers
             layerDebug = new UIComponent();
+            layerDebug.name = "debug";
             layerOutlines = new UIComponent();
+            layerOutlines.name = "outlines";
             layerTectonicPlates = new UIComponent();
+            layerTectonicPlates.name = "tectonics";
             layerHeightMap = new UIComponent();
+            layerHeightMap.name = "height";
             layerContinents = new UIComponent();
+            layerContinents.name = "continents";
             layerRelief = new UIComponent();
+            layerRelief.name = "relief";
             layerOcean = new UIComponent();
+            layerOcean.name = "ocean";
             layerWind = new UIComponent();
+            layerWind.name = "wind";
             layerPrecipitation = new UIComponent();
+            layerPrecipitation.name = "precipitation";
             layerTemperature = new UIComponent();
-            layerSurfaceWater = new UIComponent();
-            layerGroundWater = new UIComponent();
+            layerTemperature.name = "temperature";
+            layerWater = new UIComponent();
+            layerWater.name = "water";
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerSurfaceWater, layerGroundWater, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerSurfaceWater, layerContinents, layerOcean];
+            var initialLayers:Array = [layerWater, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -94,8 +103,7 @@
             drawWind();
             drawPrecipitation();
             drawTemperature();
-            drawSurfaceWater();
-            drawGroundWater();
+            drawWater();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -135,10 +143,7 @@
                     toggleLayer(layerTemperature);
                     break;
                 case Keyboard.P:
-                    toggleLayer(layerSurfaceWater);
-                    break;
-                case Keyboard.A:
-                    toggleLayer(layerGroundWater);
+                    toggleLayer(layerWater);
                     break;
                 default:
                     break;
@@ -147,6 +152,8 @@
 
         private function toggleLayer(layer:UIComponent):void {
             layer.visible = !layer.visible;
+            var onOrOff:String = layer.visible ? "ON" : "OFF";
+            Util.log(Util.capitalizeFirstLetter(layer.name) + " [" + onOrOff + "]");
         }
 
         private function onClick(event:MouseEvent):void {
@@ -154,9 +161,7 @@
             var arr:Array = map.quadTree.queryFromPoint(p, 10);
             if (arr.length > 0) {
                 var c:Cell = map.getCellByPoint(arr[0]);
-                trace(c.point);
-                trace(c.surfaceWater);
-                trace(c.groundWater);
+                //trace(c);
             }
         }
 
@@ -209,20 +214,12 @@
                 fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
         }
 
-        private function drawSurfaceWater():void {
-            var g:Graphics = layerSurfaceWater.graphics;
+        private function drawWater():void {
+            var g:Graphics = layerWater.graphics;
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Color.darkBlue, cell.surfaceWater);
-        }
-
-        private function drawGroundWater():void {
-            var g:Graphics = layerGroundWater.graphics;
-            g.clear();
-
-            for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Color.darkBlue, cell.groundWater);
+                fillCell(g, cell, Color.darkBlue, cell.water);
         }
 
         private function drawRelief():void {

@@ -10,6 +10,7 @@ package graph {
         // Properties
         public var height:Number = 0;
 
+
         // Flags
         public var ocean:Boolean = false;
 
@@ -27,8 +28,7 @@ package graph {
 
         // Water Cycle
         public var precipitation:Number;
-        public var surfaceWater:Number = 0;
-        public var groundWater:Number = 0;
+        public var water:Number = 0;
 
         // todo determine groundWaterCapacity by rock porosity
         public var groundWaterCapacity:Number = .1;
@@ -40,19 +40,6 @@ package graph {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
-        }
-
-        public function addWater(w:Number):void {
-            if (w == 0)
-                return;
-
-            groundWater += w;
-
-            if (groundWater > groundWaterCapacity) {
-                var surplus:Number = groundWater - groundWaterCapacity;
-                groundWater -= surplus;
-                surfaceWater += surplus;
-            }
         }
 
         public function get tectonicPlateDirection():int {

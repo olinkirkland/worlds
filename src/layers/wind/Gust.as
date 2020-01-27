@@ -1,4 +1,4 @@
-package layers.moisture {
+package layers.wind {
     import flash.geom.Point;
 
     import global.Direction;
@@ -7,8 +7,6 @@ package layers.moisture {
 
 
     public class Gust {
-        public var used:Boolean;
-
         public var point:Point;
         public var size:Number;
         public var height:Number;
@@ -52,7 +50,7 @@ package layers.moisture {
                 var outgoingStrength:Number = strength * heightDifference;
 
                 if (ocean) {
-                    // Pick up moisture from the water
+                    // Pick up moisture from the ocean
                     if (moisture < 25)
                         moisture += 3;
 

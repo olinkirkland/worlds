@@ -4,25 +4,21 @@ package {
 
     import flash.display.BitmapData;
     import flash.display.BitmapDataChannel;
-
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
 
-    import global.Color;
-
     import global.Global;
-
-    import graph.*;
-
     import global.Rand;
     import global.Util;
 
+    import graph.*;
+
+    import layers.geography.Hydrology;
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
-    import layers.moisture.Wind;
     import layers.temperature.Temperature;
-
+    import layers.wind.Wind;
 
     public class Map {
         // Constants
@@ -45,8 +41,9 @@ package {
 
         // Controllers
         public var lithosphere:Lithosphere;
-        public var wind:Wind;
         public var temperature:Temperature;
+        public var wind:Wind;
+        public var hydrology:Hydrology;
 
         // Point Mapping
         private var cellsByPoints:Object;
@@ -91,7 +88,7 @@ package {
 
             determineTemperature();
             determineWind();
-            determineRivers();
+            determineHydrology();
         }
 
         private function determineTemperature():void {
@@ -110,15 +107,14 @@ package {
             Util.log("  " + Util.secondsSince(d));
         }
 
-        private function determineRivers():void {
+        private function determineHydrology():void {
             var d:Date = new Date();
-            Util.log("> Calculating wind...");
+            Util.log("> Calculating hydrology...");
 
-            // Apply precipitation to the water cycle
-            for each (var cell:Cell in cells)
-                cell.addWater(cell.precipitation);
+            // Calculate hydrology
+            hydrology = new Hydrology(this);
 
-            Util.log(" " + Util.secondsSince(d));
+            Util.log("  " + Util.secondsSince(d));
         }
 
         private function determineOcean():void {
