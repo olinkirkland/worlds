@@ -111,8 +111,6 @@ package graph {
                 for (var j:int = i + 1; j < neighbors.length; j++)
                     if (neighbors[i] === neighbors[j])
                         neighbors.removeAt(j--);
-
-            trace("   " + before + " -> " + neighbors.length);
         }
 
         public function calculateArea():void {
