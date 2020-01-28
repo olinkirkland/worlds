@@ -81,7 +81,6 @@ package {
             smoothHeightMap();
             determineOcean();
             stretchHeightMap();
-            setCornerHeights();
 
             this.width -= (leftWrapWidth - 2 * spacing);
             bounds.width = this.width;

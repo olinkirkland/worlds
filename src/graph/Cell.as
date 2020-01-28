@@ -1,6 +1,8 @@
 package graph {
     import flash.geom.Point;
 
+    import layers.geography.Outflow;
+
     import layers.tectonics.TectonicPlate;
 
     public class Cell {
@@ -30,7 +32,6 @@ package graph {
         public var precipitation:Number;
         public var water:Number = 0;
         public var outflows:Object;
-        public var inflows:Object;
 
         // Temperature
         public var temperature:Number;
@@ -43,30 +44,56 @@ package graph {
 
         public function calculateOutflows():void {
             outflows = {};
-            var heightDifferenceTotal:Number = 0;
+
+            var altitudeDifferenceTotal:Number = 0;
+            var averageAltitudeOfOutflowNeighbors:Number = 0;
+
             for each (var neighbor:Cell in neighbors) {
-                var diff:Number = heightWithWater - neighbor.heightWithWater;
-                // Only store positive values (we only care about neighbors with a lower heightWithWater)
-                outflows[neighbor.index] = Math.max(0, diff);
-                heightDifferenceTotal += outflows[neighbor.index];
+                var altitudeDifference:Number = altitude - neighbor.altitude;
+
+                // Only store positive values (we only care about neighbors with a lower altitude)
+                if (altitudeDifference > 0) {
+                    var outflow:Outflow = new Outflow();
+                    outflow.altitudeDifference = altitudeDifference;
+                    outflows[neighbor.index] = outflow;
+                    altitudeDifferenceTotal += altitudeDifference;
+                    averageAltitudeOfOutflowNeighbors += neighbor.altitude;
+                }
             }
 
-            var outflowTotal:Number = 0;
-            for each (neighbor in neighbors) {
-                outflowTotal += outflows[neighbor.index];
-                outflows[neighbor.index] /= heightDifferenceTotal;
+            var outflowCount:int = 0;
+            for each (outflow in outflows)
+                outflowCount++;
+
+            averageAltitudeOfOutflowNeighbors /= outflowCount;
+
+            var totalOutflow:Number = 0;
+            for each (outflow in outflows) {
+                var m:Number = Math.min(water, altitude - averageAltitudeOfOutflowNeighbors) * (outflow.altitudeDifference / altitudeDifferenceTotal);
+                totalOutflow += outflow.water = Math.max(0, m);
             }
 
-            var outflowScale:Number = Math.min(1, water / outflowTotal);
-            for (var i:String in outflows)
-                outflows[i] *= outflowScale;
+            water -= totalOutflow;
+            //height -= totalOutflow / 10;
         }
 
         public function calculateInflows():void {
+            if (ocean) {
+                water = 0;
+                return;
+            }
 
+            for each (var neighbor:Cell in neighbors) {
+                if (neighbor.outflows[index]) {
+                    var outflow:Outflow = neighbor.outflows[index];
+                    water += outflow.water;
+                    //height += outflow.water / 10;
+                }
+            }
         }
 
-        public function get heightWithWater():Number {
+        public function get altitude():Number {
+            // I know 'altitude' is probably not the perfect word for this, but it's more unique than 'heightWithWater'
             return height + water;
         }
 

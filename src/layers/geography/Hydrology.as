@@ -9,26 +9,28 @@ package layers.geography {
         public function Hydrology(map:Map) {
             this.map = map;
 
-            /**
-             * Precipitation
-             */
+            precipitate();
 
-            for each (var cell:Cell in map.cells)
-                cell.water += cell.precipitation;
-
-            calculateFlows();
+            //distributeWater();
         }
 
-        private function calculateFlows():void {
-            /**
-             * Runoff
-             */
+        public function precipitate():void {
+            for each (var cell:Cell in map.cells)
+                cell.water += cell.precipitation;
+        }
 
+        public function distributeWater():void {
+            var d:Date = new Date();
+            Util.log("> Distributing water...");
             for each (var cell:Cell in map.cells)
                 cell.calculateOutflows();
 
             for each (cell in map.cells)
                 cell.calculateInflows();
+
+            map.setCornerHeights();
+
+            Util.log("  " + Util.secondsSince(d));
         }
     }
 }
