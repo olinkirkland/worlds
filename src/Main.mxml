@@ -168,16 +168,28 @@
             var p:Point = new Point(event.localX, event.localY);
             var arr:Array = map.quadTree.queryFromPoint(p, 10);
             if (arr.length > 0) {
-                var c:Cell = map.getCellByPoint(arr[0]);
-                trace("Cell #" + c.index);
-                trace(c.water + " + " + c.height + " = " + c.altitude);
-                var n:Number = 0;
-                for (var i:String in c.outflows) {
-                    n += c.outflows[i].water;
-                    trace("Outflow from #" + i + ": " + c.outflows[i]);
-                }
-                trace("Total: " + n + " (=" + c.water + "?)");
+                var t:Point = Util.closestPoint(p, arr);
+                var c:Cell = map.getCellByPoint(t);
+                describe(c);
+//                c.water += 1;
+//                draw();
             }
+        }
+
+        private function describe(c:Cell):void {
+            trace("Cell #" + c.index);
+            trace("altitude=" + c.altitude);
+            trace("  height=" + c.height + ", water=" + c.water);
+            var n:Number = 0;
+            for (var i:String in c.outflows) {
+                n += c.outflows[i].water;
+                trace("Outflow from #" + i + ": " + c.outflows[i]);
+            }
+            trace("Total: " + n + " (=" + c.water + "?)");
+            var neighborIndexes:Array = [];
+            for each (var neighbor:Cell in c.neighbors)
+                neighborIndexes.push(neighbor.index);
+            trace("Neighbors (" + c.neighbors.length + "): " + neighborIndexes.join(", "));
         }
 
         private function makeMap():void {

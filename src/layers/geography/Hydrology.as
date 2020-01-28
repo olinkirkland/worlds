@@ -9,7 +9,7 @@ package layers.geography {
         public function Hydrology(map:Map) {
             this.map = map;
 
-            precipitate();
+            //precipitate();
 
             //distributeWater();
         }

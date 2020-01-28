@@ -81,6 +81,7 @@ package {
             smoothHeightMap();
             determineOcean();
             stretchHeightMap();
+            setCornerHeights();
 
             this.width -= (leftWrapWidth - 2 * spacing);
             bounds.width = this.width;
@@ -437,11 +438,16 @@ package {
                 var c:Cell = getCellByPoint(r);
                 for (i = 0; i < cells.length; i++) {
                     if (cells[i] == c) {
+                        cells[i].markForRemoval = true;
                         cells.removeAt(i);
                         break;
                     }
                 }
             }
+
+            // todo This can be improved by just targeting relevant cells
+            for each (cell in cells)
+                cell.removeDuplicateNeighbors();
 
             Util.log("  " + Util.secondsSince(d));
 

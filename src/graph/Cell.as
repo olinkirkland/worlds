@@ -1,6 +1,8 @@
 package graph {
     import flash.geom.Point;
 
+    import global.Util;
+
     import layers.geography.Outflow;
 
     import layers.tectonics.TectonicPlate;
@@ -35,6 +37,7 @@ package graph {
 
         // Temperature
         public var temperature:Number;
+        public var markForRemoval:Boolean;
 
         public function Cell() {
             neighbors = new Vector.<Cell>();
@@ -99,6 +102,17 @@ package graph {
 
         public function get tectonicPlateDirection():int {
             return tectonicPlate.direction;
+        }
+
+        public function removeDuplicateNeighbors():void {
+            var before:int = neighbors.length;
+
+            for (var i:int = 0; i < neighbors.length - 1; i++)
+                for (var j:int = i + 1; j < neighbors.length; j++)
+                    if (neighbors[i] === neighbors[j])
+                        neighbors.removeAt(j--);
+
+            trace("   " + before + " -> " + neighbors.length);
         }
 
         public function calculateArea():void {
