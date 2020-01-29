@@ -10,11 +10,14 @@
     <fx:Script>
         <![CDATA[
         import global.Color;
+        import global.Sort;
         import global.Util;
 
         import graph.Cell;
         import graph.Corner;
         import graph.Edge;
+
+        import layers.geography.River;
 
         import layers.wind.Gust;
 
@@ -36,6 +39,8 @@
         private var layerPrecipitation:UIComponent;
         private var layerTemperature:UIComponent;
         private var layerWater:UIComponent;
+        private var layerFlux:UIComponent;
+        private var layerRivers:UIComponent;
 
         public function onPreinitialize(event:FlexEvent):void {
             NativeApplication.nativeApplication.activeWindow.maximize();
@@ -65,13 +70,17 @@
             layerTemperature.name = "temperature";
             layerWater = new UIComponent();
             layerWater.name = "water";
+            layerFlux = new UIComponent();
+            layerFlux.name = "flux";
+            layerRivers = new UIComponent();
+            layerFlux.name = "rivers";
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerTemperature, layerOutlines, layerDebug];
+            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
             for each (var layer:UIComponent in drawLayers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWater, layerContinents, layerOcean];
+            var initialLayers:Array = [layerWater, layerRivers, layerContinents, layerOcean];
             //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
             for each (layer in drawLayers)
                 layer.visible = false;
@@ -104,6 +113,8 @@
             drawPrecipitation();
             drawTemperature();
             drawWater();
+            drawFlux();
+            drawRivers();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -117,6 +128,11 @@
                     break;
                 case Keyboard.NUMBER_2:
                     map.hydrology.distributeWater();
+                    map.setCornerHeights();
+                    draw();
+                    break;
+                case Keyboard.NUMBER_3:
+                    map.hydrology.sequence();
                     draw();
                     break;
                 case Keyboard.ENTER:
@@ -152,6 +168,12 @@
                     break;
                 case Keyboard.P:
                     toggleLayer(layerWater);
+                    break;
+                case Keyboard.A:
+                    toggleLayer(layerFlux);
+                    break;
+                case Keyboard.S:
+                    toggleLayer(layerRivers);
                     break;
                 default:
                     break;
@@ -241,12 +263,44 @@
                 fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
         }
 
+        private function drawFlux():void {
+            var g:Graphics = layerFlux.graphics;
+            g.clear();
+            g.lineStyle(1, Color.darkBlue);
+
+            for each (var cell:Cell in map.cells) {
+                if (cell.lowestNeighbor && !cell.lowestNeighbor.ocean) {
+                    g.moveTo(cell.point.x, cell.point.y);
+                    g.lineTo(cell.lowestNeighbor.point.x, cell.lowestNeighbor.point.y);
+                }
+            }
+        }
+
+        private function drawRivers():void {
+            var g:Graphics = layerRivers.graphics;
+            g.clear();
+
+            map.hydrology.rivers.sort(Sort.riverByLength);
+            for each (var river:River in map.hydrology.rivers) {
+                g.lineStyle(1, Math.random() * 0xffffff);
+                var color:uint = Color.random;
+                for each (var cell:Cell in river.cells) {
+                    if (river.end != cell) {
+                        drawPointer(g, cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighbor.point), color);
+                    } else {
+                        drawDot(g, cell.point, color, 5);
+                    }
+                }
+            }
+        }
+
         private function drawWater():void {
             var g:Graphics = layerWater.graphics;
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Color.darkBlue, cell.water);
+                if (cell.water > 0.1)
+                    fillCell(g, cell, Color.blue, cell.water * 2);
         }
 
         private function drawRelief():void {

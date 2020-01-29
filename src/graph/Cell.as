@@ -4,6 +4,7 @@ package graph {
     import global.Util;
 
     import layers.geography.Outflow;
+    import layers.geography.River;
 
     import layers.tectonics.TectonicPlate;
 
@@ -34,6 +35,9 @@ package graph {
         public var precipitation:Number;
         public var water:Number = 0;
         public var outflows:Object;
+        public var lowestNeighbor:Cell;
+        public var flux:Number;
+        public var rivers:Vector.<River>;
 
         // Temperature
         public var temperature:Number;
@@ -77,7 +81,6 @@ package graph {
             }
 
             water -= totalOutflow;
-            //height -= totalOutflow / 10;
         }
 
         public function calculateInflows():void {
@@ -90,7 +93,6 @@ package graph {
                 if (neighbor.outflows[index]) {
                     var outflow:Outflow = neighbor.outflows[index];
                     water += outflow.water;
-                    //height += outflow.water / 10;
                 }
             }
         }

@@ -5,13 +5,26 @@ package layers.geography {
 
     public class Hydrology {
         private var map:Map;
+        public var rivers:Vector.<River>;
 
         public function Hydrology(map:Map) {
             this.map = map;
+            rivers = new Vector.<River>();
+        }
 
-            //precipitate();
+        public function addRiver():River {
+            var river:River = new River();
+            river.index = rivers.length;
+            rivers.push(river);
+            return river;
+        }
 
-            //distributeWater();
+        public function sequence():void {
+            precipitate();
+            for (var i:int = 0; i < 30; i++)
+                distributeWater();
+
+            map.update();
         }
 
         public function precipitate():void {
@@ -21,16 +34,14 @@ package layers.geography {
 
         public function distributeWater():void {
             var d:Date = new Date();
-            Util.log("> Distributing water...");
+            //Util.log("> Distributing water...");
             for each (var cell:Cell in map.cells)
                 cell.calculateOutflows();
 
             for each (cell in map.cells)
                 cell.calculateInflows();
 
-            map.setCornerHeights();
-
-            Util.log("  " + Util.secondsSince(d));
+            //Util.log("  " + Util.secondsSince(d));
         }
     }
 }

@@ -10,11 +10,13 @@ package {
 
     import global.Global;
     import global.Rand;
+    import global.Sort;
     import global.Util;
 
     import graph.*;
 
     import layers.geography.Hydrology;
+    import layers.geography.River;
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
     import layers.temperature.Temperature;
@@ -79,16 +81,74 @@ package {
 
             addPerlinNoiseToHeightMap();
             smoothHeightMap();
-            determineOcean();
-            stretchHeightMap();
-            setCornerHeights();
 
             this.width -= (leftWrapWidth - 2 * spacing);
             bounds.width = this.width;
 
+            update();
+        }
+
+        public function update():void {
+            determineOcean();
+            stretchHeightMap();
+            setCornerHeights();
+
             determineTemperature();
             determineWind();
             determineHydrology();
+            determineRivers();
+        }
+
+        private function determineRivers():void {
+            // Setup
+            for each (var cell:Cell in cells) {
+                cell.rivers = new Vector.<River>();
+                cell.flux = cell.precipitation;
+            }
+
+            // Pour flux to lowest neighbors and determine rivers
+            cells.sort(Sort.cellByAltitude).reverse();
+            for each (cell in cells) {
+                var lowestAltitude:Number = cell.altitude;
+                for each (var neighbor:Cell in cell.neighbors) {
+                    // The spacing * 2 is to avoid duplicate neighbors (due to wrapping)
+                    if (neighbor.altitude < lowestAltitude && Util.distanceBetweenTwoPoints(cell.point, neighbor.point) < spacing * 2) {
+                        lowestAltitude = neighbor.altitude;
+                        cell.lowestNeighbor = neighbor;
+                    }
+                }
+
+                if (cell.lowestNeighbor)
+                    pour(cell, cell.lowestNeighbor);
+            }
+        }
+
+        private function pour(cell:Cell, neighbor:Cell):void {
+            if (cell.ocean) return;
+
+            neighbor.flux += cell.flux;
+            if (cell.flux > 1) {
+                var river:River;
+                if (cell.rivers.length > 0) {
+                    // Extend the longest river that's already in this cell
+                    for each (var r:River in cell.rivers) {
+                        if (!river || r.cells.length > river.cells.length)
+                            river = r;
+                    }
+
+                    river.addCell(neighbor);
+                } else {
+                    // Start new river
+                    river = hydrology.addRiver();
+                    river.addCell(cell);
+                    river.addCell(neighbor);
+                }
+
+                // Identify points where the river empties into a body of water
+                if (neighbor.ocean || !neighbor.lowestNeighbor) {
+                    river.end = neighbor;
+                }
+            }
         }
 
         private function determineTemperature():void {
