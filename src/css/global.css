@@ -22,11 +22,11 @@ Scrollbars
  */
 
 s|VScrollBar {
-    skinClass: ClassReference("skins.CustomVScrollBarSkin");
+    skinClass: ClassReference("skins.scrollbars.CustomVScrollBarSkin");
 }
 
 s|HScrollBar {
-    skinClass: ClassReference("skins.CustomHScrollBarSkin");
+    skinClass: ClassReference("skins.scrollbars.CustomHScrollBarSkin");
 }
 
 .scrollBar {
@@ -39,9 +39,9 @@ Buttons
  */
 
 s|Button {
-    skinClass: ClassReference("skins.CustomButtonSkin");
+    skinClass: ClassReference("skins.buttons.CustomButtonSkin");
 }
 
 s|ToggleButton {
-    skinClass: ClassReference("skins.CustomToggleButtonSkin");
+    skinClass: ClassReference("skins.buttons.CustomToggleButtonSkin");
 }

@@ -2,7 +2,7 @@
 
 <s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
 			 xmlns:s="library://ns.adobe.com/flex/spark"
-			 minWidth="10">
+			 minHeight="10">
 
 	<fx:Metadata>
 		<![CDATA[
@@ -17,16 +17,16 @@
 	</s:states>
 
 	<s:Button id="track"
-			  height="4"
-			  top="2"
-			  width="100%"
+			  width="4"
+			  left="2"
+			  height="100%"
 			  styleName="scrollBar"
-			  skinClass="skins.CustomHScrollBarTrackSkin" />
+			  skinClass="skins.scrollbars.CustomVScrollBarTrackSkin" />
 
 	<s:Button id="thumb"
-			  height="4"
-			  top="2"
+			  width="4"
+			  left="2"
 			  styleName="scrollBar"
-			  skinClass="skins.CustomHScrollBarThumbSkin" />
+			  skinClass="skins.scrollbars.CustomVScrollBarThumbSkin" />
 
 </s:SparkSkin>

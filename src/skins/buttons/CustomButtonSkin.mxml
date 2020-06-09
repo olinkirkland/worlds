@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark">
+
+    <fx:Metadata>
+		<![CDATA[
+        [HostComponent("spark.components.Button")]
+        ]]>
+	</fx:Metadata>
+
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+        <s:State name="down" />
+        <s:State name="over" />
+        <s:State name="up" />
+    </s:states>
+
+    <s:HGroup padding="5">
+
+        <s:Group>
+
+            <s:Rect width="100%"
+                    height="100%"
+                    radiusX="5"
+                    radiusY="5">
+                <s:fill>
+                    <s:SolidColor id="color"
+                                  alpha.normal="1"
+                                  alpha.disabled=".5"
+                                  color.normal="0xeeeeee"
+                                  color.up="0xeeeeee"
+                                  color.over="0xf5f5f5"
+                                  color.down="0xd3d3d3" />
+                </s:fill>
+                <s:filters>
+                    <s:DropShadowFilter
+                            distance.up="3"
+                            distance.over="3"
+                            distance.down="0"
+                            angle="45"
+                            color="0x000000"
+                            alpha=".5"
+                            blurX="5"
+                            blurY="5"
+                            strength=".3"
+                            inner.up="false"
+                            inner.over="false"
+                            inner.down="true"
+                            quality="{BitmapFilterQuality.HIGH}" />
+                </s:filters>
+            </s:Rect>
+
+            <s:HGroup paddingLeft="10"
+                      paddingRight="10"
+                      paddingTop="7"
+                      paddingBottom="5"
+                      verticalAlign="middle">
+                <s:Label id="labelDisplay" />
+            </s:HGroup>
+
+        </s:Group>
+
+    </s:HGroup>
+    <fx:Script><![CDATA[
+        import flash.filters.BitmapFilterQuality;
+        ]]></fx:Script>
+</s:SparkButtonSkin>
