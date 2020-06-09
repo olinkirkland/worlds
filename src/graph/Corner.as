@@ -20,7 +20,7 @@ public class Corner {
     public var border:Boolean;
 
     // Height
-    public var height:Number;
+    public var elevation:Number;
 
     public function Corner() {
         touches = new Vector.<Cell>();

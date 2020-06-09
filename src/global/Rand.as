@@ -1,5 +1,8 @@
 package global {
     public class Rand {
+        // Global
+        public static var rand:Rand;
+
         public var seed:Number;
         private const max:Number = 1 / int.MAX_VALUE;
         private const min:Number = -max;

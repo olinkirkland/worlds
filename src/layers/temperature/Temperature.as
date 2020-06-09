@@ -12,7 +12,7 @@ package layers.temperature {
             for each (var cell:Cell in map.cells) {
                 cell.temperature = 1 - Math.abs(2 * (cell.point.y / map.height) - 1);
                 if (!cell.ocean)
-                    cell.temperature -= (cell.height - map.seaLevel) / 2;
+                    cell.temperature -= (cell.elevationAboveSeaLevel) / 2;
                 cell.temperature = Util.round(cell.temperature, 2);
             }
         }

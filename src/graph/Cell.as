@@ -13,7 +13,7 @@ package graph {
         public var used:Boolean;
 
         // Properties
-        public var height:Number = 0;
+        public var elevation:Number = 0;
 
 
         // Flags
@@ -47,6 +47,10 @@ package graph {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+        }
+
+        public function get elevationAboveSeaLevel():Number {
+            return elevation - Map.SEA_LEVEL;
         }
 
         public function calculateOutflows():void {
@@ -99,7 +103,7 @@ package graph {
 
         public function get altitude():Number {
             // I know 'altitude' is probably not the perfect word for this, but it's more unique than 'heightWithWater'
-            return height + water;
+            return elevation + water;
         }
 
         public function get tectonicPlateDirection():int {

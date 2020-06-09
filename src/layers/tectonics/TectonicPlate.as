@@ -2,12 +2,11 @@ package layers.tectonics {
     import flash.geom.Point;
     import flash.geom.Rectangle;
 
-    import global.Global;
+    import global.Rand;
+
+    import global.Util;
 
     import graph.Cell;
-
-    import global.Rand;
-    import global.Util;
 
     public class TectonicPlate {
         // Types
@@ -30,9 +29,9 @@ package layers.tectonics {
 
             cells = new Vector.<Cell>();
 
-            color = Global.rand.next() * 0xffffff;
+            color = Rand.rand.next() * 0xffffff;
 
-            direction = Global.rand.between(0, 360);
+            direction = Rand.rand.between(0, 360);
         }
 
         public function addCell(cell:Cell):void {

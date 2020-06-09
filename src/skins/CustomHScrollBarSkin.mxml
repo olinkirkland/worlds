@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 minWidth="10">
+
+	<fx:Metadata>
+		<![CDATA[
+		[HostComponent("spark.components.VScrollBar")]
+		]]>
+	</fx:Metadata>
+
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="disabled" />
+		<s:State name="inactive" />
+	</s:states>
+
+	<s:Button id="track"
+			  height="4"
+			  top="2"
+			  width="100%"
+			  styleName="scrollBar"
+			  skinClass="skins.CustomHScrollBarTrackSkin" />
+
+	<s:Button id="thumb"
+			  height="4"
+			  top="2"
+			  styleName="scrollBar"
+			  skinClass="skins.CustomHScrollBarThumbSkin" />
+
+</s:SparkSkin>

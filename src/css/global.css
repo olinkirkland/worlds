@@ -1,0 +1,35 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace components "components.*";
+
+/*
+Fonts
+ */
+
+@font-face {
+    src: url("/fonts/Ubuntu.ttf");
+    fontFamily: Ubuntu;
+    fontWeight: normal;
+    fontStyle: normal;
+}
+
+s|Label {
+    font-family: Ubuntu;
+}
+
+/*
+Components
+ */
+
+s|VScrollBar {
+    skinClass: ClassReference("skins.CustomVScrollBarSkin");
+}
+
+s|HScrollBar {
+    skinClass: ClassReference("skins.CustomHScrollBarSkin");
+}
+
+.scrollBar {
+    thumb_color: #d3d3d3;
+    track_color: #eeeeee;
+}

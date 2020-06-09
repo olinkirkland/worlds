@@ -8,7 +8,6 @@ package {
     import flash.geom.Rectangle;
     import flash.utils.Dictionary;
 
-    import global.Global;
     import global.Rand;
     import global.Sort;
     import global.Util;
@@ -25,6 +24,9 @@ package {
     public class Map {
         // Constants
         private const spacing:Number = 10;
+
+        // World Properties
+        public static var SEA_LEVEL:Number = .35;
 
         // Properties
         public var seed:int;
@@ -51,15 +53,6 @@ package {
         private var cellsByPoints:Object;
         public var borderPoints:Array = [];
 
-        // Wrapping
-        public var leftWrapPoints:Array = [];
-        public var rightWrapPoints:Array = [];
-        private var leftWrapWidth:Number;
-
-        // Properties
-        public var seaLevel:Number = .35;
-
-
         public function Map(width:int,
                             height:int,
                             seed:int = 1) {
@@ -72,7 +65,7 @@ package {
                     width,
                     height);
 
-            Global.rand = new Rand(seed);
+            Rand.rand = new Rand(seed);
 
             makePoints();
             makeModel();
@@ -82,7 +75,6 @@ package {
             addPerlinNoiseToHeightMap();
             smoothHeightMap();
 
-            this.width -= (leftWrapWidth - 2 * spacing);
             bounds.width = this.width;
 
             update();
@@ -93,10 +85,10 @@ package {
             stretchHeightMap();
             setCornerHeights();
 
-            determineTemperature();
-            determineWind();
-            determineHydrology();
-            determineRivers();
+            //determineTemperature();
+            //determineWind();
+            //determineHydrology();
+            //determineRivers();
         }
 
         private function determineRivers():void {
@@ -190,7 +182,7 @@ package {
             // Find lowest cell on plate
             var lowestCell:Cell = biggestTectonicPlate.cells[0];
             for each (var cell:Cell in biggestTectonicPlate.cells)
-                if (cell.height < lowestCell.height)
+                if (cell.elevation < lowestCell.elevation)
                     lowestCell = cell;
 
             unuseCells();
@@ -204,7 +196,7 @@ package {
                 cell.ocean = true;
 
                 for each (var neighbor:Cell in cell.neighbors)
-                    if (!neighbor.used && neighbor.height < seaLevel) {
+                    if (!neighbor.used && neighbor.elevation < SEA_LEVEL) {
                         neighbor.used = true;
                         queue.push(neighbor);
                     }
@@ -215,10 +207,10 @@ package {
 
         private function addPerlinNoiseToHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Adding Perlin noise to height map...");
+            Util.log("> Adding Perlin noise to elevation map...");
 
             var bmpd:BitmapData = new BitmapData(width, height);
-            var seed:uint = Global.rand.seed;
+            var seed:uint = Rand.rand.seed;
             bmpd.perlinNoise(bmpd.width, bmpd.height, 6, seed, true, false, BitmapDataChannel.GREEN, true);
 
             var i:int, j:int;
@@ -251,33 +243,33 @@ package {
 
             var perlinModifier:Number = .3;
             for each (var cell:Cell in cells)
-                cell.height += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
+                cell.elevation += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
 
             Util.log("  " + Util.secondsSince(d));
         }
 
         private function smoothHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Smoothing height map...");
+            Util.log("> Smoothing elevation map...");
 
             // Limit cell heights
             for each (var cell:Cell in cells) {
-                cell.height = Math.min(1, cell.height);
-                cell.height = Math.max(0, cell.height);
+                cell.elevation = Math.min(1, cell.elevation);
+                cell.elevation = Math.max(0, cell.elevation);
             }
 
             for (var i:int = 0; i < 3; i++) {
                 for each (cell in cells) {
                     var average:Number = 0;
                     for each (var neighbor:Cell in cell.neighbors)
-                        average += neighbor.height;
+                        average += neighbor.elevation;
 
                     for (var j:int = 0; j < (cell.tectonicPlateBorder ? 3 : 1); j++)
-                        average += cell.height;
+                        average += cell.elevation;
 
 
                     average /= cell.neighbors.length + j;
-                    cell.height = average;
+                    cell.elevation = average;
                 }
             }
 
@@ -286,14 +278,14 @@ package {
 
         private function stretchHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Stretching height...");
+            Util.log("> Stretching elevation...");
 
             var tallest:Number = Number.NEGATIVE_INFINITY;
             for each (var cell:Cell in cells)
-                if (cell.height > tallest)
-                    tallest = cell.height;
+                if (cell.elevation > tallest)
+                    tallest = cell.elevation;
             for each (cell in cells)
-                cell.height /= tallest;
+                cell.elevation /= tallest;
 
             Util.log("  " + Util.secondsSince(d));
         }
@@ -303,10 +295,10 @@ package {
             Util.log("> Assigning heights to corners...");
 
             for each (var corner:Corner in corners) {
-                corner.height = 0;
+                corner.elevation = 0;
                 for each (var cell:Cell in corner.touches)
-                    corner.height += cell.height;
-                corner.height /= corner.touches.length;
+                    corner.elevation += cell.elevation;
+                corner.elevation /= corner.touches.length;
             }
 
             Util.log("  " + Util.secondsSince(d));
@@ -447,71 +439,6 @@ package {
             Util.log("  " + Util.secondsSince(d));
 
             /**
-             * Clean Up and Wrap Borders
-             */
-
-            d = new Date();
-            Util.log("> Wrapping borders...");
-            for (var i:int = 0; i < cells.length; i++) {
-                cell = cells[i];
-                for each (var corner:Corner in cell.corners) {
-                    if (corner.border) {
-                        // Remove references
-                        for each (var neighbor:Cell in cell.neighbors) {
-                            for (var j:int = 0; j < neighbor.neighbors.length; j++) {
-                                if (neighbor.neighbors[j] == cell) {
-                                    neighbor.neighbors.removeAt(j--);
-                                }
-                            }
-                        }
-
-                        cell.neighbors = new Vector.<Cell>();
-                        cell.corners = new Vector.<Corner>();
-                        cell.edges = new Vector.<Edge>();
-                        cells.removeAt(i--);
-                        break;
-                    }
-                }
-
-                var wrappedCell:Cell;
-
-                // Right wrap
-                var wrapIndex:int = rightWrapPoints.indexOf(cell.point);
-                if (wrapIndex >= 0) {
-                    wrappedCell = getCellByPoint(leftWrapPoints[wrapIndex]);
-                    for each (neighbor in cell.neighbors) {
-                        for (j = 0; j < neighbor.neighbors.length; j++) {
-                            var n:Cell = neighbor.neighbors[j];
-                            if (n == cell) {
-                                neighbor.neighbors[j] = wrappedCell;
-                            }
-                        }
-                    }
-
-                    cell.neighbors = wrappedCell.neighbors = wrappedCell.neighbors.concat(cell.neighbors);
-                }
-            }
-
-            // Remove wrap cells
-            while (rightWrapPoints.length > 0) {
-                var r:Point = rightWrapPoints.pop();
-                var c:Cell = getCellByPoint(r);
-                for (i = 0; i < cells.length; i++) {
-                    if (cells[i] == c) {
-                        cells[i].markForRemoval = true;
-                        cells.removeAt(i);
-                        break;
-                    }
-                }
-            }
-
-            // todo This can be improved by just targeting relevant cells
-            for each (cell in cells)
-                cell.removeDuplicateNeighbors();
-
-            Util.log("  " + Util.secondsSince(d));
-
-            /**
              * Cell Area
              */
 
@@ -603,92 +530,65 @@ package {
             points = new Vector.<Point>();
             quadTree = new QuadTree(bounds);
 
-            // Size of the left wrap
-            leftWrapWidth = spacing * 6;
-
             var d:Date = new Date();
-            Util.log("> Making border points...");
-            makeBorderPoints(spacing);
-            Util.log("  " + Util.secondsSince(d));
-
-
-            d = new Date();
-            Util.log("> Making wrap points...");
-            // Create left wrap points
-            makePointsInArea(new Rectangle(0,
-                    0,
-                    leftWrapWidth,
-                    bounds.height),
-                    spacing,
-                    50);
-
-            // Copy left wrap points to the right wrap
-            for each (var p:Point in points) {
-                if (borderPoints.indexOf(p) < 0) {
-                    leftWrapPoints.push(p);
-                    rightWrapPoints.push(new Point(p.x + bounds.width - leftWrapWidth - spacing,
-                            p.y));
-                }
-            }
-            Util.log("  " + Util.secondsSince(d));
-
-            for each (p in rightWrapPoints) {
-                addPoint(p);
-            }
-
-            d = new Date();
             Util.log("> Filling the area with points...");
+
             // Fill the rest of the area
             makePointsInArea(bounds,
-                    spacing,
-                    10);
+                    15);
 
             Util.log("  " + points.length + " points");
+            Util.log("  " + (points.length / ((new Date().time - d.time) / 1000)).toFixed(2) + " points/second");
             Util.log("  " + Util.secondsSince(d));
         }
 
 
         private function makePointsInArea(area:Rectangle,
-                                          m:Number,
                                           precision:int):void {
             // The active point queue
             var queue:Vector.<Point> = new Vector.<Point>();
 
             var point:Point = new Point(int(area.width / 2),
                     int(area.height / 2));
+
+            var doubleSpacing:Number = spacing * 2;
+            var doublePI:Number = 2 * Math.PI;
+
             var box:Rectangle = new Rectangle(0,
                     0,
-                    2 * m,
-                    2 * m);
+                    2 * spacing,
+                    2 * spacing);
 
             addPoint(point);
             queue.push(point);
 
+            var candidate:Point = null;
+            var angle:Number;
+            var distance:int;
+
             while (queue.length > 0) {
                 point = queue[0];
-                var candidate:Point = null;
 
                 for (var i:int = 0; i < precision; i++) {
-                    var angle:Number = Global.rand.next() * 2 * Math.PI;
-                    var distance:int = Global.rand.between(m,
-                            2 * m);
+                    angle = Rand.rand.next() * doublePI;
+                    distance = Rand.rand.between(spacing, doubleSpacing);
 
-                    candidate = new Point();
-                    candidate.x = int(point.x + distance * Math.cos(angle));
-                    candidate.y = int(point.y + distance * Math.sin(angle));
+                    candidate = new Point(point.x + distance * Math.cos(angle),
+                            point.y + distance * Math.sin(angle));
 
-                    if (!area.contains(candidate.x,
-                            candidate.y)) {
+                    // Check point distance to nearby points
+                    box.x = candidate.x - spacing;
+                    box.y = candidate.y - spacing;
+                    if (quadTree.isRangePopulated(box)) {
                         candidate = null;
                     } else {
-                        // Check point distance to nearby points
-                        box.x = candidate.x - m;
-                        box.y = candidate.y - m;
-                        if (quadTree.query(box).length > 0) {
+                        // Valid candidate
+                        if (!area.contains(candidate.x, candidate.y)) {
+                            // Candidate is outside the area, so don't include it
                             candidate = null;
-                        } else {
-                            break;
+                            continue;
                         }
+                        break;
                     }
                 }
 
@@ -706,39 +606,6 @@ package {
         private function addPoint(p:Point):void {
             points.push(p);
             quadTree.insert(p);
-        }
-
-
-        private function makeBorderPoints(m:Number):void {
-            var p:Point;
-
-            // Make the border points
-            // Top and Bottom
-            p = new Point(m,
-                    m);
-            while (p.x < bounds.width) {
-                borderPoints.push(p);
-                addPoint(p);
-
-                p = new Point(p.x,
-                        bounds.height - m);
-                borderPoints.push(p);
-                addPoint(p);
-
-                p = new Point(p.x + m,
-                        m);
-            }
-
-            // Left and Right
-            p = new Point(m,
-                    2 * m);
-            while (p.y < bounds.height - m) {
-                borderPoints.push(p);
-                addPoint(p);
-
-                p = new Point(m,
-                        p.y + m);
-            }
         }
     }
 }

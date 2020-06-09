@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
-               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:s="library://ns.adobe.com/flex/spark" xmlns:ui="ui.*"
                width="100%"
                height="100%"
                frameRate="60"
                preinitialize="onPreinitialize(event)"
-               applicationComplete="onApplicationComplete(event)">
+               applicationComplete="onApplicationComplete(event)"
+               resize="onResize(event)">
+
+    <fx:Style source="/css/global.css" />
 
     <fx:Script>
         <![CDATA[
@@ -18,7 +21,6 @@
         import graph.Edge;
 
         import layers.geography.River;
-
         import layers.wind.Gust;
 
         import mx.core.UIComponent;
@@ -42,8 +44,10 @@
         private var layerFlux:UIComponent;
         private var layerRivers:UIComponent;
 
+        private var layers:Array;
+
         public function onPreinitialize(event:FlexEvent):void {
-            NativeApplication.nativeApplication.activeWindow.maximize();
+            //NativeApplication.nativeApplication.activeWindow.maximize();
         }
 
         public function onApplicationComplete(event:FlexEvent):void {
@@ -55,7 +59,7 @@
             layerTectonicPlates = new UIComponent();
             layerTectonicPlates.name = "tectonics";
             layerHeightMap = new UIComponent();
-            layerHeightMap.name = "height";
+            layerHeightMap.name = "elevation";
             layerContinents = new UIComponent();
             layerContinents.name = "continents";
             layerRelief = new UIComponent();
@@ -73,33 +77,42 @@
             layerFlux = new UIComponent();
             layerFlux.name = "flux";
             layerRivers = new UIComponent();
-            layerFlux.name = "rivers";
+            layerRivers.name = "rivers";
 
-            var drawLayers:Array = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            for each (var layer:UIComponent in drawLayers)
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
+            for each (var layer:UIComponent in layers)
                 addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWater, layerRivers, layerContinents, layerOcean];
-            //var initialLayers:Array = [layerWind, layerContinents, layerOcean, layerRelief, layerOutlines, layerDebug];
-            for each (layer in drawLayers)
+            var initialLayers:Array = [layerTectonicPlates];
+            for each (layer in layers)
                 layer.visible = false;
             for each (layer in initialLayers)
                 layer.visible = true;
 
+
             // Make Map
             makeMap();
             draw();
+            center();
 
+            // Interactivity
+            userInterface.addLayers(layers.reverse());
+
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+            addEventListener(MouseEvent.CLICK, onClick);
+        }
+
+        public function onResize(event:Event):void {
+            center();
+        }
+
+        private function center():void {
             // Center
-            for each (layer in drawLayers) {
+            for each (var layer:UIComponent in layers) {
                 layer.x = (width - map.width) / 2;
                 layer.y = (height - map.height) / 2;
             }
-
-            // Interactivity
-            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-            addEventListener(MouseEvent.CLICK, onClick);
         }
 
         private function draw():void {
@@ -109,12 +122,13 @@
             drawContinents();
             drawRelief();
             drawOcean();
-            drawWind();
-            drawPrecipitation();
-            drawTemperature();
-            drawWater();
-            drawFlux();
-            drawRivers();
+
+            //drawWind();
+            //drawPrecipitation();
+            //drawTemperature();
+            //drawWater();
+            //drawFlux();
+            //drawRivers();
         }
 
         private function onKeyDown(event:KeyboardEvent):void {
@@ -184,11 +198,12 @@
             layer.visible = !layer.visible;
             var onOrOff:String = layer.visible ? "ON" : "OFF";
             Util.log(Util.capitalizeFirstLetter(layer.name) + " [" + onOrOff + "]");
+            userInterface.updateItem(layer);
         }
 
         private function onClick(event:MouseEvent):void {
             var p:Point = new Point(event.localX, event.localY);
-            var arr:Array = map.quadTree.queryFromPoint(p, 10);
+            var arr:Array = Util.toArray(map.quadTree.queryFromPoint(p, 10));
             if (arr.length > 0) {
                 var t:Point = Util.closestPoint(p, arr);
                 var c:Cell = map.getCellByPoint(t);
@@ -200,14 +215,14 @@
 
         private function describe(c:Cell):void {
             trace("Cell #" + c.index);
-            trace("altitude=" + c.altitude);
-            trace("  height=" + c.height + ", water=" + c.water);
+            trace("  altitude=" + c.altitude);
+            trace("  elevation=" + c.elevation + ", water=" + c.water);
             var n:Number = 0;
             for (var i:String in c.outflows) {
                 n += c.outflows[i].water;
                 trace("Outflow from #" + i + ": " + c.outflows[i]);
             }
-            trace("Total: " + n + " (=" + c.water + "?)");
+            trace("Total water: " + n + " (=" + c.water + "?)");
             var neighborIndexes:Array = [];
             for each (var neighbor:Cell in c.neighbors)
                 neighborIndexes.push(neighbor.index);
@@ -310,6 +325,9 @@
             for each (var cell:Cell in map.cells) {
                 // Create triangles
                 for each (var edge:Edge in cell.edges) {
+                    if (!edge.v0 || !edge.v1)
+                        continue;
+
                     g.beginFill(Color.black, calculateLighting(cell, edge.v0, edge.v1) * .8);
                     g.moveTo(cell.point.x, cell.point.y);
                     g.lineTo(edge.v0.point.x, edge.v0.point.y);
@@ -320,10 +338,14 @@
         }
 
         public function calculateLighting(p:Cell, r:Corner, s:Corner):Number {
+            if (!p || !r || !s)
+                return 0;
+
             var lightVector:Vector3D = new Vector3D(1, 1, 0);
-            var a:Vector3D = new Vector3D(p.point.x, p.point.y, p.height);
-            var b:Vector3D = new Vector3D(r.point.x, r.point.y, r.height);
-            var c:Vector3D = new Vector3D(s.point.x, s.point.y, s.height);
+
+            var a:Vector3D = new Vector3D(p.point.x, p.point.y, p.elevation);
+            var b:Vector3D = new Vector3D(r.point.x, r.point.y, r.elevation);
+            var c:Vector3D = new Vector3D(s.point.x, s.point.y, s.elevation);
 
             var normal:Vector3D = b.subtract(a).crossProduct(c.subtract(a));
             if (normal.z < 0)
@@ -342,7 +364,7 @@
             g.clear();
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, colorFromHeightMap(cell.height));
+                fillCell(g, cell, colorFromHeightMap(cell.elevation));
         }
 
         private function colorFromHeightMap(height:Number):uint {
@@ -421,4 +443,11 @@
         }
         ]]>
     </fx:Script>
+    <s:Group width="100%" height="100%">
+        <s:Group id="layerGroup" width="100%" height="100%" />
+        <s:VGroup width="100%" padding="10">
+            <s:Label text="Layers" />
+            <ui:UserInterface id="userInterface" width="100%" height="100%" />
+        </s:VGroup>
+    </s:Group>
 </s:Application>

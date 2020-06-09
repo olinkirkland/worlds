@@ -10,6 +10,13 @@ package global {
             trace(v);
         }
 
+        public static function toArray(iterable:*):Array {
+            var arr:Array = [];
+            for each (var elem:* in iterable)
+                arr.push(elem);
+            return arr;
+        }
+
         public static function closestPoint(point:Point, points:Array):Point {
             if (points.length == 0)
                 return null;
@@ -27,13 +34,6 @@ package global {
 
         public static function round(n:Number, places:int = 2):Number {
             return Number(n.toFixed(places));
-        }
-
-        public static function toArray(iterable:*):Array {
-            var arr:Array = [];
-            for each (var o:Object in iterable)
-                arr.push(o);
-            return arr;
         }
 
         public static function capitalizeFirstLetter(str:String):String {

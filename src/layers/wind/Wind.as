@@ -65,19 +65,19 @@ package layers.wind {
 
             for each (gust in gusts) {
                 var averageHeight:Number = 0;
-                var quadPoints:Array = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
 
                 var ocean:Boolean = false;
                 for each (p in quadPoints) {
                     var cell:Cell = map.getCellByPoint(p);
-                    averageHeight += cell.height;
+                    averageHeight += cell.elevation;
                     if (cell.ocean)
                         ocean = true;
                 }
 
                 if (ocean) {
                     gust.ocean = true;
-                    gust.height = map.seaLevel;
+                    gust.height = Map.SEA_LEVEL;
                 } else {
                     averageHeight /= quadPoints.length;
                     gust.height = averageHeight >= 0 ? averageHeight : -1;
@@ -165,7 +165,7 @@ package layers.wind {
 
         private function applyPrecipitationToCells():void {
             for each (var gust:Gust in gusts) {
-                var quadPoints:Array = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
                 for each (var p:Point in quadPoints) {
                     var cell:Cell = map.getCellByPoint(p);
                     if (!cell.precipitation)
