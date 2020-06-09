@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
-               xmlns:s="library://ns.adobe.com/flex/spark" xmlns:ui="ui.*"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:ui="ui.*"
                width="100%"
                height="100%"
                frameRate="60"
@@ -25,6 +26,8 @@
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
+
+        import ui.UIEventType;
 
         public static var map:Map;
 
@@ -101,6 +104,14 @@
 
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
             addEventListener(MouseEvent.CLICK, onClick);
+
+            userInterface.addEventListener(UIEventType.MAKE_MAP, function (event:Event):void {
+                userInterface.updateStatus("Working...");
+                setTimeout(function ():void {
+                    makeMap();
+                    draw();
+                }, 100);
+            });
         }
 
         public function onResize(event:Event):void {
@@ -198,7 +209,7 @@
             layer.visible = !layer.visible;
             var onOrOff:String = layer.visible ? "ON" : "OFF";
             Util.log(Util.capitalizeFirstLetter(layer.name) + " [" + onOrOff + "]");
-            userInterface.updateItem(layer);
+            userInterface.updateLayer(layer);
         }
 
         private function onClick(event:MouseEvent):void {
@@ -233,6 +244,9 @@
             var d:Date = new Date();
             map = new Map(1200, 600, seed++);
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
+
+            userInterface.updateStatus("Seed generated! (" + Util.secondsSince(d) + ")");
+            userInterface.updateSeed(seed);
         }
 
         private function drawContinents():void {
@@ -443,11 +457,16 @@
         }
         ]]>
     </fx:Script>
-    <s:Group width="100%" height="100%">
-        <s:Group id="layerGroup" width="100%" height="100%" />
-        <s:VGroup width="100%" padding="10">
-            <s:Label text="Layers" />
-            <ui:UserInterface id="userInterface" width="100%" height="100%" />
+    <s:Group width="100%"
+             height="100%">
+        <s:Group id="layerGroup"
+                 width="100%"
+                 height="100%" />
+        <s:VGroup width="100%"
+                  padding="10">
+            <ui:UserInterface id="userInterface"
+                              width="100%"
+                              height="100%" />
         </s:VGroup>
     </s:Group>
 </s:Application>

@@ -18,7 +18,7 @@ s|Label {
 }
 
 /*
-Components
+Scrollbars
  */
 
 s|VScrollBar {
@@ -32,4 +32,16 @@ s|HScrollBar {
 .scrollBar {
     thumb_color: #d3d3d3;
     track_color: #eeeeee;
+}
+
+/*
+Buttons
+ */
+
+s|Button {
+    skinClass: ClassReference("skins.CustomButtonSkin");
+}
+
+s|ToggleButton {
+    skinClass: ClassReference("skins.CustomToggleButtonSkin");
 }

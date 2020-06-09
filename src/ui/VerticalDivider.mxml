@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          paddingLeft="7"
+          paddingRight="7"
+          paddingTop="1"
+          paddingBottom="1"
+          height="100%">
+    <s:Line height="100%">
+        <s:stroke>
+            <s:SolidColorStroke color="0x778899" alpha=".5" />
+        </s:stroke>
+    </s:Line>
+</s:HGroup>
