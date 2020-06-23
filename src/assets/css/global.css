@@ -1,0 +1,70 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+/*
+Fonts
+ */
+
+@font-face {
+    src: url("/assets/fonts/Karla-Regular.ttf");
+    fontFamily: Karla;
+    fontWeight: normal;
+    fontStyle: normal;
+}
+
+@font-face {
+    src: url("/assets/fonts/Karla-Bold.ttf");
+    fontFamily: Karla;
+    fontWeight: bold;
+    fontStyle: normal;
+}
+
+/*
+Labels
+ */
+
+s|Label {
+    font-family: Arial;
+    color: #5A5A5A;
+    fontSize: 12;
+    paddingTop: 2;
+}
+
+s|Label.primary {
+    fontWeight: bold;
+    color: #FFFFFF;
+}
+
+s|Label.secondary {
+    fontWeight: normal;
+    color: #5A5A5A;
+}
+
+/*
+Scrollbars
+ */
+
+s|VScrollBar {
+    skinClass: ClassReference("skins.scrollbars.CustomVScrollBarSkin");
+}
+
+s|HScrollBar {
+    skinClass: ClassReference("skins.scrollbars.CustomHScrollBarSkin");
+}
+
+.scrollBar {
+    thumb_color: #d3d3d3;
+    track_color: #eeeeee;
+}
+
+/*
+Buttons
+ */
+
+s|Button {
+    skinClass: ClassReference("skins.buttons.SecondaryButtonSkin");
+}
+
+s|ToggleButton {
+    skinClass: ClassReference("skins.buttons.ToggleButtonSkin");
+}

@@ -51,7 +51,6 @@ package {
 
         // Point Mapping
         private var cellsByPoints:Object;
-        public var borderPoints:Array = [];
 
         public function Map(width:int,
                             height:int,
@@ -533,12 +532,24 @@ package {
             var d:Date = new Date();
             Util.log("> Filling the area with points...");
 
+            // Make border points
+            var gap:int = 5;
+            for (var i:int = gap; i < bounds.width; i += 2 * gap) {
+                addPoint(new Point(i, gap));
+                addPoint(new Point(i, bounds.height - gap));
+            }
+
+            for (i = 2 * gap; i < bounds.height - gap; i += 2 * gap) {
+                addPoint(new Point(gap, i));
+                addPoint(new Point(bounds.width - gap, i));
+            }
+
             // Fill the rest of the area
             makePointsInArea(bounds,
                     15);
 
-            Util.log("  " + points.length + " points");
-            Util.log("  " + (points.length / ((new Date().time - d.time) / 1000)).toFixed(2) + " points/second");
+            //Util.log("  " + points.length + " points");
+            //Util.log("  " + (points.length / ((new Date().time - d.time) / 1000)).toFixed(2) + " points/second");
             Util.log("  " + Util.secondsSince(d));
         }
 

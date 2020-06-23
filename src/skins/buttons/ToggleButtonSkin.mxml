@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   creationComplete="onCreationComplete(event)">
+
+    <fx:Metadata>
+		<![CDATA[
+        [HostComponent("spark.components.ToggleButton")]
+        ]]>
+	</fx:Metadata>
+
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+        <s:State name="down" />
+        <s:State name="over" />
+        <s:State name="up" />
+
+        <s:State name="disabledAndSelected" />
+        <s:State name="downAndSelected" />
+        <s:State name="overAndSelected" />
+        <s:State name="upAndSelected" />
+    </s:states>
+
+    <s:Group>
+
+        <s:Rect width="100%"
+                height="100%"
+                radiusX="3"
+                radiusY="3">
+            <s:fill>
+                <s:SolidColor id="color"
+                              color="{Color.secondary}"
+                              alpha.normal="1"
+                              alpha.disabled=".5" />
+            </s:fill>
+        </s:Rect>
+
+        <s:Rect width="100%"
+                height="100%"
+                radiusX="3"
+                radiusY="3">
+            <s:fill>
+                <s:SolidColor color="0x000000"
+                              alpha.normal="0"
+                              alpha.disabled="0"
+                              alpha.disabledAndSelected="0"
+                              alpha.up="0"
+                              alpha.upAndSelected="0"
+                              alpha.over=".1"
+                              alpha.overAndSelected=".1"
+                              alpha.down=".3"
+                              alpha.downAndSelected=".3" />
+            </s:fill>
+        </s:Rect>
+
+        <s:HGroup padding="5"
+                  paddingLeft="10"
+                  paddingRight="10"
+                  verticalAlign="middle"
+                  gap="5">
+
+            <s:BitmapImage id="image"
+                           source="@Embed('/assets/images/eye.png')"
+                           width="12"
+                           height="12"
+                           smooth="true"
+                           visible.up="false"
+                           visible.over="false"
+                           visible.down="false"
+                           visible.upAndSelected="true"
+                           visible.overAndSelected="true"
+                           visible.downAndSelected="true"
+                           includeInLayout.up="false"
+                           includeInLayout.over="false"
+                           includeInLayout.down="false"
+                           includeInLayout.upAndSelected="true"
+                           includeInLayout.overAndSelected="true"
+                           includeInLayout.downAndSelected="true" />
+
+            <s:HGroup verticalAlign="middle">
+                <s:Label id="labelDisplay"
+                         styleName="secondary" />
+            </s:HGroup>
+
+        </s:HGroup>
+
+    </s:Group>
+
+    <fx:Script><![CDATA[
+        import global.Color;
+
+        import mx.events.FlexEvent;
+
+        [Bindable]
+        public function set iconColor(value:uint):void {
+            var t:ColorTransform = image.transform.colorTransform;
+            t.color = value;
+            image.transform.colorTransform = t;
+        }
+
+        public function get iconColor():uint {
+            return image.transform.colorTransform.color;
+        }
+
+        private function onCreationComplete(event:FlexEvent):void {
+            iconColor = Color.darkBody;
+        }
+        ]]></fx:Script>
+</s:SparkButtonSkin>

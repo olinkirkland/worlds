@@ -91,7 +91,7 @@ package layers.tectonics {
             var borderCells:Vector.<Cell> = new Vector.<Cell>();
             for each (cell in map.cells) {
                 for each (neighbor in cell.neighbors) {
-                    if (cell.tectonicPlate != neighbor.tectonicPlate) {
+                    if (cell.tectonicPlate != neighbor.tectonicPlate && neighbor.tectonicPlate) {
                         cell.tectonicPlateBorder = true;
                         borderCells.push(cell);
                     }

@@ -8,6 +8,8 @@
 
     <fx:Script>
             <![CDATA[
+        import global.Color;
+
         import mx.collections.ArrayCollection;
         import mx.events.FlexEvent;
 
@@ -27,6 +29,13 @@
         }
 
         public function updateStatus(str:String):void {
+            if (str == "Working...") {
+                newMapButton.label = "Working...";
+                return;
+            } else {
+                newMapButton.label = "Generate new map";
+            }
+
             statusLabel.text = str;
         }
 
@@ -35,28 +44,38 @@
         }
         ]]>
     </fx:Script>
-    <s:VGroup width="100%"
-              height="100%"
-              gap="9">
+    <s:Group width="100%">
 
         <s:VGroup width="100%"
-                  gap="5">
-            <s:Label text="Properties" />
-            <s:HGroup verticalAlign="middle">
+                  height="100%">
+            <s:Rect width="100%"
+                    height="100%"
+                    radiusX="5"
+                    radiusY="5">
+                <s:fill>
+                    <s:SolidColor color="{Color.background}" />
+                </s:fill>
+            </s:Rect>
+        </s:VGroup>
+
+        <s:VGroup width="100%"
+                  height="100%"
+                  gap="6"
+                  padding="15">
+
+            <s:HGroup width="100%"
+                      verticalAlign="middle">
                 <s:Button id="newMapButton"
-                          label="New Map"
+                          skinClass="skins.buttons.PrimaryButtonSkin"
+                          label="Generate new map"
                           click="onNewMapButtonClicked(event)" />
-                <ui:VerticalDivider />
+                <s:Spacer width="10" />
                 <s:Label text="Seed: " />
                 <s:Label id="seedLabel" />
                 <ui:VerticalDivider />
                 <s:Label id="statusLabel" />
             </s:HGroup>
-        </s:VGroup>
 
-        <s:VGroup width="100%"
-                  gap="5">
-            <s:Label text="Layers" />
             <s:List id="layersList"
                     width="100%"
                     direction="ltr"
@@ -69,7 +88,8 @@
                     <s:HorizontalLayout />
                 </s:layout>
             </s:List>
+
         </s:VGroup>
 
-    </s:VGroup>
+    </s:Group>
 </s:Group>

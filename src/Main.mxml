@@ -5,11 +5,9 @@
                width="100%"
                height="100%"
                frameRate="60"
-               preinitialize="onPreinitialize(event)"
-               applicationComplete="onApplicationComplete(event)"
-               resize="onResize(event)">
+               applicationComplete="onApplicationComplete(event)">
 
-    <fx:Style source="/css/global.css" />
+    <fx:Style source="/assets/css/global.css" />
 
     <fx:Script>
         <![CDATA[
@@ -31,7 +29,7 @@
 
         public static var map:Map;
 
-        private var seed:int = 1;
+        private var seed:int = 0;
 
         private var layerDebug:UIComponent;
         private var layerOutlines:UIComponent;
@@ -48,10 +46,6 @@
         private var layerRivers:UIComponent;
 
         private var layers:Array;
-
-        public function onPreinitialize(event:FlexEvent):void {
-            //NativeApplication.nativeApplication.activeWindow.maximize();
-        }
 
         public function onApplicationComplete(event:FlexEvent):void {
             // Set up layers
@@ -83,8 +77,9 @@
             layerRivers.name = "rivers";
 
             layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            for each (var layer:UIComponent in layers)
-                addElement(layer);
+            for each (var layer:UIComponent in layers) {
+                layerGroup.addElement(layer);
+            }
 
             // Initial layers
             var initialLayers:Array = [layerTectonicPlates];
@@ -97,12 +92,10 @@
             // Make Map
             makeMap();
             draw();
-            center();
 
             // Interactivity
             userInterface.addLayers(layers.reverse());
 
-            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
             addEventListener(MouseEvent.CLICK, onClick);
 
             userInterface.addEventListener(UIEventType.MAKE_MAP, function (event:Event):void {
@@ -114,19 +107,8 @@
             });
         }
 
-        public function onResize(event:Event):void {
-            center();
-        }
-
-        private function center():void {
-            // Center
-            for each (var layer:UIComponent in layers) {
-                layer.x = (width - map.width) / 2;
-                layer.y = (height - map.height) / 2;
-            }
-        }
-
         private function draw():void {
+            drawDebug();
             drawOutlines();
             drawTectonicPlates();
             drawColorHeightMap();
@@ -142,69 +124,6 @@
             //drawRivers();
         }
 
-        private function onKeyDown(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.SPACE:
-                    toggleLayer(layerDebug);
-                    break;
-                case Keyboard.NUMBER_1:
-                    map.hydrology.precipitate();
-                    draw();
-                    break;
-                case Keyboard.NUMBER_2:
-                    map.hydrology.distributeWater();
-                    map.setCornerHeights();
-                    draw();
-                    break;
-                case Keyboard.NUMBER_3:
-                    map.hydrology.sequence();
-                    draw();
-                    break;
-                case Keyboard.ENTER:
-                    makeMap();
-                    draw();
-                    break;
-                case Keyboard.Q:
-                    toggleLayer(layerOutlines);
-                    break;
-                case Keyboard.W:
-                    toggleLayer(layerRelief);
-                    break;
-                case Keyboard.E:
-                    toggleLayer(layerContinents);
-                    break;
-                case Keyboard.R:
-                    toggleLayer(layerOcean);
-                    break;
-                case Keyboard.T:
-                    toggleLayer(layerHeightMap);
-                    break;
-                case Keyboard.Y:
-                    toggleLayer(layerTectonicPlates);
-                    break;
-                case Keyboard.U:
-                    toggleLayer(layerWind);
-                    break;
-                case Keyboard.I:
-                    toggleLayer(layerPrecipitation);
-                    break;
-                case Keyboard.O:
-                    toggleLayer(layerTemperature);
-                    break;
-                case Keyboard.P:
-                    toggleLayer(layerWater);
-                    break;
-                case Keyboard.A:
-                    toggleLayer(layerFlux);
-                    break;
-                case Keyboard.S:
-                    toggleLayer(layerRivers);
-                    break;
-                default:
-                    break;
-            }
-        }
-
         private function toggleLayer(layer:UIComponent):void {
             layer.visible = !layer.visible;
             var onOrOff:String = layer.visible ? "ON" : "OFF";
@@ -213,6 +132,7 @@
         }
 
         private function onClick(event:MouseEvent):void {
+            return;
             var p:Point = new Point(event.localX, event.localY);
             var arr:Array = Util.toArray(map.quadTree.queryFromPoint(p, 10));
             if (arr.length > 0) {
@@ -394,6 +314,14 @@
             return color;
         }
 
+        private function drawDebug():void {
+            var g:Graphics = layerDebug.graphics;
+            g.clear();
+
+            for each (var cell:Cell in map.cells)
+                drawDot(g, cell.point, Color.orange, 3);
+        }
+
         private function drawOutlines():void {
             var g:Graphics = layerOutlines.graphics;
             g.clear();
@@ -457,16 +385,23 @@
         }
         ]]>
     </fx:Script>
-    <s:Group width="100%"
-             height="100%">
-        <s:Group id="layerGroup"
-                 width="100%"
-                 height="100%" />
+
+    <s:VGroup id="mainGroup"
+              width="100%"
+              height="100%">
         <s:VGroup width="100%"
                   padding="10">
             <ui:UserInterface id="userInterface"
-                              width="100%"
-                              height="100%" />
+                              width="100%" />
         </s:VGroup>
-    </s:Group>
+        <s:VGroup width="100%"
+                  height="100%"
+                  padding="10"
+                  horizontalAlign="center"
+                  verticalAlign="middle">
+            <s:Group id="layerGroup"
+                     width="1200"
+                     height="600" />
+        </s:VGroup>
+    </s:VGroup>
 </s:Application>
