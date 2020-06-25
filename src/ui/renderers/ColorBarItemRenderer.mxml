@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                creationComplete="onCreationComplete(event)"
+                autoDrawBackground="false"
+                width="100%"
+                height="100%">
+    <fx:Script><![CDATA[
+        import global.Color;
+        import global.performance.PerformanceReportItem;
+
+        import mx.events.FlexEvent;
+
+        import spark.components.DataGroup;
+
+        import ui.ColorBar;
+
+        private var item:Object;
+        public var color:uint;
+
+        private function onCreationComplete(event:FlexEvent):void {
+        }
+
+        override public function set data(value:Object):void {
+            if (!value)
+                return;
+
+            item = value;
+
+            // Item must have a percent property
+            if (item.hasOwnProperty("color"))
+                color = item.color;
+            else if (item.hasOwnProperty("name"))
+                color = Color.stringToLightColor(item.name);
+            else
+                color = Math.random() * 0xffffff;
+
+            fillSolidColor.color = color;
+
+            var expectedExternalPercentWidth:Number = 1 / (parent as DataGroup).dataProvider.length;
+            percentWidth = item.percent / expectedExternalPercentWidth * 10;
+
+            displayLabel.text = item.name;
+        }
+
+        private function getShowDisplayLabel():Boolean {
+            return displayLabel.width > 10 && ColorBar(parent).showLabels;
+        }
+        ]]>
+    </fx:Script>
+
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+    </s:states>
+
+    <s:Group width="100%"
+             height="100%">
+
+        <s:Rect id="rect"
+                width="100%"
+                height="100%">
+            <s:fill>
+                <s:SolidColor id="fillSolidColor"
+                              alpha.normal="1"
+                              alpha.disabled=".5" />
+            </s:fill>
+        </s:Rect>
+
+        <s:Label id="displayLabel"
+                 width="100%"
+                 height="100%"
+                 paddingLeft="5"
+                 paddingRight="5"
+                 visible="{getShowDisplayLabel()}"
+                 textAlign="center"
+                 verticalAlign="middle"
+                 maxDisplayedLines="1"
+                 showTruncationTip="true" />
+
+    </s:Group>
+
+</s:ItemRenderer>

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                creationComplete="onCreationComplete(event)"
+                autoDrawBackground="false">
+    <fx:Script><![CDATA[
+        import global.Color;
+
+        import mx.events.FlexEvent;
+
+        private var item:Object;
+        public var color:uint;
+
+        private function onCreationComplete(event:FlexEvent):void {
+        }
+
+        override public function set data(value:Object):void {
+            if (!value)
+                return;
+
+            item = value;
+
+            // Item must have a percent property
+            if (item.hasOwnProperty("color"))
+                color = item.color;
+            else if (item.hasOwnProperty("name"))
+                color = Color.stringToLightColor(item.name);
+            else
+                color = Math.random() * 0xffffff;
+
+            fillSolidColor.color = color;
+        }
+        ]]>
+    </fx:Script>
+
+    <s:HGroup gap="5"
+              padding="5"
+              verticalAlign="middle">
+        <s:Ellipse width="10"
+                   height="10">
+            <s:fill>
+                <s:SolidColor id="fillSolidColor" />
+            </s:fill>
+        </s:Ellipse>
+        <s:Label id="labelDisplay" />
+    </s:HGroup>
+</s:ItemRenderer>

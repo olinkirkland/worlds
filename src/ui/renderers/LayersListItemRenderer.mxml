@@ -35,6 +35,5 @@
         ]]>
     </fx:Script>
 
-    <s:ToggleButton id="button"
-                    styleName="secondary" />
+    <s:ToggleButton id="button" />
 </s:ItemRenderer>

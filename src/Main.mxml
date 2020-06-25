@@ -14,6 +14,9 @@
         import global.Color;
         import global.Sort;
         import global.Util;
+        import global.performance.PerformanceReport;
+        import global.performance.PerformanceReport;
+        import global.performance.PerformanceReportItem;
 
         import graph.Cell;
         import graph.Corner;
@@ -24,6 +27,7 @@
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
+        import mx.events.ResizeEvent;
 
         import ui.UIEventType;
 
@@ -76,13 +80,14 @@
             layerRivers = new UIComponent();
             layerRivers.name = "rivers";
 
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
+            //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers) {
                 layerGroup.addElement(layer);
             }
 
             // Initial layers
-            var initialLayers:Array = [layerTectonicPlates];
+            var initialLayers:Array = [layerHeightMap, layerContinents, layerRelief, layerOcean];
             for each (layer in layers)
                 layer.visible = false;
             for each (layer in initialLayers)
@@ -99,7 +104,7 @@
             addEventListener(MouseEvent.CLICK, onClick);
 
             userInterface.addEventListener(UIEventType.MAKE_MAP, function (event:Event):void {
-                userInterface.updateStatus("Working...");
+                userInterface.setToWorking();
                 setTimeout(function ():void {
                     makeMap();
                     draw();
@@ -162,11 +167,22 @@
 
         private function makeMap():void {
             var d:Date = new Date();
-            map = new Map(1200, 600, seed++);
+            map = new Map(1200, 600, seed);
+            Util.log("#### Seed " + seed + " complete! ####");
             Util.log("Total time taken: " + "  " + Util.secondsSince(d));
 
-            userInterface.updateStatus("Seed generated! (" + Util.secondsSince(d) + ")");
+            PerformanceReport.items.sortOn("timeTakenInSeconds", Array.DESCENDING);
+
+//            for each (var item:PerformanceReportItem in PerformanceReport.items) {
+//                var p:Number = item.percent * 100;
+//                var pString:String = p < 1 ? p.toFixed(2) : p.toFixed(0);
+//                Util.log(item.name + ": " + item.timeTakenInSeconds + " seconds -- " + pString + "%");
+//            }
+
+            userInterface.setToReady();
             userInterface.updateSeed(seed);
+
+            seed++;
         }
 
         private function drawContinents():void {
@@ -383,25 +399,48 @@
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }
+
+        private function onLayerGroupContainerResize(event:ResizeEvent):void {
+//            trace(event.target.width, event.target.height);
+//            trace(event.target.contentWidth, event.target.contentHeight);
+
+            var t:Object = event.target;
+            t.height = (t.width / t.contentWidth) * t.contentHeight;
+        }
         ]]>
     </fx:Script>
 
-    <s:VGroup id="mainGroup"
-              width="100%"
-              height="100%">
-        <s:VGroup width="100%"
-                  padding="10">
-            <ui:UserInterface id="userInterface"
-                              width="100%" />
-        </s:VGroup>
-        <s:VGroup width="100%"
+    <s:VGroup width="100%"
+              height="100%"
+              padding="10"
+              gap="10">
+
+        <s:Spacer height="{userInterface.toolBar.height}" />
+
+        <s:VGroup id="layerGroupContainer"
+                  width="100%"
                   height="100%"
-                  padding="10"
-                  horizontalAlign="center"
-                  verticalAlign="middle">
+                  resizeMode="scale"
+                  resize="onLayerGroupContainerResize(event)">
             <s:Group id="layerGroup"
                      width="1200"
                      height="600" />
         </s:VGroup>
+
     </s:VGroup>
+
+    <s:VGroup id="userInterfaceContainer"
+              width="100%"
+              height="100%"
+              padding="10">
+
+        <s:Group width="100%"
+                 height="100%">
+            <ui:UserInterface id="userInterface"
+                              width="100%"
+                              height="100%" />
+        </s:Group>
+
+    </s:VGroup>
+
 </s:Application>

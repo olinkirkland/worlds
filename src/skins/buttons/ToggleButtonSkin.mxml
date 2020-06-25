@@ -62,7 +62,7 @@
                   gap="5">
 
             <s:BitmapImage id="image"
-                           source="@Embed('/assets/images/eye.png')"
+                           source="{Icons.eye}"
                            width="12"
                            height="12"
                            smooth="true"
@@ -79,10 +79,8 @@
                            includeInLayout.overAndSelected="true"
                            includeInLayout.downAndSelected="true" />
 
-            <s:HGroup verticalAlign="middle">
-                <s:Label id="labelDisplay"
-                         styleName="secondary" />
-            </s:HGroup>
+            <s:Label id="labelDisplay"
+                     styleName="secondary" />
 
         </s:HGroup>
 
@@ -90,22 +88,14 @@
 
     <fx:Script><![CDATA[
         import global.Color;
+        import global.Icons;
 
         import mx.events.FlexEvent;
 
-        [Bindable]
-        public function set iconColor(value:uint):void {
-            var t:ColorTransform = image.transform.colorTransform;
-            t.color = value;
-            image.transform.colorTransform = t;
-        }
-
-        public function get iconColor():uint {
-            return image.transform.colorTransform.color;
-        }
-
         private function onCreationComplete(event:FlexEvent):void {
-            iconColor = Color.darkBody;
+            var t:ColorTransform = image.transform.colorTransform;
+            t.color = Color.darkBody;
+            image.transform.colorTransform = t;
         }
         ]]></fx:Script>
 </s:SparkButtonSkin>

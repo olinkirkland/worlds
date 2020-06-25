@@ -11,6 +11,8 @@ package {
     import global.Rand;
     import global.Sort;
     import global.Util;
+    import global.performance.PerformanceReport;
+    import global.performance.PerformanceReportItem;
 
     import graph.*;
 
@@ -65,6 +67,8 @@ package {
                     height);
 
             Rand.rand = new Rand(seed);
+
+            PerformanceReport.reset();
 
             makePoints();
             makeModel();
@@ -144,33 +148,29 @@ package {
 
         private function determineTemperature():void {
             var d:Date = new Date();
-            Util.log("> Calculating temperature...");
             temperature = new Temperature(this);
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Temperature", Util.secondsSince(d)));
         }
 
         private function determineWind():void {
             var d:Date = new Date();
-            Util.log("> Calculating wind...");
             wind = new Wind(this);
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind", Util.secondsSince(d)));
         }
 
         private function determineHydrology():void {
             var d:Date = new Date();
-            Util.log("> Calculating hydrology...");
 
             // Calculate hydrology
             hydrology = new Hydrology(this);
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Hydrology", Util.secondsSince(d)));
         }
 
         private function determineOcean():void {
             var d:Date = new Date();
-            Util.log("> Filling ocean with water...");
 
             // Determine biggest tectonic plate
             var biggestTectonicPlate:TectonicPlate;
@@ -201,12 +201,11 @@ package {
                     }
             }
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Ocean", Util.secondsSince(d)));
         }
 
         private function addPerlinNoiseToHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Adding Perlin noise to elevation map...");
 
             var bmpd:BitmapData = new BitmapData(width, height);
             var seed:uint = Rand.rand.seed;
@@ -244,12 +243,11 @@ package {
             for each (var cell:Cell in cells)
                 cell.elevation += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Perlin noise", Util.secondsSince(d)));
         }
 
         private function smoothHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Smoothing elevation map...");
 
             // Limit cell heights
             for each (var cell:Cell in cells) {
@@ -272,12 +270,11 @@ package {
                 }
             }
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Smoothing terrain", Util.secondsSince(d)));
         }
 
         private function stretchHeightMap():void {
             var d:Date = new Date();
-            Util.log("> Stretching elevation...");
 
             var tallest:Number = Number.NEGATIVE_INFINITY;
             for each (var cell:Cell in cells)
@@ -286,12 +283,11 @@ package {
             for each (cell in cells)
                 cell.elevation /= tallest;
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Stretch elevation", Util.secondsSince(d)));
         }
 
         public function setCornerHeights():void {
             var d:Date = new Date();
-            Util.log("> Assigning heights to corners...");
 
             for each (var corner:Corner in corners) {
                 corner.elevation = 0;
@@ -300,7 +296,7 @@ package {
                 corner.elevation /= corner.touches.length;
             }
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Assign heights to vertices", Util.secondsSince(d)));
         }
 
         public function unuseCells():void {
@@ -333,7 +329,6 @@ package {
             var d:Date;
 
             d = new Date();
-            Util.log("> Making Voronoi diagram...");
             var voronoi:Voronoi = new Voronoi(points,
                     bounds);
 
@@ -350,27 +345,24 @@ package {
                 cells.push(cell);
                 cellsDictionary[point] = cell;
             }
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Voronoi diagram", Util.secondsSince(d)));
 
             d = new Date();
-            Util.log("> Making Voronoi regions...");
-            for each (cell in cells) {
+            for each (cell in cells)
                 voronoi.region(cell.point);
-            }
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Voronoi regions", Util.secondsSince(d)));
 
             /**
              * Associative Mapping
              */
 
             d = new Date();
-            Util.log("> Making cell dictionary...");
             cellsByPoints = {};
             for each (cell in cells) {
                 cellsByPoints[JSON.stringify(cell.point)] = cell;
             }
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Cell dictionary", Util.secondsSince(d)));
 
             /**
              * Corners
@@ -414,7 +406,6 @@ package {
              */
 
             d = new Date();
-            Util.log("> Making edges...");
             var libEdges:Vector.<com.nodename.delaunay.Edge> = voronoi.edges();
             for each (var libEdge:com.nodename.delaunay.Edge in libEdges) {
                 var dEdge:Segment = libEdge.delaunayLine();
@@ -435,18 +426,17 @@ package {
                 setupEdge(edge);
             }
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Edges", Util.secondsSince(d)));
 
             /**
              * Cell Area
              */
 
             d = new Date();
-            Util.log("> Calculating cell areas...");
             for each (cell in cells)
                 cell.calculateArea();
 
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Cell areas", Util.secondsSince(d)));
         }
 
 
@@ -526,11 +516,10 @@ package {
 
 
         public function makePoints():void {
+            var d:Date = new Date();
+
             points = new Vector.<Point>();
             quadTree = new QuadTree(bounds);
-
-            var d:Date = new Date();
-            Util.log("> Filling the area with points...");
 
             // Make border points
             var gap:int = 5;
@@ -548,9 +537,7 @@ package {
             makePointsInArea(bounds,
                     15);
 
-            //Util.log("  " + points.length + " points");
-            //Util.log("  " + (points.length / ((new Date().time - d.time) / 1000)).toFixed(2) + " points/second");
-            Util.log("  " + Util.secondsSince(d));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Make points", Util.secondsSince(d), points.length + " points\n" + (points.length / ((new Date().time - d.time) / 1000)).toFixed(2) + " points/second"));
         }
 
 

@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
-                   xmlns:s="library://ns.adobe.com/flex/spark">
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   creationComplete="onCreationComplete(event)"
+                   autoIconManagement="false">
 
     <fx:Metadata>
 		<![CDATA[
         [HostComponent("spark.components.Button")]
         ]]>
 	</fx:Metadata>
+
+    <fx:Script><![CDATA[
+        import global.Color;
+
+        import mx.events.FlexEvent;
+
+        import spark.components.Label;
+
+        private function onCreationComplete(event:FlexEvent):void {
+            var t:ColorTransform = iconDisplay.transform.colorTransform;
+            t.color = Color.lightBody;
+            iconDisplay.transform.colorTransform = t;
+
+            if (Label(labelDisplay).text.length == 0)
+                Label(labelDisplay).includeInLayout = false;
+        }
+        ]]></fx:Script>
 
     <s:states>
         <s:State name="normal" />
@@ -36,7 +55,7 @@
                 radiusX="3"
                 radiusY="3">
             <s:fill>
-                <s:SolidColor color="0x000000"
+                <s:SolidColor color="{Color.black}"
                               alpha.normal="0"
                               alpha.disabled="0"
                               alpha.up="0"
@@ -47,16 +66,21 @@
 
         <s:HGroup padding="5"
                   paddingLeft="10"
-                  paddingRight="10">
-            <s:HGroup verticalAlign="middle">
-                <s:Label id="labelDisplay"
-                         styleName="primary" />
-            </s:HGroup>
+                  paddingRight="10"
+                  verticalAlign="middle"
+                  gap="5">
+
+            <s:BitmapImage id="iconDisplay"
+                           includeInLayout="{iconDisplay.source}"
+                           width="12"
+                           height="12"
+                           smooth="true" />
+
+            <s:Label id="labelDisplay"
+                     styleName="primary" />
+
         </s:HGroup>
 
     </s:Group>
 
-    <fx:Script><![CDATA[
-        import global.Color;
-        ]]></fx:Script>
 </s:SparkButtonSkin>

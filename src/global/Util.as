@@ -2,8 +2,8 @@ package global {
     import flash.geom.Point;
 
     public class Util {
-        public static function secondsSince(d:Date):String {
-            return ((new Date().time - d.time) / 1000).toFixed(2) + "s";
+        public static function secondsSince(d:Date):Number {
+            return Number(((new Date().time - d.time) / 1000).toFixed(4));
         }
 
         public static function log(v:*):void {

@@ -124,8 +124,8 @@
     <!-- The subpath of the Programs menu to use. (Ignored on operating systems without a Programs menu.) Optional. -->
     <!--<programMenuFolder></programMenuFolder>-->
 
-    <!-- The icon the system uses for the application. For at least one resolution, specify the path to a PNG file included in the AIR package. Optional. -->
-    <!--<icon>
+    <!-- The imageSource the system uses for the application. For at least one resolution, specify the path to a PNG file included in the AIR package. Optional. -->
+    <!--<imageSource>
         <image16x16></image16x16>
         <image29x29></image29x29>
         <image32x32></image32x32>
@@ -156,7 +156,7 @@
         <image512x512></image512x512>
         <image732x412></image732x412>
         <image1024x1024></image1024x1024>
-    </icon>-->
+    </imageSource>-->
 
     <!-- Whether the application handles the update when a user double-clicks an update version of the AIR file (true),
          or the default AIR application installer handles the update (false). Optional. Default false. -->
@@ -177,13 +177,13 @@
     <!--<description></description>-->
     <!-- The MIME content type. -->
     <!--<contentType></contentType>-->
-    <!-- The icon to display for the file type. Optional. -->
-    <!--<icon>
+    <!-- The imageSource to display for the file type. Optional. -->
+    <!--<imageSource>
         <image16x16></image16x16>
         <image32x32></image32x32>
         <image48x48></image48x48>
         <image128x128></image128x128>
-    </icon>-->
+    </imageSource>-->
     <!--</fileType>-->
     <!--</fileTypes>-->
 

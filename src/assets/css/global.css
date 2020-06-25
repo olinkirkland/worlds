@@ -30,6 +30,11 @@ s|Label {
     paddingTop: 2;
 }
 
+s|Label.header {
+    fontWeight: bold;
+    fontSize: 16;
+}
+
 s|Label.primary {
     fontWeight: bold;
     color: #FFFFFF;
@@ -67,4 +72,19 @@ s|Button {
 
 s|ToggleButton {
     skinClass: ClassReference("skins.buttons.ToggleButtonSkin");
+}
+
+/*
+Miscellaneous
+ */
+
+s|Panel {
+    skinClass: ClassReference("skins.PanelSkin");
+}
+
+global {
+    modalTransparency: 0.4;
+    modalTransparencyBlur: 0;
+    modalTransparencyColor: black;
+    modalTransparencyDuration: 0;
 }

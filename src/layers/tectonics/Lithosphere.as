@@ -3,6 +3,8 @@ package layers.tectonics {
 
     import global.Rand;
     import global.Util;
+    import global.performance.PerformanceReport;
+    import global.performance.PerformanceReportItem;
 
     import graph.*;
 
@@ -36,7 +38,6 @@ package layers.tectonics {
 
         private function expandPlates():void {
             var t:Date = new Date();
-            Util.log("> Making tectonic plates...");
 
             for each (var tectonicPlate:TectonicPlate in tectonicPlates) {
                 map.unuseCells();
@@ -60,12 +61,11 @@ package layers.tectonics {
                     }
                 }
             }
-            Util.log("  " + Util.secondsSince(t));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Make tectonic plates", Util.secondsSince(t)));
 
             // Ensure there are no tectonic plate fragments
             var pass:int = 0;
             t = new Date();
-            Util.log("> Removing tectonic fragments...");
             do {
                 var fragments:Vector.<Cell> = getPlateFragments();
                 for (var i:int = 0; i < fragments.length; i++) {
@@ -83,11 +83,10 @@ package layers.tectonics {
                 }
                 pass++;
             } while (getPlateFragments().length > 0 && pass < 10);
-            Util.log("  " + Util.secondsSince(t));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Remove tectonic plate fragments", Util.secondsSince(t)));
 
             // Determine the tectonic plate borders
             t = new Date();
-            Util.log("> Determining tectonic plate borders...");
             var borderCells:Vector.<Cell> = new Vector.<Cell>();
             for each (cell in map.cells) {
                 for each (neighbor in cell.neighbors) {
@@ -97,11 +96,8 @@ package layers.tectonics {
                     }
                 }
             }
-            Util.log("  " + Util.secondsSince(t));
 
             // Calculate the area for each tectonic plate
-            t = new Date();
-            Util.log("> Calculating tectonic plate area...");
             totalArea = 0;
             for each (tectonicPlate in tectonicPlates) {
                 tectonicPlate.calculateArea();
@@ -109,11 +105,10 @@ package layers.tectonics {
             }
             for each (tectonicPlate in tectonicPlates)
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
-            Util.log("  " + Util.secondsSince(t));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Measure tectonic plates", Util.secondsSince(t)));
 
             // Set plates to either oceanic or continental
             t = new Date();
-            Util.log("> Determining tectonic plate types and setting their heights...");
             var platesArray:Array = Util.toArray(tectonicPlates);
             platesArray.sortOn("area");
             var currentAreaPercent:Number = 0;
@@ -132,13 +127,12 @@ package layers.tectonics {
                 for each(cell in tectonicPlate.cells)
                     cell.elevation = height;
             }
-            Util.log("  " + Util.secondsSince(t));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Tectonic plate types", Util.secondsSince(t)));
 
             // Set initial heights for borders
             // Cells pointing toward an edge will create a mountain
             // Cells pointing away from an edge will create a trench
             t = new Date();
-            Util.log("> Setting initial heights for tectonic plate borders...");
             for each (cell in borderCells) {
                 // Determine the cell's elevation based on its neighbors
                 var changedHeight:Number = 0;
@@ -165,7 +159,7 @@ package layers.tectonics {
                     }
                 }
             }
-            Util.log("  " + Util.secondsSince(t));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Apply tectonic plate collisions", Util.secondsSince(t)));
         }
 
 

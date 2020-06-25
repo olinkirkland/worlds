@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<s:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        itemRenderer="ui.renderers.ColorBarItemRenderer"
+        useVirtualLayout="false"
+        labelField="name"
+        borderVisible="false"
+        horizontalScrollPolicy="off"
+        verticalScrollPolicy="off">
+    <s:layout>
+        <s:HorizontalLayout gap="2" />
+    </s:layout>
+    <fx:Script><![CDATA[
+        private var _showLabels:Boolean = true;
+        [Bindable]
+        public function set showLabels(value:Boolean):void {
+            _showLabels = value;
+            if (_showLabels)
+                labelFunction = function (item:Object):String {
+                    return "";
+                }
+            else
+                labelFunction = function (item:Object):String {
+                    return item[labelField];
+                }
+        }
+
+        public function get showLabels():Boolean {
+            return _showLabels;
+        }
+        ]]></fx:Script>
+</s:List>
