@@ -72,7 +72,7 @@
                  height="100%"
                  paddingLeft="5"
                  paddingRight="5"
-                 visible="{getShowDisplayLabel()}"
+                 visible="true"
                  textAlign="center"
                  verticalAlign="middle"
                  maxDisplayedLines="1"

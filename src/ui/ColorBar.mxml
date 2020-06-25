@@ -3,10 +3,10 @@
         xmlns:s="library://ns.adobe.com/flex/spark"
         itemRenderer="ui.renderers.ColorBarItemRenderer"
         useVirtualLayout="false"
-        labelField="name"
         borderVisible="false"
         horizontalScrollPolicy="off"
-        verticalScrollPolicy="off">
+        verticalScrollPolicy="off"
+        height="24">
     <s:layout>
         <s:HorizontalLayout gap="2" />
     </s:layout>

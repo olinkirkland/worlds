@@ -29,19 +29,38 @@
                 color = Math.random() * 0xffffff;
 
             fillSolidColor.color = color;
+
+            if (!item.hasOwnProperty("percent"))
+                return;
+
+            labelTime.text = item.timeTakenInSeconds + "s";
+
+            var percent:Number = item.percent * 100;
+            var percentAsString:String = percent.toFixed(1);
+            if (percent < .1)
+                percentAsString = percent.toFixed(2);
+            if (percent < .01)
+                percentAsString = percent.toFixed(3);
+
+            labelPercent.text = percentAsString + "%"
         }
         ]]>
     </fx:Script>
 
     <s:HGroup gap="5"
-              padding="5"
-              verticalAlign="middle">
-        <s:Ellipse width="10"
-                   height="10">
-            <s:fill>
-                <s:SolidColor id="fillSolidColor" />
-            </s:fill>
-        </s:Ellipse>
-        <s:Label id="labelDisplay" />
+              padding="5">
+        <s:VGroup>
+            <s:HGroup verticalAlign="middle">
+                <s:Ellipse width="10"
+                           height="10">
+                    <s:fill>
+                        <s:SolidColor id="fillSolidColor" />
+                    </s:fill>
+                </s:Ellipse>
+                <s:Label id="labelDisplay" />
+            </s:HGroup>
+            <s:Label id="labelPercent" />
+            <s:Label id="labelTime" />
+        </s:VGroup>
     </s:HGroup>
 </s:ItemRenderer>
