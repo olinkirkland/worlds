@@ -430,6 +430,16 @@
                          height="600" />
             </s:VGroup>
 
+
+            <!--            <s:Rect width="100%"-->
+            <!--                    height="100%">-->
+            <!--                <s:fill>-->
+            <!--                    <s:SolidColor color="{Color.red}"-->
+            <!--                                  alpha=".4" />-->
+            <!--                </s:fill>-->
+            <!--            </s:Rect>-->
+
+
             <s:HGroup id="layerGroupMask"
                       width="100%"
                       height="{layerGroupContainer.height}"

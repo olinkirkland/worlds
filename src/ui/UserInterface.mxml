@@ -133,13 +133,13 @@
 
         </s:VGroup>
 
-<!--        <s:Rect width="100%"-->
-<!--                height="100%">-->
-<!--            <s:fill>-->
-<!--                <s:SolidColor color="{Color.red}"-->
-<!--                              alpha=".4" />-->
-<!--            </s:fill>-->
-<!--        </s:Rect>-->
+        <!--        <s:Rect width="100%"-->
+        <!--                height="100%">-->
+        <!--            <s:fill>-->
+        <!--                <s:SolidColor color="{Color.red}"-->
+        <!--                              alpha=".4" />-->
+        <!--            </s:fill>-->
+        <!--        </s:Rect>-->
 
     </s:Group>
 
@@ -164,6 +164,7 @@
               elementRemove="onPopupAddedOrRemoved(event)"
               width="100%"
               height="100%"
+              padding="50"
               horizontalAlign="center"
               verticalAlign="middle" />
 
