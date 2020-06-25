@@ -412,35 +412,42 @@
 
     <s:VGroup width="100%"
               height="100%"
-              padding="10"
-              gap="10">
+              gap="0">
 
         <s:Spacer height="{userInterface.toolBar.height}" />
 
-        <s:VGroup id="layerGroupContainer"
-                  width="100%"
-                  height="100%"
-                  resizeMode="scale"
-                  resize="onLayerGroupContainerResize(event)">
-            <s:Group id="layerGroup"
-                     width="1200"
-                     height="600" />
-        </s:VGroup>
-
-    </s:VGroup>
-
-    <s:VGroup id="userInterfaceContainer"
-              width="100%"
-              height="100%"
-              padding="10">
-
         <s:Group width="100%"
                  height="100%">
-            <ui:UserInterface id="userInterface"
-                              width="100%"
-                              height="100%" />
+
+            <s:VGroup id="layerGroupContainer"
+                      width="100%"
+                      height="100%"
+                      mask="{layerGroupMask}"
+                      resizeMode="scale"
+                      resize="onLayerGroupContainerResize(event)">
+                <s:Group id="layerGroup"
+                         width="1200"
+                         height="600" />
+            </s:VGroup>
+
+            <s:HGroup id="layerGroupMask"
+                      width="100%"
+                      height="{layerGroupContainer.height}"
+                      padding="10">
+                <s:Rect width="100%"
+                        height="100%">
+                    <s:fill>
+                        <s:SolidColor color="{Color.red}" />
+                    </s:fill>
+                </s:Rect>
+            </s:HGroup>
+
         </s:Group>
 
     </s:VGroup>
+
+    <ui:UserInterface id="userInterface"
+                      width="100%"
+                      height="100%" />
 
 </s:Application>

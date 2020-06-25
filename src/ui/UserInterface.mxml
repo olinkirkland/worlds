@@ -13,11 +13,8 @@
 
         import mx.collections.ArrayCollection;
         import mx.events.FlexEvent;
-        import mx.managers.PopUpManager;
 
-        import spark.components.Panel;
-
-        import ui.PopupPanel;
+        import spark.events.ElementExistenceEvent;
 
         private function onCreationComplete(event:FlexEvent):void {
         }
@@ -63,13 +60,21 @@
 
             popups.addElement(panel);
         }
+
+        private function onPopupAddedOrRemoved(event:ElementExistenceEvent):void {
+            callLater(function ():void {
+                popupModalRectangle.includeInLayout = popupModalRectangle.visible = popups.numElements > 0;
+            });
+        }
         ]]>
     </fx:Script>
     <s:Group id="toolBar"
              width="100%">
 
         <s:VGroup width="100%"
-                  height="100%">
+                  height="100%"
+                  padding="10"
+                  paddingBottom="0">
             <s:Rect width="100%"
                     height="100%"
                     radiusX="5"
@@ -83,19 +88,23 @@
         <s:VGroup width="100%"
                   height="100%"
                   gap="6"
-                  padding="15">
+                  padding="20"
+                  paddingBottom="10">
 
             <s:HGroup width="100%"
                       verticalAlign="middle">
+
                 <s:Button id="newMapButton"
                           skinClass="skins.buttons.PrimaryButtonSkin"
                           icon="{Icons.plus}"
                           label="test"
                           click="onNewMapButtonClicked(event)" />
+
                 <s:HGroup id="mapPropertiesGroup"
                           width="100%"
                           height="100%"
                           verticalAlign="middle">
+
                     <ui:VerticalDivider />
                     <s:Label text="Seed: " />
                     <s:Label id="seedLabel" />
@@ -124,9 +133,35 @@
 
         </s:VGroup>
 
+<!--        <s:Rect width="100%"-->
+<!--                height="100%">-->
+<!--            <s:fill>-->
+<!--                <s:SolidColor color="{Color.red}"-->
+<!--                              alpha=".4" />-->
+<!--            </s:fill>-->
+<!--        </s:Rect>-->
+
     </s:Group>
 
+    <!--Modal mode rectangle for popups-->
+    <s:VGroup id="popupModalRectangle"
+              width="100%"
+              height="100%"
+              visible="false"
+              includeInLayout="false">
+        <s:Rect width="100%"
+                height="100%">
+            <s:fill>
+                <s:SolidColor color="{Color.black}"
+                              alpha=".4" />
+            </s:fill>
+        </s:Rect>
+    </s:VGroup>
+
+    <!--Popup layer-->
     <s:VGroup id="popups"
+              elementAdd="onPopupAddedOrRemoved(event)"
+              elementRemove="onPopupAddedOrRemoved(event)"
               width="100%"
               height="100%"
               horizontalAlign="center"
