@@ -136,8 +136,6 @@
                           height="100%"
                           verticalAlign="middle">
 
-                    <ui:VerticalDivider />
-
                     <s:Button id="randomSeedPhraseButton"
                               skinClass="skins.buttons.SecondaryButtonSkin"
                               icon="{Icons.dice}"
