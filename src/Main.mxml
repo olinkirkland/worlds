@@ -14,9 +14,6 @@
         import global.Color;
         import global.Sort;
         import global.Util;
-        import global.performance.PerformanceReport;
-        import global.performance.PerformanceReport;
-        import global.performance.PerformanceReportItem;
 
         import graph.Cell;
         import graph.Corner;
@@ -166,23 +163,9 @@
         }
 
         private function makeMap():void {
-            var d:Date = new Date();
-            map = new Map(1200, 600, seed);
-            Util.log("#### Seed " + seed + " complete! ####");
-            Util.log("Total time taken: " + "  " + Util.secondsSince(d));
-
-            PerformanceReport.items.sortOn("timeTakenInSeconds", Array.DESCENDING);
-
-//            for each (var item:PerformanceReportItem in PerformanceReport.items) {
-//                var p:Number = item.percent * 100;
-//                var pString:String = p < 1 ? p.toFixed(2) : p.toFixed(0);
-//                Util.log(item.name + ": " + item.timeTakenInSeconds + " seconds -- " + pString + "%");
-//            }
+            map = new Map(1200, 600, userInterface.seedAsNumber());
 
             userInterface.setToReady();
-            userInterface.updateSeed(seed);
-
-            seed++;
         }
 
         private function drawContinents():void {
@@ -443,7 +426,7 @@
             <s:HGroup id="layerGroupMask"
                       width="100%"
                       height="{layerGroupContainer.height}"
-                      padding="10">
+                      padding="15">
                 <s:Rect width="100%"
                         height="100%">
                     <s:fill>

@@ -2,6 +2,11 @@ package global {
     import flash.geom.Point;
 
     public class Util {
+
+        [Embed(source='/assets/seeds.json', mimeType='application/octet-stream')]
+        private static var SeedsJSON:Class;
+        private static var seeds:Array;
+
         public static function secondsSince(d:Date):Number {
             return Number(((new Date().time - d.time) / 1000).toFixed(4));
         }
@@ -15,6 +20,14 @@ package global {
             for each (var elem:* in iterable)
                 arr.push(elem);
             return arr;
+        }
+
+        public static function stringToSeed(str:String):int {
+            var hash:Number = 0;
+            for (var i:int = 0; i < str.length; i++)
+                hash += str.charCodeAt(i);
+
+            return hash;
         }
 
         public static function closestPoint(point:Point, points:Array):Point {
@@ -87,6 +100,13 @@ package global {
         public static function pointFromDegreesAndDistance(point:Point, degrees:Number, distance:Number):Point {
             var radians:Number = toRadians(degrees);
             return new Point(point.x + Math.cos(radians) * distance, point.y + Math.sin(radians) * distance);
+        }
+
+        public static function randomSeedPhrase():String {
+            if (!seeds)
+                seeds = JSON.parse(new SeedsJSON()).seeds;
+
+            return seeds[int(Math.random() * seeds.length - 1)];
         }
     }
 }

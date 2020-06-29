@@ -22,8 +22,8 @@
 			right="0"
 			top="0"
 			bottom="0"
-			radiusX="2"
-			radiusY="2">
+			radiusX="4"
+			radiusY="4">
 		<s:fill>
 			<s:SolidColor color="{getStyle('track_color')}" />
 		</s:fill>

@@ -10,21 +10,28 @@
             <![CDATA[
         import global.Color;
         import global.Icons;
+        import global.Util;
 
         import mx.collections.ArrayCollection;
         import mx.events.FlexEvent;
 
         import spark.events.ElementExistenceEvent;
+        import spark.events.TextOperationEvent;
+
+        private var seedPhrase:String = Util.randomSeedPhrase();
 
         private function onCreationComplete(event:FlexEvent):void {
+            updateSeed(seedPhrase);
         }
 
         public function addLayers(layers:Array):void {
             layersList.dataProvider = new ArrayCollection(layers);
         }
 
-        public function updateSeed(seed:int):void {
-            seedLabel.text = String(seed);
+        public function updateSeed(value:String):void {
+            seedPhrase = value;
+            seedLabel.text = seedPhrase;
+            seedNumberLabel.text = "(" + Util.stringToSeed(seedPhrase) + ")";
         }
 
         public function updateLayer(item:*):void {
@@ -33,6 +40,7 @@
 
         public function setToWorking():void {
             newMapButton.label = "Working...";
+            newMapButton.setStyle("icon", null);
 
             mapPropertiesGroup.enabled = false;
             layersList.enabled = false;
@@ -40,12 +48,19 @@
 
         public function setToReady():void {
             newMapButton.label = "";
+            newMapButton.setStyle("icon", Icons.play);
 
             mapPropertiesGroup.enabled = true;
             layersList.enabled = true;
         }
 
+        private function onRandomSeedPhraseButtonClicked(event:MouseEvent):void {
+            seedTextInput.text = Util.randomSeedPhrase();
+            onSeedTextInputChange(null);
+        }
+
         private function onNewMapButtonClicked(event:MouseEvent):void {
+            updateSeed(seedTextInput.text);
             dispatchEvent(new Event(UIEventType.MAKE_MAP));
         }
 
@@ -66,6 +81,14 @@
                 popupModalRectangle.includeInLayout = popupModalRectangle.visible = popups.numElements > 0;
             });
         }
+
+        public function seedAsNumber():Number {
+            return Util.stringToSeed(seedTextInput.text);
+        }
+
+        private function onSeedTextInputChange(event:TextOperationEvent):void {
+            newMapButton.enabled = seedTextInput.text.length > 0;
+        }
         ]]>
     </fx:Script>
     <s:Group id="toolBar"
@@ -73,7 +96,7 @@
 
         <s:VGroup width="100%"
                   height="100%"
-                  padding="10"
+                  padding="15"
                   paddingBottom="0">
             <s:Rect width="100%"
                     height="100%"
@@ -88,16 +111,24 @@
         <s:VGroup width="100%"
                   height="100%"
                   gap="6"
-                  padding="20"
+                  padding="25"
                   paddingBottom="10">
 
             <s:HGroup width="100%"
                       verticalAlign="middle">
 
+                <s:VGroup gap="0">
+                    <s:Label id="seedLabel"
+                             styleName="header" />
+                    <s:Label id="seedNumberLabel" />
+                </s:VGroup>
+
+                <ui:VerticalDivider />
+
                 <s:Button id="newMapButton"
+                          enabled="false"
                           skinClass="skins.buttons.PrimaryButtonSkin"
-                          icon="{Icons.plus}"
-                          label="test"
+                          icon="{Icons.play}"
                           click="onNewMapButtonClicked(event)" />
 
                 <s:HGroup id="mapPropertiesGroup"
@@ -106,8 +137,15 @@
                           verticalAlign="middle">
 
                     <ui:VerticalDivider />
-                    <s:Label text="Seed: " />
-                    <s:Label id="seedLabel" />
+
+                    <s:Button id="randomSeedPhraseButton"
+                              skinClass="skins.buttons.SecondaryButtonSkin"
+                              icon="{Icons.dice}"
+                              click="onRandomSeedPhraseButtonClicked(event)" />
+
+                    <s:TextInput id="seedTextInput"
+                                 width="200"
+                                 change="onSeedTextInputChange(event)" />
                     <ui:VerticalDivider />
 
                     <s:Button id="performanceReportButton"

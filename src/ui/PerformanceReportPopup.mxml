@@ -16,6 +16,7 @@
         import mx.events.FlexEvent;
 
         private function onCreationComplete(event:FlexEvent):void {
+            PerformanceReport.items.sortOn("timeTakenInSeconds", Array.DESCENDING);
             var d:ArrayCollection = new ArrayCollection(PerformanceReport.items);
             performanceReportColorBar.dataProvider = d;
             performanceReportColorBarLegend.dataProvider = d;
@@ -26,7 +27,6 @@
         }
 
         override public function dispose():void {
-
         }
         ]]>
     </fx:Script>

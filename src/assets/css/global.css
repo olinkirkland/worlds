@@ -45,6 +45,11 @@ s|Label.secondary {
     color: #5A5A5A;
 }
 
+s|TextInput {
+    skinClass: ClassReference("skins.TextInputSkin");
+    focusAlpha: 0;
+}
+
 /*
 Scrollbars
  */

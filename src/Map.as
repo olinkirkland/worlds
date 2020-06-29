@@ -522,7 +522,7 @@ package {
             quadTree = new QuadTree(bounds);
 
             // Make border points
-            var gap:int = 5;
+            var gap:int = 10;
             for (var i:int = gap; i < bounds.width; i += 2 * gap) {
                 addPoint(new Point(i, gap));
                 addPoint(new Point(i, bounds.height - gap));

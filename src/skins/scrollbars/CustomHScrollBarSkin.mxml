@@ -17,14 +17,14 @@
 	</s:states>
 
 	<s:Button id="track"
-			  height="4"
+			  height="8"
 			  top="2"
 			  width="100%"
 			  styleName="scrollBar"
 			  skinClass="skins.scrollbars.CustomHScrollBarTrackSkin" />
 
 	<s:Button id="thumb"
-			  height="4"
+			  height="8"
 			  top="2"
 			  styleName="scrollBar"
 			  skinClass="skins.scrollbars.CustomHScrollBarThumbSkin" />
