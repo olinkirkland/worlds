@@ -18,7 +18,7 @@
         import spark.events.ElementExistenceEvent;
         import spark.events.TextOperationEvent;
 
-        private var seedPhrase:String = Util.randomSeedPhrase();
+        public var seedPhrase:String = Util.randomSeedPhrase();
 
         private function onCreationComplete(event:FlexEvent):void {
             updateSeed(seedPhrase);
@@ -80,10 +80,6 @@
             callLater(function ():void {
                 popupModalRectangle.includeInLayout = popupModalRectangle.visible = popups.numElements > 0;
             });
-        }
-
-        public function seedAsNumber():Number {
-            return Util.stringToSeed(seedTextInput.text);
         }
 
         private function onSeedTextInputChange(event:TextOperationEvent):void {

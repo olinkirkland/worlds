@@ -163,7 +163,7 @@
         }
 
         private function makeMap():void {
-            map = new Map(1200, 600, userInterface.seedAsNumber());
+            map = new Map(1200, 600, Util.stringToSeed(userInterface.seedPhrase));
 
             userInterface.setToReady();
         }

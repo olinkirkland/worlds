@@ -22,12 +22,14 @@ package global {
             return arr;
         }
 
-        public static function stringToSeed(str:String):int {
+        public static function stringToSeed(str:String):Number {
             var hash:Number = 0;
-            for (var i:int = 0; i < str.length; i++)
-                hash += str.charCodeAt(i);
+            for (var i:int = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash = hash & hash;
+            }
 
-            return hash;
+            return Math.abs(hash);
         }
 
         public static function closestPoint(point:Point, points:Array):Point {
