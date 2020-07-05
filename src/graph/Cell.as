@@ -34,14 +34,12 @@ package graph {
         // Water Cycle
         public var precipitation:Number;
         public var water:Number = 0;
-        public var outflows:Object;
         public var lowestNeighbor:Cell;
         public var flux:Number;
         public var rivers:Vector.<River>;
 
         // Temperature
         public var temperature:Number;
-        public var markForRemoval:Boolean;
 
         public function Cell() {
             neighbors = new Vector.<Cell>();
@@ -53,54 +51,6 @@ package graph {
             return elevation - Map.SEA_LEVEL;
         }
 
-        public function calculateOutflows():void {
-            outflows = {};
-
-            var altitudeDifferenceTotal:Number = 0;
-            var averageAltitudeOfOutflowNeighbors:Number = 0;
-
-            for each (var neighbor:Cell in neighbors) {
-                var altitudeDifference:Number = altitude - neighbor.altitude;
-
-                // Only store positive values (we only care about neighbors with a lower altitude)
-                if (altitudeDifference > 0) {
-                    var outflow:Outflow = new Outflow();
-                    outflow.altitudeDifference = altitudeDifference;
-                    outflows[neighbor.index] = outflow;
-                    altitudeDifferenceTotal += altitudeDifference;
-                    averageAltitudeOfOutflowNeighbors += neighbor.altitude;
-                }
-            }
-
-            var outflowCount:int = 0;
-            for each (outflow in outflows)
-                outflowCount++;
-
-            averageAltitudeOfOutflowNeighbors /= outflowCount;
-
-            var totalOutflow:Number = 0;
-            for each (outflow in outflows) {
-                var m:Number = Math.min(water, altitude - averageAltitudeOfOutflowNeighbors) * (outflow.altitudeDifference / altitudeDifferenceTotal);
-                totalOutflow += outflow.water = Math.max(0, m);
-            }
-
-            water -= totalOutflow;
-        }
-
-        public function calculateInflows():void {
-            if (ocean) {
-                water = 0;
-                return;
-            }
-
-            for each (var neighbor:Cell in neighbors) {
-                if (neighbor.outflows[index]) {
-                    var outflow:Outflow = neighbor.outflows[index];
-                    water += outflow.water;
-                }
-            }
-        }
-
         public function get altitude():Number {
             // I know 'altitude' is probably not the perfect word for this, but it's more unique than 'heightWithWater'
             return elevation + water;
@@ -108,15 +58,6 @@ package graph {
 
         public function get tectonicPlateDirection():int {
             return tectonicPlate.direction;
-        }
-
-        public function removeDuplicateNeighbors():void {
-            var before:int = neighbors.length;
-
-            for (var i:int = 0; i < neighbors.length - 1; i++)
-                for (var j:int = i + 1; j < neighbors.length; j++)
-                    if (neighbors[i] === neighbors[j])
-                        neighbors.removeAt(j--);
         }
 
         public function calculateArea():void {

@@ -25,7 +25,7 @@ package {
 
     public class Map {
         // Constants
-        private const spacing:Number = 10;
+        private const spacing:Number = 15;
 
         // World Properties
         public static var SEA_LEVEL:Number = .35;
@@ -75,7 +75,7 @@ package {
 
             lithosphere = new Lithosphere(this);
 
-            addPerlinNoiseToHeightMap();
+            //addPerlinNoiseToHeightMap();
             smoothHeightMap();
 
             bounds.width = this.width;
@@ -441,21 +441,17 @@ package {
 
 
         private function setupEdge(edge:Edge):void {
-            if (edge.d0 != null) {
+            if (edge.d0 != null)
                 edge.d0.edges.push(edge);
-            }
 
-            if (edge.d1 != null) {
+            if (edge.d1 != null)
                 edge.d1.edges.push(edge);
-            }
 
-            if (edge.v0 != null) {
+            if (edge.v0 != null)
                 edge.v0.protrudes.push(edge);
-            }
 
-            if (edge.v1 != null) {
+            if (edge.v1 != null)
                 edge.v1.protrudes.push(edge);
-            }
 
             if (edge.d0 != null && edge.d1 != null) {
                 addToCellList(edge.d0.neighbors,
@@ -522,7 +518,7 @@ package {
             quadTree = new QuadTree(bounds);
 
             // Make border points
-            var gap:int = 10;
+            var gap:int = 5
             for (var i:int = gap; i < bounds.width; i += 2 * gap) {
                 addPoint(new Point(i, gap));
                 addPoint(new Point(i, bounds.height - gap));

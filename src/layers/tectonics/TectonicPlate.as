@@ -15,8 +15,6 @@ package layers.tectonics {
 
         // Properties
         public var index:int;
-        public var bounds:Rectangle;
-        public var centroid:Point;
         public var type:String;
         public var color:uint;
         public var cells:Vector.<Cell>;
@@ -28,9 +26,7 @@ package layers.tectonics {
             this.index = index;
 
             cells = new Vector.<Cell>();
-
             color = Rand.rand.next() * 0xffffff;
-
             direction = Rand.rand.between(0, 360);
         }
 

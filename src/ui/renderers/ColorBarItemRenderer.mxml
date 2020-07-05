@@ -76,7 +76,7 @@
                  textAlign="center"
                  verticalAlign="middle"
                  maxDisplayedLines="1"
-                 showTruncationTip="true" />
+                 showTruncationTip="false" />
 
     </s:Group>
 
