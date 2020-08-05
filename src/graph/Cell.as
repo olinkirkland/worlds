@@ -1,4 +1,5 @@
-package graph {
+package graph
+{
     import flash.geom.Point;
 
     import global.Util;
@@ -8,7 +9,8 @@ package graph {
 
     import layers.tectonics.TectonicPlate;
 
-    public class Cell {
+    public class Cell
+    {
         public var index:int;
         public var used:Boolean;
 
@@ -41,30 +43,37 @@ package graph {
         // Temperature
         public var temperature:Number;
 
-        public function Cell() {
+        public function Cell()
+        {
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
         }
 
-        public function get elevationAboveSeaLevel():Number {
+        public function get elevationAboveSeaLevel():Number
+        {
             return elevation - Map.SEA_LEVEL;
         }
 
-        public function get altitude():Number {
+        public function get altitude():Number
+        {
             // I know 'altitude' is probably not the perfect word for this, but it's more unique than 'heightWithWater'
             return elevation + water;
         }
 
-        public function get tectonicPlateDirection():int {
+        public function get tectonicPlateDirection():int
+        {
             return tectonicPlate.direction;
         }
 
-        public function calculateArea():void {
+        public function calculateArea():void
+        {
             area = 0;
-            for each (var edge:Edge in edges) {
+            for each (var edge:Edge in edges)
+            {
                 var triangleArea:Number = 0;
-                if (edge.v0 && edge.v1) {
+                if (edge.v0 && edge.v1)
+                {
                     var a:Number = Point.distance(edge.v0.point, point);
                     var b:Number = Point.distance(point, edge.v1.point);
                     var c:Number = Point.distance(edge.v1.point, edge.v0.point);
@@ -79,9 +88,12 @@ package graph {
             area = Number(area.toFixed(2));
         }
 
-        public function sharedEdge(neighbor:Cell):Edge {
-            for each (var edge:Edge in edges) {
-                if (edge.d0 == neighbor || edge.d1 == neighbor) {
+        public function sharedEdge(neighbor:Cell):Edge
+        {
+            for each (var edge:Edge in edges)
+            {
+                if (edge.d0 == neighbor || edge.d1 == neighbor)
+                {
                     return edge;
                 }
             }
