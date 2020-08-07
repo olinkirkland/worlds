@@ -67,8 +67,8 @@ package
             // Set properties
             spacing = AdvancedPropertiesUtil.currentValues.spacing;
             precision = AdvancedPropertiesUtil.currentValues.precision;
-            //smoothPasses = AdvancedPropertiesUtil.currentValues.smoothPasses;
-            //seaLevel = AdvancedPropertiesUtil.currentValues.seaLevel;
+            smoothPasses = AdvancedPropertiesUtil.currentValues.smoothing;
+            seaLevel = AdvancedPropertiesUtil.currentValues.seaLevel;
 
             this.width = width;
             this.height = height;
