@@ -77,7 +77,7 @@ package layers.wind {
 
                 if (ocean) {
                     gust.ocean = true;
-                    gust.height = Map.SEA_LEVEL;
+                    gust.height = Map.seaLevel;
                 } else {
                     averageHeight /= quadPoints.length;
                     gust.height = averageHeight >= 0 ? averageHeight : -1;

@@ -20,7 +20,6 @@
         import graph.Edge;
 
         import layers.geography.River;
-        import layers.tectonics.Lithosphere;
         import layers.tectonics.TectonicPlate;
         import layers.wind.Gust;
 
@@ -51,47 +50,44 @@
         public function onApplicationComplete(event:FlexEvent):void
         {
             // Set up layers
-            layerDebug               = new UIComponent();
-            layerDebug.name          = "debug";
-            layerOutlines            = new UIComponent();
-            layerOutlines.name       = "outlines";
-            layerTectonicPlates      = new UIComponent();
+            layerDebug = new UIComponent();
+            layerDebug.name = "debug";
+            layerOutlines = new UIComponent();
+            layerOutlines.name = "outlines";
+            layerTectonicPlates = new UIComponent();
             layerTectonicPlates.name = "tectonics";
-            layerHeightMap           = new UIComponent();
-            layerHeightMap.name      = "elevation";
-            layerContinents          = new UIComponent();
-            layerContinents.name     = "continents";
-            layerRelief              = new UIComponent();
-            layerRelief.name         = "relief";
-            layerOcean               = new UIComponent();
-            layerOcean.name          = "ocean";
-            layerWind                = new UIComponent();
-            layerWind.name           = "wind";
-            layerPrecipitation       = new UIComponent();
-            layerPrecipitation.name  = "precipitation";
-            layerTemperature         = new UIComponent();
-            layerTemperature.name    = "temperature";
-            layerWater               = new UIComponent();
-            layerWater.name          = "water";
-            layerFlux                = new UIComponent();
-            layerFlux.name           = "flux";
-            layerRivers              = new UIComponent();
-            layerRivers.name         = "rivers";
+            layerHeightMap = new UIComponent();
+            layerHeightMap.name = "elevation";
+            layerContinents = new UIComponent();
+            layerContinents.name = "continents";
+            layerRelief = new UIComponent();
+            layerRelief.name = "relief";
+            layerOcean = new UIComponent();
+            layerOcean.name = "ocean";
+            layerWind = new UIComponent();
+            layerWind.name = "wind";
+            layerPrecipitation = new UIComponent();
+            layerPrecipitation.name = "precipitation";
+            layerTemperature = new UIComponent();
+            layerTemperature.name = "temperature";
+            layerWater = new UIComponent();
+            layerWater.name = "water";
+            layerFlux = new UIComponent();
+            layerFlux.name = "flux";
+            layerRivers = new UIComponent();
+            layerRivers.name = "rivers";
 
             //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
             layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
-            {
                 layerGroup.addElement(layer);
-            }
 
             // Initial layers
-            var initialLayers:Array = [layerOutlines, layerTectonicPlates, layerRelief];
+            var initialLayers:Array = [layerOcean, layerRelief, layerContinents, layerHeightMap];
             for each (layer in layers)
                 layer.visible = false;
             for each (layer in initialLayers)
                 layer.visible = true;
-
 
             // Make Map
             makeMap();
@@ -133,7 +129,7 @@
 
         private function toggleLayer(layer:UIComponent):void
         {
-            layer.visible      = !layer.visible;
+            layer.visible = !layer.visible;
             var onOrOff:String = layer.visible ? "ON" : "OFF";
             Util.log(Util.capitalizeFirstLetter(layer.name) + " [" + onOrOff + "]");
             userInterface.updateLayer(layer);
@@ -141,12 +137,12 @@
 
         private function onClick(event:MouseEvent):void
         {
-            var p:Point   = new Point(event.localX, event.localY);
+            var p:Point = new Point(event.localX, event.localY);
             var arr:Array = Util.toArray(map.quadTree.queryFromPoint(p, 10));
             if (arr.length > 0)
             {
                 var t:Point = Util.closestPoint(p, arr);
-                var c:Cell  = map.getCellByPoint(t);
+                var c:Cell = map.getCellByPoint(t);
                 describe(c);
 //                c.water += 1;
 //                draw();
@@ -161,6 +157,7 @@
             var neighborIndexes:Array = [];
             for each (var neighbor:Cell in c.neighbors)
                 neighborIndexes.push(neighbor.index);
+            trace(c.tectonicPlate.type);
             //trace("Neighbors (" + c.neighbors.length + "): " + neighborIndexes.join(", "));
         }
 
@@ -328,7 +325,7 @@
             var colors:Array = [Color.darkBlue, Color.blue, Color.green, Color.yellow, Color.orange, Color.red];
 
             var preciseIndex:Number = (colors.length - 1) * height;
-            var index:int           = Math.floor(preciseIndex);
+            var index:int = Math.floor(preciseIndex);
 
             var color:uint = colors[index];
             if (index < colors.length - 1)
@@ -343,7 +340,7 @@
             g.clear();
 
             for each (var t:TectonicPlate in map.lithosphere.tectonicPlates)
-                drawDot(g, t.cells[0].point, Color.black, 5);
+                drawDot(g, t.cells[0].point, Color.red, 5);
 
 //            for each (var cell:Cell in map.cells)
 //                drawDot(g, cell.point, Color.orange, 3);
@@ -367,8 +364,9 @@
 
             for each (var cell:Cell in map.cells)
             {
-                if (cell.tectonicPlate)
-                    fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 0xE74856 : 0x8E8CD8);
+                if (cell.tectonicPlate && cell.tectonicPlate.type != TectonicPlate.DEEP)
+                    fillCell(g, cell, cell.tectonicPlate.color);
+                //fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 0xE74856 : 0x8E8CD8);
 
                 // Draw tectonic plate direction
                 if (cell.tectonicPlateBorder)
@@ -426,7 +424,7 @@
 //            trace(event.target.contentWidth, event.target.contentHeight);
 
             var t:Object = event.target;
-            t.height     = (t.width / t.contentWidth) * t.contentHeight;
+            t.height = (t.width / t.contentWidth) * t.contentHeight;
         }
         ]]>
     </fx:Script>

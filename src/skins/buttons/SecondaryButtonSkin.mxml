@@ -13,11 +13,11 @@
 
     <fx:Script><![CDATA[
         import global.Color;
-        import global.Icons;
 
         import mx.events.FlexEvent;
 
-        private function onCreationComplete(event:FlexEvent):void {
+        private function onCreationComplete(event:FlexEvent):void
+        {
             var t:ColorTransform = iconDisplay.transform.colorTransform;
             t.color = Color.darkBody;
             iconDisplay.transform.colorTransform = t;

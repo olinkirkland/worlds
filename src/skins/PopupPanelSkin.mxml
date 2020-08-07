@@ -29,9 +29,18 @@
                 radiusY="5">
 
             <s:fill>
-                <s:SolidColor color="{Color.black}"
-                              alpha=".03" />
+                <s:SolidColor color="{Color.background}" />
             </s:fill>
+
+            <s:filters>
+                <s:DropShadowFilter distance="3"
+                                    angle="45"
+                                    color="{Color.black}"
+                                    blurX="10"
+                                    blurY="10"
+                                    strength=".3"
+                                    quality="{BitmapFilterQuality.HIGH}" />
+            </s:filters>
 
         </s:Rect>
 

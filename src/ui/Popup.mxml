@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         width="100%"
+         skinClass="skins.PopupPanelSkin">
+
+    <fx:Script><![CDATA[
+        import spark.components.Group;
+
+        public function dispose():void
+        {
+        }
+
+        public function close():void
+        {
+            dispose();
+            (owner as Group).removeElement(this);
+        }
+        ]]>
+    </fx:Script>
+</s:Panel>

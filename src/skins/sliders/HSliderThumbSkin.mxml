@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+             xmlns:s="library://ns.adobe.com/flex/spark">
+
+    <fx:Metadata>
+		<![CDATA[
+        [HostComponent("spark.components.Button")]
+        ]]>
+	</fx:Metadata>
+
+    <s:states>
+        <s:State name="up" />
+        <s:State name="over" />
+        <s:State name="down" />
+        <s:State name="disabled" />
+    </s:states>
+
+
+    <s:Ellipse width="30"
+               height="30"
+               includeInLayout="false"
+               x="{circle.x + circle.width/2 - 30/2}"
+               y="{circle.y + circle.height/2 - 30/2}">
+        <s:fill>
+            <s:SolidColor color="{Color.red}"
+                          alpha="0" />
+        </s:fill>
+    </s:Ellipse>
+
+    <s:Ellipse id="circle"
+               width="14"
+               height="14">
+
+        <s:fill>
+            <s:SolidColor color="{Color.primary}" />
+        </s:fill>
+
+    </s:Ellipse>
+
+    <s:Ellipse width="14"
+               height="14">
+        <s:fill>
+            <s:SolidColor color="{Color.black}"
+                          alpha.disabled="0"
+                          alpha.up="0"
+                          alpha.over=".1"
+                          alpha.down=".3" />
+        </s:fill>
+    </s:Ellipse>
+
+    <fx:Script><![CDATA[
+        import global.Color;
+        ]]></fx:Script>
+</s:SparkSkin>

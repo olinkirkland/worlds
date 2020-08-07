@@ -21,12 +21,12 @@
 			  top="2"
 			  width="100%"
 			  styleName="scrollBar"
-			  skinClass="skins.scrollbars.CustomHScrollBarTrackSkin" />
+			  skinClass="skins.scrollbars.HScrollBarTrackSkin" />
 
 	<s:Button id="thumb"
 			  height="8"
 			  top="2"
 			  styleName="scrollBar"
-			  skinClass="skins.scrollbars.CustomHScrollBarThumbSkin" />
+			  skinClass="skins.scrollbars.HScrollBarThumbSkin" />
 
 </s:SparkSkin>

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<ui:PopupPanel xmlns:fx="http://ns.adobe.com/mxml/2009"
-               xmlns:s="library://ns.adobe.com/flex/spark"
-               xmlns:ui="ui.*"
-               width="100%"
-               minWidth="600"
-               maxWidth="1200"
-               creationComplete="onCreationComplete(event)">
+<ui:Popup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:ui="ui.*"
+          width="100%"
+          minWidth="600"
+          maxWidth="1200"
+          creationComplete="onCreationComplete(event)">
 
     <fx:Script><![CDATA[
         import global.Color;
@@ -15,7 +15,8 @@
         import mx.collections.ArrayCollection;
         import mx.events.FlexEvent;
 
-        private function onCreationComplete(event:FlexEvent):void {
+        private function onCreationComplete(event:FlexEvent):void
+        {
             PerformanceReport.items.sortOn("timeTakenInSeconds", Array.DESCENDING);
             var d:ArrayCollection = new ArrayCollection(PerformanceReport.items);
             performanceReportColorBar.dataProvider = d;
@@ -26,7 +27,8 @@
                     PerformanceReport.items[0].name + "' and took " + Number(PerformanceReport.items[0].timeTakenInSeconds).toFixed(3) + " seconds to complete.";
         }
 
-        override public function dispose():void {
+        override public function dispose():void
+        {
         }
         ]]>
     </fx:Script>
@@ -40,7 +42,6 @@
                      width="100%"
                      styleName="header" />
             <s:Button id="closeButton"
-                      skinClass="skins.buttons.SecondaryButtonSkin"
                       icon="{Icons.close}"
                       click="{close()}" />
         </s:HGroup>
@@ -82,4 +83,4 @@
         </s:List>
 
     </s:VGroup>
-</ui:PopupPanel>
+</ui:Popup>

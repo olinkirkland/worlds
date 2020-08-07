@@ -63,7 +63,7 @@
                   gap="5">
 
             <s:BitmapImage id="image"
-                           source="{Icons.eye}"
+                           source="{Icons.check}"
                            width="12"
                            height="12"
                            smooth="true"

@@ -24,15 +24,17 @@ package
     import layers.temperature.Temperature;
     import layers.wind.Wind;
 
+    import ui.AdvancedPropertiesUtil;
+
     public class Map
     {
         // Map Properties
-        public static const SEA_LEVEL:Number = .35;
+        public static var seaLevel:Number = .35;
 
         // Constants
-        private const spacing:Number = 10;
-        private const precision:Number = 5;
-        private const smoothPasses:int = 5;
+        private var spacing:Number = 8;
+        private var precision:Number = 5;
+        private var smoothPasses:int = 5;
 
         // Properties
         public var seed:int;
@@ -62,6 +64,12 @@ package
                             height:int,
                             seed:int = 1)
         {
+            // Set properties
+            spacing = AdvancedPropertiesUtil.currentValues.spacing;
+            precision = AdvancedPropertiesUtil.currentValues.precision;
+            //smoothPasses = AdvancedPropertiesUtil.currentValues.smoothPasses;
+            //seaLevel = AdvancedPropertiesUtil.currentValues.seaLevel;
+
             this.width = width;
             this.height = height;
             this.seed = seed;
@@ -208,7 +216,7 @@ package
                 cell.ocean = true;
 
                 for each (var neighbor:Cell in cell.neighbors)
-                    if (!neighbor.used && neighbor.elevation < SEA_LEVEL)
+                    if (!neighbor.used && neighbor.elevation < seaLevel)
                     {
                         neighbor.used = true;
                         queue.push(neighbor);
@@ -284,11 +292,11 @@ package
                     var average:Number = 0;
                     var neighborCount:Number = 0;
                     for each (var neighbor:Cell in cell.neighbors)
-                        if (cell.tectonicPlate.type != TectonicPlate.DEEP)
-                        {
-                            neighborCount++;
-                            average += neighbor.elevation;
-                        }
+//                        if (cell.tectonicPlate.type != TectonicPlate.DEEP)
+                    {
+                        neighborCount++;
+                        average += neighbor.elevation;
+                    }
 
                     for (var j:int = 0; j < (cell.tectonicPlateBorder ? 3 : 1); j++)
                         average += cell.elevation;
@@ -364,7 +372,7 @@ package
 
         public function getClosestCellToPoint(p:Point):Cell
         {
-            var arr:Array = Util.toArray(quadTree.queryFromPoint(p, 10));
+            var arr:Array = Util.toArray(quadTree.queryFromPoint(p, 100));
             var t:Point = Util.closestPoint(p, arr);
             return getCellByPoint(t);
         }

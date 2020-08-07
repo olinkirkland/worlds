@@ -21,12 +21,12 @@
               left="2"
               height="100%"
               styleName="scrollBar"
-              skinClass="skins.scrollbars.CustomVScrollBarTrackSkin" />
+              skinClass="skins.scrollbars.VScrollBarTrackSkin" />
 
     <s:Button id="thumb"
               width="8"
               left="2"
               styleName="scrollBar"
-              skinClass="skins.scrollbars.CustomVScrollBarThumbSkin" />
+              skinClass="skins.scrollbars.VScrollBarThumbSkin" />
 
 </s:SparkSkin>

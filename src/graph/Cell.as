@@ -52,7 +52,7 @@ package graph
 
         public function get elevationAboveSeaLevel():Number
         {
-            return elevation - Map.SEA_LEVEL;
+            return elevation - Map.seaLevel;
         }
 
         public function get altitude():Number

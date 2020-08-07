@@ -10,6 +10,8 @@ package layers.tectonics
 
     import graph.*;
 
+    import ui.AdvancedPropertiesUtil;
+
     public class Lithosphere
     {
         private var map:Map;
@@ -21,14 +23,14 @@ package layers.tectonics
         {
             this.map = map;
 
-            pickStartingCells(10);
+            pickStartingCells(AdvancedPropertiesUtil.currentValues.plateCount);
             expandPlates();
         }
 
 
         private function pickStartingCells(plateCount:int):void
         {
-            // Pick left and right border oceans
+            // ~West/East Oceans
             var p:Point;
 
             for (var i:int = 0; i < 3; i++)
@@ -39,25 +41,35 @@ package layers.tectonics
                 addNewTectonicPlate(map.getClosestCellToPoint(p)).type = TectonicPlate.DEEP;
             }
 
+            // ~North/South Oceans
+            p = new Point(map.width * (1 / 3), map.height * .95);
+            addNewTectonicPlate(map.getClosestCellToPoint(p)).type = TectonicPlate.DEEP;
+            p = new Point(map.width * (2 / 3), map.height * .95);
+            addNewTectonicPlate(map.getClosestCellToPoint(p)).type = TectonicPlate.DEEP;
+            p = new Point(map.width * (1 / 3), map.height * .05);
+            addNewTectonicPlate(map.getClosestCellToPoint(p)).type = TectonicPlate.DEEP;
+            p = new Point(map.width * (2 / 3), map.height * .05);
+            addNewTectonicPlate(map.getClosestCellToPoint(p)).type = TectonicPlate.DEEP;
+
             for (i = 0; i < plateCount; i++)
             {
                 var cell:Cell = null;
                 while (!cell)
                 {
                     p = new Point(Rand.rand.between(map.width * .1, map.width * .9),
-                            Rand.rand.between(map.height * .1, map.height * .9));
+                            Rand.rand.between(map.height * .3, map.height * .7));
                     cell = map.getClosestCellToPoint(p);
                 }
 
-                addNewTectonicPlate(cell);
+                addNewTectonicPlate(cell, .8);
             }
 
-            function addNewTectonicPlate(cell:Cell):TectonicPlate
+            function addNewTectonicPlate(cell:Cell, power:Number = 1):TectonicPlate
             {
                 var t:TectonicPlate = new TectonicPlate(tectonicPlates[tectonicPlates.length]);
                 tectonicPlates.push(t);
                 t.addCell(cell);
-                cell.tectonicPlatePower = 1;
+                cell.tectonicPlatePower = power;
                 return t;
             }
         }
@@ -82,7 +94,8 @@ package layers.tectonics
                     {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower)
                         {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() > .5 ? Rand.rand.next() * .1 : .05);
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() < AdvancedPropertiesUtil.currentValues.tectonicJitter ? Rand.rand.next() * .1 : .05);
+                            //neighbor.tectonicPlatePower = cell.tectonicPlatePower - .05;
                             if (neighbor.tectonicPlate)
                                 neighbor.tectonicPlate.removeCell(neighbor);
 
@@ -143,39 +156,47 @@ package layers.tectonics
             totalArea = 0;
             for each (tectonicPlate in tectonicPlates)
             {
+                if (tectonicPlate.type) continue;
                 tectonicPlate.calculateArea();
                 totalArea += tectonicPlate.area;
             }
+
             for each (tectonicPlate in tectonicPlates)
+            {
+                if (tectonicPlate.type) continue;
                 tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
+            }
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Measure tectonic plates", Util.secondsSince(t)));
 
             // Set plates to either oceanic or continental
             t = new Date();
             var platesArray:Array = Util.toArray(tectonicPlates);
             platesArray.sortOn("area");
-            var currentContinentalAreaPercent:Number = 0;
+            var currentAreaPercent:Number = 0;
             for each (tectonicPlate in platesArray)
             {
-                if (tectonicPlate.type == TectonicPlate.DEEP)
+                if (tectonicPlate.type)
                     continue;
 
-                tectonicPlate.type = currentContinentalAreaPercent < .3 ? TectonicPlate.CONTINENTAL : TectonicPlate.OCEANIC;
-                currentContinentalAreaPercent += tectonicPlate.areaPercent;
+                // Assign plate type
+                tectonicPlate.type = currentAreaPercent < .3 ? TectonicPlate.CONTINENTAL : TectonicPlate.OCEANIC;
+                currentAreaPercent += tectonicPlate.areaPercent;
             }
 
             for each (tectonicPlate in platesArray)
             {
-
                 var height:Number = 0;
                 switch (tectonicPlate.type)
                 {
                     case TectonicPlate.CONTINENTAL:
-                        height = Rand.rand.between(.3, .7);
+                        height = Rand.rand.between(.3, .45);
+                        break;
                     case TectonicPlate.OCEANIC:
-                        height = Rand.rand.between(0, .2);
+                        height = Rand.rand.between(0, .25);
+                        break;
                     case TectonicPlate.DEEP:
                         height = 0;
+                        break;
                 }
 
                 for each(cell in tectonicPlate.cells)
@@ -195,7 +216,9 @@ package layers.tectonics
                 {
                     if (cell.tectonicPlate != neighbor.tectonicPlate)
                     {
-                        var chance:Number = cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 1 : 0.2;
+                        // 100% to form mountains on land, 20% chance to form mountains underwater
+                        // This will cause mountain ranges on land and island chains in water
+                        var chance:Number = cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 1 : 0.5;
                         if (Rand.rand.next() > chance)
                             break;
 
@@ -218,6 +241,14 @@ package layers.tectonics
                     }
                 }
             }
+
+            // Remove empty plates
+            for (i = 0; i < tectonicPlates.length; i++)
+            {
+                if (tectonicPlates[i].cells.length == 0)
+                    tectonicPlates.splice(i--);
+            }
+
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Apply tectonic plate collisions", Util.secondsSince(t)));
         }
 

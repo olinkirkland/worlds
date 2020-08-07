@@ -2,6 +2,7 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:ui="ui.*"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
          width="100%"
          height="100%"
          creationComplete="onCreationComplete(event)">
@@ -20,25 +21,30 @@
 
         public var seedPhrase:String = Util.randomSeedPhrase();
 
-        private function onCreationComplete(event:FlexEvent):void {
+        private function onCreationComplete(event:FlexEvent):void
+        {
             updateSeed(seedPhrase);
         }
 
-        public function addLayers(layers:Array):void {
+        public function addLayers(layers:Array):void
+        {
             layersList.dataProvider = new ArrayCollection(layers);
         }
 
-        public function updateSeed(value:String):void {
+        public function updateSeed(value:String):void
+        {
             seedPhrase = value;
             seedLabel.text = seedPhrase;
             seedNumberLabel.text = "(" + Util.stringToSeed(seedPhrase) + ")";
         }
 
-        public function updateLayer(item:*):void {
+        public function updateLayer(item:*):void
+        {
             layersList.dataProvider.itemUpdated(item);
         }
 
-        public function setToWorking():void {
+        public function setToWorking():void
+        {
             newMapButton.label = "Working...";
             newMapButton.setStyle("icon", null);
 
@@ -46,7 +52,8 @@
             layersList.enabled = false;
         }
 
-        public function setToReady():void {
+        public function setToReady():void
+        {
             newMapButton.label = "";
             newMapButton.setStyle("icon", Icons.play);
 
@@ -54,35 +61,47 @@
             layersList.enabled = true;
         }
 
-        private function onRandomSeedPhraseButtonClicked(event:MouseEvent):void {
+        private function onRandomSeedPhraseButtonClicked(event:MouseEvent):void
+        {
             seedTextInput.text = Util.randomSeedPhrase();
             onSeedTextInputChange(null);
         }
 
-        private function onNewMapButtonClicked(event:MouseEvent):void {
+        private function onNewMapButtonClicked(event:MouseEvent):void
+        {
             updateSeed(seedTextInput.text);
             dispatchEvent(new Event(UIEventType.MAKE_MAP));
         }
 
-        private function onPerformanceReportButtonClicked(event:MouseEvent):void {
+        private function onPerformanceReportButtonClicked(event:MouseEvent):void
+        {
             openPopup(new PerformanceReportPopup());
         }
 
-        private function openPopup(panel:PopupPanel):void {
+        private function onOptionsButtonClicked(event:MouseEvent):void
+        {
+            openPopup(new AdvancedPropertiesPopup());
+        }
+
+        private function openPopup(panel:Popup):void
+        {
             // Close existing popups
             while (popups.numElements > 0)
-                PopupPanel(popups.getElementAt(0)).close();
+                Popup(popups.getElementAt(0)).close();
 
             popups.addElement(panel);
         }
 
-        private function onPopupAddedOrRemoved(event:ElementExistenceEvent):void {
-            callLater(function ():void {
+        private function onPopupAddedOrRemoved(event:ElementExistenceEvent):void
+        {
+            callLater(function ():void
+            {
                 popupModalRectangle.includeInLayout = popupModalRectangle.visible = popups.numElements > 0;
             });
         }
 
-        private function onSeedTextInputChange(event:TextOperationEvent):void {
+        private function onSeedTextInputChange(event:TextOperationEvent):void
+        {
             newMapButton.enabled = seedTextInput.text.length > 0;
         }
         ]]>
@@ -90,88 +109,73 @@
     <s:Group id="toolBar"
              width="100%">
 
-        <s:VGroup width="100%"
-                  height="100%"
-                  padding="15"
-                  paddingBottom="0">
-            <s:Rect width="100%"
-                    height="100%"
-                    radiusX="5"
-                    radiusY="5">
-                <s:fill>
-                    <s:SolidColor color="{Color.background}" />
-                </s:fill>
-            </s:Rect>
-        </s:VGroup>
+        <s:Panel top="15"
+                 left="15"
+                 right="15">
 
-        <s:VGroup width="100%"
-                  height="100%"
-                  gap="6"
-                  padding="25"
-                  paddingBottom="10">
+            <s:VGroup width="100%"
+                      height="100%"
+                      gap="6">
 
-            <s:HGroup width="100%"
-                      verticalAlign="middle">
-
-                <s:VGroup gap="0">
-                    <s:Label id="seedLabel"
-                             styleName="header" />
-                    <s:Label id="seedNumberLabel" />
-                </s:VGroup>
-
-                <ui:VerticalDivider />
-
-                <s:Button id="newMapButton"
-                          enabled="false"
-                          skinClass="skins.buttons.PrimaryButtonSkin"
-                          icon="{Icons.play}"
-                          click="onNewMapButtonClicked(event)" />
-
-                <s:HGroup id="mapPropertiesGroup"
-                          width="100%"
-                          height="100%"
+                <s:HGroup width="100%"
                           verticalAlign="middle">
 
-                    <s:Button id="randomSeedPhraseButton"
-                              skinClass="skins.buttons.SecondaryButtonSkin"
-                              icon="{Icons.dice}"
-                              click="onRandomSeedPhraseButtonClicked(event)" />
+                    <s:VGroup gap="0">
+                        <s:Label id="seedLabel"
+                                 styleName="header" />
+                        <s:Label id="seedNumberLabel" />
+                    </s:VGroup>
 
-                    <s:TextInput id="seedTextInput"
-                                 width="200"
-                                 change="onSeedTextInputChange(event)" />
                     <ui:VerticalDivider />
 
-                    <s:Button id="performanceReportButton"
-                              skinClass="skins.buttons.SecondaryButtonSkin"
-                              label="Performance Report"
-                              icon="{Icons.graph}"
-                              click="onPerformanceReportButtonClicked(event)" />
+                    <s:Button id="newMapButton"
+                              enabled="false"
+                              skinClass="skins.buttons.PrimaryButtonSkin"
+                              icon="{Icons.play}"
+                              click="onNewMapButtonClicked(event)" />
+
+                    <s:HGroup id="mapPropertiesGroup"
+                              width="100%"
+                              height="100%"
+                              verticalAlign="middle">
+
+                        <s:Button id="randomSeedPhraseButton"
+                                  icon="{Icons.dice}"
+                                  click="onRandomSeedPhraseButtonClicked(event)" />
+
+                        <s:TextInput id="seedTextInput"
+                                     width="200"
+                                     change="onSeedTextInputChange(event)" />
+                        <ui:VerticalDivider />
+
+                        <s:Button id="buttonPerformanceReport"
+                                  label="Performance Report"
+                                  icon="{Icons.graph}"
+                                  click="onPerformanceReportButtonClicked(event)" />
+
+                        <s:Button id="buttonAdvancedProperties"
+                                  label="Advanced Properties"
+                                  icon="{Icons.options}"
+                                  click="onOptionsButtonClicked(event)" />
+                    </s:HGroup>
                 </s:HGroup>
-            </s:HGroup>
 
-            <s:List id="layersList"
-                    width="100%"
-                    direction="ltr"
-                    itemRenderer="ui.renderers.LayersListItemRenderer"
-                    horizontalScrollPolicy="auto"
-                    verticalScrollPolicy="off"
-                    borderVisible="false"
-                    contentBackgroundAlpha="0">
-                <s:layout>
-                    <s:HorizontalLayout />
-                </s:layout>
-            </s:List>
+                <s:List id="layersList"
+                        width="100%"
+                        direction="ltr"
+                        itemRenderer="ui.renderers.LayersListItemRenderer"
+                        horizontalScrollPolicy="auto"
+                        verticalScrollPolicy="off"
+                        borderVisible="false"
+                        contentBackgroundAlpha="0">
+                    <s:layout>
+                        <s:HorizontalLayout />
+                    </s:layout>
+                </s:List>
 
-        </s:VGroup>
+            </s:VGroup>
 
-        <!--        <s:Rect width="100%"-->
-        <!--                height="100%">-->
-        <!--            <s:fill>-->
-        <!--                <s:SolidColor color="{Color.red}"-->
-        <!--                              alpha=".4" />-->
-        <!--            </s:fill>-->
-        <!--        </s:Rect>-->
+        </s:Panel>
 
     </s:Group>
 

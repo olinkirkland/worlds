@@ -55,14 +55,27 @@ Scrollbars
  */
 
 s|VScrollBar {
-    skinClass: ClassReference("skins.scrollbars.CustomVScrollBarSkin");
+    skinClass: ClassReference("skins.scrollbars.VScrollBarSkin");
 }
 
 s|HScrollBar {
-    skinClass: ClassReference("skins.scrollbars.CustomHScrollBarSkin");
+    skinClass: ClassReference("skins.scrollbars.HScrollBarSkin");
 }
 
 .scrollBar {
+    thumb_color: #d3d3d3;
+    track_color: #eeeeee;
+}
+
+/*
+Sliders
+ */
+
+s|HSlider {
+    skinClass: ClassReference("skins.sliders.HSliderSkin");
+}
+
+.slider {
     thumb_color: #d3d3d3;
     track_color: #eeeeee;
 }

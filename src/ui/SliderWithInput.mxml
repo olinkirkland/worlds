@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          width="100%">
+
+    <s:HGroup width="100%"
+              verticalAlign="middle">
+        <s:Label id="label"
+                 width="100%"
+                 text="Slider" />
+    </s:HGroup>
+    <s:HGroup width="100%"
+              verticalAlign="middle">
+        <s:TextInput id="input"
+                     restrict="[0-9\.]"
+                     width="45"
+                     change="{onInputChange(event)}" />
+        <s:HSlider id="slider"
+                   showDataTip="false"
+                   width="100%"
+                   stepSize="0.05"
+                   snapInterval="0.05"
+                   liveDragging="true"
+                   change="{onSliderChange(event)}" />
+    </s:HGroup>
+    <fx:Script><![CDATA[
+        import spark.events.TextOperationEvent;
+
+        private var _value:Number;
+
+        public function set value(v:Number):void
+        {
+            _value = v;
+            input.text = formatForInput(_value);
+            slider.value = _value;
+        }
+
+        public function get value():Number
+        {
+            return _value;
+        }
+
+        private function onInputChange(event:TextOperationEvent):void
+        {
+            _value = slider.value = Number(input.text);
+        }
+
+        private function onSliderChange(event:Event):void
+        {
+            input.text = formatForInput(slider.value);
+            _value = Number(input.text);
+        }
+
+        private function formatForInput(n:Number):String
+        {
+            if (slider.snapInterval < .5)
+                return n.toFixed(2);
+
+            if (slider.snapInterval < 1)
+                return n.toFixed(1);
+
+            return n.toFixed(0);
+        }
+        ]]></fx:Script>
+</s:VGroup>

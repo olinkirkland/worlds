@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<ui:Popup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:ui="ui.*"
+          width="100%"
+          minWidth="400"
+          maxWidth="500"
+          creationComplete="onCreationComplete(event)">
+
+    <fx:Script><![CDATA[
+        import global.Icons;
+
+        import mx.events.FlexEvent;
+        import mx.utils.ObjectUtil;
+        import mx.utils.ObjectUtil;
+
+        private var values:Object;
+
+        private function onCreationComplete(event:FlexEvent):void
+        {
+            values = ObjectUtil.clone(AdvancedPropertiesUtil.currentValues);
+            validateSliders();
+        }
+
+        private function validateSliders():void
+        {
+            // Spacing
+            sliderSpacing.label.text = "Point Spacing";
+            sliderSpacing.slider.minimum = 5;
+            sliderSpacing.slider.maximum = 20;
+            sliderSpacing.slider.stepSize = .5;
+            sliderSpacing.slider.snapInterval = .5;
+            sliderSpacing.value = values.spacing;
+
+            // Precision
+            sliderPrecision.label.text = "Point Precision";
+            sliderPrecision.slider.minimum = 5;
+            sliderPrecision.slider.maximum = 20;
+            sliderPrecision.slider.stepSize = 1;
+            sliderPrecision.slider.snapInterval = 1;
+            sliderPrecision.value = values.precision;
+
+            // Smoothing
+            sliderSmoothing.label.text = "Height Smoothness";
+            sliderSmoothing.slider.minimum = 0;
+            sliderSmoothing.slider.maximum = 10;
+            sliderSmoothing.slider.stepSize = 1;
+            sliderSmoothing.slider.snapInterval = 1;
+            sliderSmoothing.value = values.smoothing;
+
+            // Sea Level
+            sliderSeaLevel.label.text = "Sea Level";
+            sliderSeaLevel.slider.minimum = 0;
+            sliderSeaLevel.slider.maximum = 1;
+            sliderSeaLevel.value = values.seaLevel;
+
+            // Tectonic Jitter
+            sliderTectonicJitter.label.text = "Tectonic Jitter";
+            sliderTectonicJitter.slider.minimum = 0;
+            sliderTectonicJitter.slider.maximum = 1;
+            sliderTectonicJitter.value = values.tectonicJitter;
+
+            // Plate Count
+            sliderPlateCount.label.text = "Number of Tectonic Plates";
+            sliderPlateCount.slider.minimum = 1;
+            sliderPlateCount.slider.maximum = 30;
+            sliderPlateCount.slider.stepSize = 1;
+            sliderPlateCount.slider.snapInterval = 1;
+            sliderPlateCount.value = values.plateCount;
+        }
+
+        private function onCopyToClipboard(event:MouseEvent):void
+        {
+            updateValues();
+            Clipboard.generalClipboard.clear();
+            Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, JSON.stringify(values));
+        }
+
+        private function onPasteFromClipboard(event:MouseEvent):void
+        {
+            if (!Clipboard.generalClipboard.hasFormat(ClipboardFormats.TEXT_FORMAT))
+                return;
+
+            var str:String = String(Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+            try
+            {
+                values = JSON.parse(str);
+            } catch (error:Error)
+            {
+                // Do nothing
+            }
+
+            validateSliders();
+        }
+
+        private function onResetDefaultValues(event:MouseEvent):void
+        {
+            values = ObjectUtil.clone(AdvancedPropertiesUtil.defaultValues);
+            validateSliders();
+        }
+
+        private function updateValues():void
+        {
+            // Update the values object
+            values.spacing = sliderSpacing.value;
+            values.precision = sliderPrecision.value;
+            values.smoothing = sliderSmoothing.value;
+            values.seaLevel = sliderSeaLevel.value;
+            values.tectonicJitter = sliderTectonicJitter.value;
+            values.plateCount = sliderPlateCount.value;
+        }
+
+        private function onApply(event:MouseEvent):void
+        {
+            updateValues();
+            AdvancedPropertiesUtil.currentValues = ObjectUtil.clone(values);
+
+            // Run map
+            dispatchEvent(new Event(UIEventType.MAKE_MAP, true));
+            close();
+        }
+        ]]>
+    </fx:Script>
+
+    <s:VGroup width="100%"
+              gap="10">
+
+        <s:HGroup width="100%"
+                  verticalAlign="middle">
+            <s:Label text="Advanced Properties"
+                     width="100%"
+                     styleName="header" />
+            <s:Button id="buttonClose"
+                      icon="{Icons.close}"
+                      click="{close()}" />
+        </s:HGroup>
+
+        <s:Label id="labelDescription"
+                 width="100%"
+                 text="Changing advanced properties can drastically alter what the map looks like and possibly crash the app." />
+
+        <s:Panel width="100%">
+            <s:HGroup width="100%">
+                <s:Button id="buttonCopySettings"
+                          label="Copy to Clipboard"
+                          click="{onCopyToClipboard(event)}" />
+                <s:Button id="buttonPasteSettings"
+                          label="Paste from Clipboard"
+                          click="{onPasteFromClipboard(event)}" />
+            </s:HGroup>
+        </s:Panel>
+
+        <s:HGroup width="100%">
+            <!--Left Column-->
+            <s:VGroup width="100%">
+                <ui:SliderWithInput id="sliderSpacing" />
+                <ui:SliderWithInput id="sliderPrecision" />
+                <ui:SliderWithInput id="sliderSmoothing" />
+            </s:VGroup>
+
+            <!--Right Column-->
+            <s:VGroup width="100%">
+                <ui:SliderWithInput id="sliderSeaLevel" />
+                <ui:SliderWithInput id="sliderTectonicJitter" />
+                <ui:SliderWithInput id="sliderPlateCount" />
+            </s:VGroup>
+        </s:HGroup>
+
+        <s:Panel width="100%">
+            <s:HGroup width="100%"
+                      horizontalAlign="right">
+                <s:Button id="buttonResetDefaultValues"
+                          label="Reset Defaults"
+                          icon="{Icons.reset}"
+                          click="{onResetDefaultValues(event)}" />
+                <s:Button id="buttonApply"
+                          label="Apply"
+                          icon="{Icons.play}"
+                          skinClass="skins.buttons.PrimaryButtonSkin"
+                          click="{onApply(event)}" />
+            </s:HGroup>
+        </s:Panel>
+
+    </s:VGroup>
+</ui:Popup>
