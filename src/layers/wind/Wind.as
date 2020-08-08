@@ -129,11 +129,11 @@ package layers.wind {
                     }
 
                     // South Polar Wind
-                    if (j == grid[i].length - 1) {
-                        queue.push(gust);
-                        gust.angle = Direction.NORTH;
-                        gust.strength = 20;
-                    }
+//                    if (j == grid[i].length - 1) {
+//                        queue.push(gust);
+//                        gust.angle = Direction.NORTH;
+//                        gust.strength = 20;
+//                    }
                 }
             }
 
