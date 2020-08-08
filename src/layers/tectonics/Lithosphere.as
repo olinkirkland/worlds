@@ -218,7 +218,7 @@ package layers.tectonics
                     {
                         // 100% to form mountains on land, 20% chance to form mountains underwater
                         // This will cause mountain ranges on land and island chains in water
-                        var chance:Number = cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 1 : 0.5;
+                        var chance:Number = cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 1 : 0.2;
                         if (Rand.rand.next() > chance)
                             break;
 

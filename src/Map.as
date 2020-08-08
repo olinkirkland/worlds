@@ -98,7 +98,7 @@ package
             setCornerHeights();
 
             //determineTemperature();
-            //determineWind();
+            determineWind();
             //determineHydrology();
             //determineRivers();
         }
