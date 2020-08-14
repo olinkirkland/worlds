@@ -1,108 +1,142 @@
 package layers.wind
 {
     import flash.geom.Point;
+    import flash.geom.Rectangle;
+
+    import global.Direction;
+
+    import graph.Cell;
+
+    import layers.wind.WindCell;
 
     public class Wind
     {
-        public var windCells:Array;
+        public var windCells:Array = [];
+        public var windCellsByPoint:Object = {};
 
         private var map:Map;
         private var size:Number = 10;
 
-        public var points:Array;
-        private var rows:Array = [];
+        public var points:Array = [];
+        private var pointsRows:Array = [];
+        private var windCellRows:Array = [];
 
         public function Wind(map:Map)
         {
             this.map = map;
 
-            points = [];
-            windCells = [];
-
             makePoints();
-            for (var i:int = 0; i < rows.length; i++)
+            for (var i:int = 0; i < pointsRows.length; i++)
             {
-                var offset:Boolean = i % 2 != 0;
-                var row:Array = rows[i];
-                for (var j:int = 0; j < row.length; j++)
-                {
-                    var c:WindCell = new WindCell(row[j], size);
-                    windCells.push(c);
+                var pointsRow:Array = pointsRows[i];
+                var windCellRow:Array = [];
+                windCellRows.push(windCellRow);
 
-                    // Set neighbors
+                for (var j:int = 0; j < pointsRow.length; j++)
+                {
+                    var c:WindCell = new WindCell(pointsRow[j], size);
+                    windCells.push(c);
+                    windCellRow[j] = windCellsByPoint[pointsRow[j]] = c;
+                }
+            }
+
+            // Set neighbors
+            for (i = 0; i < windCellRows.length; i++)
+            {
+                var offset:int = (i % 2 == 0) ? 0 : -1;
+                windCellRow = windCellRows[i];
+
+                for (j = 0; j < windCellRow.length; j++)
+                {
+                    c = windCellRow[j];
 
                     // Middle
-                    if (i > 0) c.neighbors.push(row[i - 1]);
-                    if (i < row.length - 1) c.neighbors.push(row[i + 1]);
+                    var row:Array = windCellRow;
+                    if (j > 0)
+                        c.neighbors.push(row[j - 1]);
+                    if (j < row.length - 2)
+                        c.neighbors.push(row[j + 1]);
 
-                    if (offset)
+                    var k:int = j + offset;
+                    // Above
+                    if (i > 0)
                     {
-                        // Upper
+                        row = windCellRows[i - 1];
+                        if (k >= 0)
+                            c.neighbors.push(row[k]);
+                        if (k < row.length - 1)
+                            c.neighbors.push(row[k + 1]);
+                    }
 
-
-                        // Lower
-
-
-                    } else
+                    // Below
+                    if (i < windCellRows.length - 1)
                     {
-                        // Upper
-
-
-                        // Lower
-
-
+                        row = windCellRows[i + 1];
+                        if (k >= 0)
+                            c.neighbors.push(row[k]);
+                        if (k < row.length - 1)
+                            c.neighbors.push(row[k + 1]);
                     }
                 }
             }
 
 
-//            for each (gust in windCells)
-//            {
-//                var averageHeight:Number = 0;
-//                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
-//
-//                var ocean:Boolean = false;
-//                for each (p in quadPoints)
-//                {
-//                    var cell:Cell = map.getCellByPoint(p);
-//                    averageHeight += cell.elevation;
-//                    if (cell.ocean)
-//                        ocean = true;
-//                }
-//
-//                if (ocean)
-//                {
-//                    gust.ocean = true;
-//                    gust.height = Map.seaLevel;
-//                } else
-//                {
-//                    averageHeight /= quadPoints.length;
-//                    gust.height = averageHeight >= 0 ? averageHeight : -1;
-//                }
-//            }
+            for each (c in windCellsByPoint)
+            {
+                var averageElevation:Number = 0;
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(c.point.x, c.point.y, size * 2, size * 2));
 
-            // Smoothing for windCells that don't have any points under them
-//            for each (gust in windCells)
-//            {
-//                if (gust.height < 0)
-//                {
-//                    gust.height = 0;
-//                    i = 0;
-//                    for each (var neighbor:WindCell in gust.neighbors)
-//                        if (neighbor && neighbor.height >= 0)
-//                        {
-//                            gust.height += neighbor.height;
-//
-//                            if (neighbor.ocean)
-//                                gust.ocean = true;
-//
-//                            i++;
-//                        }
-//                    gust.height /= i;
-//                }
-//            }
+                var ocean:Boolean = false;
+                for each (var p:Point in quadPoints)
+                {
+                    var cell:Cell = map.getCellByPoint(p);
+                    averageElevation += cell.elevation;
+                    if (cell.ocean)
+                        ocean = true;
+                }
 
-            //startWinds();
+                averageElevation /= quadPoints.length;
+                c.elevation = averageElevation >= 0 ? averageElevation : -1;
+
+                if (ocean && c.elevation <= Map.seaLevel)
+                {
+                    c.ocean = true;
+                    c.elevation = Map.seaLevel;
+                }
+            }
+
+            // Smoothing for windCellsByPoint that don't have any points under them
+            for each (c in windCellsByPoint)
+            {
+                if (c.elevation < 0)
+                {
+                    c.elevation = 0;
+                    i = 0;
+
+                    ocean = false;
+
+                    for each (var neighbor:WindCell in c.neighbors)
+                    {
+                        if (neighbor.elevation >= 0)
+                        {
+                            c.elevation += neighbor.elevation;
+                            i++;
+                        }
+
+                        if (neighbor.ocean)
+                        {
+                            c.ocean = true;
+                            c.elevation = Map.seaLevel;
+                            break;
+                        }
+                    }
+
+                    if (!c.ocean)
+                        c.elevation /= i;
+                }
+            }
+
+            applyInitialWinds();
         }
 
         private function makePoints():void
@@ -117,9 +151,9 @@ package layers.wind
                     extraRow = false;
 
                 // Add a new row
-                rows.push([]);
-                var row:Array = rows[rows.length - 1];
-                var offset:Number = rows.length % 2 == 0 ? 0 : w / 2;
+                pointsRows.push([]);
+                var row:Array = pointsRows[pointsRows.length - 1];
+                var offset:Number = pointsRows.length % 2 == 0 ? 0 : w / 2;
 
                 for (var j:int = 0; j < map.width; j += w)
                 {
@@ -130,13 +164,21 @@ package layers.wind
             }
         }
 
-        private function startWinds():void
+        private function applyInitialWinds():void
         {
             /**
              * Apply Initial Winds
              */
 
             var queue:Array = [];
+
+            // Polar north wind
+            for each (var c:WindCell in windCellRows[0])
+            {
+                queue.push(c);
+                c.force.angle = Direction.SOUTH;
+                c.force.strength = 1;
+            }
 
             propagateWindCells(queue);
         }
@@ -147,27 +189,28 @@ package layers.wind
              * Propagate Wind
              */
 
-//            while (queue.length > 0)
-//            {
-//                var w:WindCell = queue.shift();
-//                var targets:Array = w.propagate();
-//
-//                for each (var target:WindCell in targets)
-//                {
-//                    var containsTarget:Boolean = false;
-//                    for each (w in queue)
-//                    {
-//                        if (w == target)
-//                        {
-//                            containsTarget = true;
-//                            break;
-//                        }
-//                    }
-//
-//                    if (!containsTarget)
-//                        queue.push(target);
-//                }
-//            }
+            while (queue.length > 0)
+            {
+                var c:WindCell = queue.shift();
+                var targets:Array = c.propagate();
+
+                for each (var t:WindCell in targets)
+                    if (queue.indexOf(t) < 0)
+                        queue.push(t);
+            }
+        }
+
+        public function closestCellToPoint(p:Point):WindCell
+        {
+            if (!p)
+                return null;
+
+            var closest:WindCell = windCells[0];
+            for each (var h:WindCell in windCellsByPoint)
+                if (Point.distance(h.point, p) < Point.distance(closest.point, p))
+                    closest = h;
+
+            return closest;
         }
     }
 }
