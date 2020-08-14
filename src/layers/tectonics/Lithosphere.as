@@ -164,7 +164,7 @@ package layers.tectonics
             for each (tectonicPlate in tectonicPlates)
             {
                 if (tectonicPlate.type) continue;
-                tectonicPlate.areaPercent = Util.round(tectonicPlate.area / totalArea);
+                tectonicPlate.areaPercent = Util.fixed(tectonicPlate.area / totalArea);
             }
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Measure tectonic plates", Util.secondsSince(t)));
 

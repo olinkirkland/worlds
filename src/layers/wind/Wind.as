@@ -7,15 +7,13 @@ package layers.wind
 
     import graph.Cell;
 
-    import layers.wind.WindCell;
-
     public class Wind
     {
         public var windCells:Array = [];
         public var windCellsByPoint:Object = {};
 
         private var map:Map;
-        private var size:Number = 10;
+        private var size:Number = 30;
 
         public var points:Array = [];
         private var pointsRows:Array = [];
@@ -136,7 +134,7 @@ package layers.wind
                 }
             }
 
-            applyInitialWinds();
+            applyInitialWind();
         }
 
         private function makePoints():void
@@ -164,13 +162,26 @@ package layers.wind
             }
         }
 
-        private function applyInitialWinds():void
+        private function applyInitialWind():void
         {
             /**
              * Apply Initial Winds
              */
 
             var queue:Array = [];
+
+            var row:Array = windCellRows[0];
+//            var c:WindCell = row[int(row.length / 2)];
+//            queue.push(c);
+
+//            queue.push(row[int(row.length / 2) - 1]);
+//            queue.push(row[int(row.length / 2) + 1]);
+
+//            for each (c in queue)
+//            {
+//                c.force.angle = Direction.SOUTH;
+//                c.force.strength = 1;
+//            }
 
             // Polar north wind
             for each (var c:WindCell in windCellRows[0])
@@ -180,7 +191,7 @@ package layers.wind
                 c.force.strength = 1;
             }
 
-            propagateWindCells(queue);
+            //propagateWindCells(queue);
         }
 
         public function propagateWindCells(queue:Array):void

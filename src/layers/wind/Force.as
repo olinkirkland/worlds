@@ -15,18 +15,22 @@ package layers.wind
             this.strength = strength;
         }
 
-        public function merge(force:Force):void
+        public function merge(force:Force):Boolean
         {
+            trace(force.angle, strength);
+
             // Merge another force into this one
             var origin:Point = new Point(0, 0);
-            var destination:Point = Util.pointFromDegreesAndDistance(origin, angle, strength);
+            var position:Point = Util.pointFromAngleAndDistance(origin, angle, strength);
+            var sum:Point = Util.pointFromAngleAndDistance(position, force.angle, force.strength);
 
-            var combinedDestination:Point = Util.pointFromDegreesAndDistance(destination, force.angle, force.strength);
-            angle = Math.floor(Util.angleBetweenTwoPoints(origin, combinedDestination));
-            strength = Util.distanceBetweenTwoPoints(origin, combinedDestination);
-            
+            angle = Math.round(Util.angleBetweenTwoPoints(origin, sum));
+            strength = Util.distanceBetweenTwoPoints(origin, sum);
+
             if (angle < 0)
                 angle += 360;
+
+            return strength > .05;
         }
     }
 }

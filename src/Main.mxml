@@ -201,20 +201,25 @@
                 g.endFill();
 
                 if (c.force.strength > 0)
-                    drawPointer(c.point, c.force.angle, Color.red, c.force.strength * 7);
+                    drawPointer(c.point, c.force.angle, Color.red, c.force.strength * 30);
             }
 
             if (windCell)
             {
-                trace(windCell.elevation);
+                trace("strength=" + windCell.force.strength + ", angle=" + windCell.force.angle);
+                for each (var affectedNeighbor:WindCell in windCell.getAffectedNeighbors())
+                    drawDot(affectedNeighbor.point, Color.blue, 4);
+
+                setTimeout(function():void {
+                    windCell.propagate();
+                    drawWind();
+                }, 500);
+
+                //drawWind();
 //                drawDot(windCell.point, Color.red, 4);
 //                for each (c in windCell.neighbors)
 //                    drawPointer(c.point, Util.angleBetweenTwoPoints(windCell.point, c.point), Color.black);
             }
-
-//            for each (var gust:WindCell in map.wind.windCellsByPoint)
-//                if (gust.force.strength > 0)
-//                    drawPointer(gust.point, gust.force.angle, Color.white, 5, gust.force.strength / 30);
         }
 
         private function drawPrecipitation():void
@@ -262,7 +267,8 @@
                     if (river.end != cell)
                     {
                         drawPointer(cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighbor.point), color);
-                    } else
+                    }
+                    else
                     {
                         drawDot(cell.point, color, 5);
                     }
@@ -318,8 +324,7 @@
 
             var light:Number = 0.5 + 35 * normal.dotProduct(lightVector);
             if (light < 0) light = 0;
-            else
-                if (light > 1) light = 1;
+            else if (light > 1) light = 1;
 
             return light;
         }
@@ -415,7 +420,7 @@
             g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);
-            var head:Point = Util.pointFromDegreesAndDistance(point, direction, distance);
+            var head:Point = Util.pointFromAngleAndDistance(point, direction, distance);
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }

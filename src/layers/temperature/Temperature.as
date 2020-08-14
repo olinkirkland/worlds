@@ -17,7 +17,7 @@ package layers.temperature
                 cell.temperature = 1 - Math.abs(2 * (cell.point.y / map.height) - 1);
                 if (!cell.ocean)
                     cell.temperature -= (cell.elevationAboveSeaLevel) / 2;
-                cell.temperature = Util.round(cell.temperature, 2);
+                cell.temperature = Util.fixed(cell.temperature, 2);
             }
         }
     }
