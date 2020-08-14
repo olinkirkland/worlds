@@ -39,8 +39,7 @@ package layers.wind
         {
             // Split up my force and merge it into my neighbors
             // then return the affected neighbors
-
-
+            
 
             return [];
         }
