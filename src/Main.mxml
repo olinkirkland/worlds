@@ -122,17 +122,20 @@
             drawRelief();
             drawOcean();
 
+            while (map.wind.queue.length)
+                map.wind.propagateWindCells();
+
             drawWind();
 
-            function animateWind():void
-            {
-                map.wind.propagateWindCells();
-                drawWind();
-                if (map.wind.queue.length > 0)
-                    setTimeout(animateWind, 200);
-            }
-
-            animateWind();
+//            function animateWind():void
+//            {
+//                map.wind.propagateWindCells();
+//                drawWind();
+//                if (map.wind.queue.length > 0)
+//                    setTimeout(animateWind, 20);
+//            }
+//
+//            animateWind();
             //drawPrecipitation();
             //drawTemperature();
             //drawWater();
@@ -226,7 +229,10 @@
                 layerWind.addChild(txt);
 
                 if (c.vector.magnitude > 0)
-                    drawPointer(c.point, Util.toDegrees(c.vector.angle), Color.red, c.vector.magnitude * 30);
+                {
+                    drawPointer(c.point, Util.toDegrees(c.vector.angle), Color.red, c.vector.magnitude * 10);
+                    drawPointer(c.point, Util.toDegrees(c.vector.angle) + 180, Color.red, c.vector.magnitude * 10);
+                }
             }
 
 //            if (windCell)

@@ -22,16 +22,12 @@ package global
 
         public function add(v:EuclideanVector):void
         {
-            trace("BEFORE: " + degrees + ", " + magnitude);
-            trace("ADD: " + v.degrees + ", " + v.magnitude);
             var sum:Point = _point.add(v.getPoint());
             setPoint(sum);
 
             if (magnitude > 1)
                 magnitude = 1;
             _point = getPoint();
-
-            trace("NOW: " + degrees + ", " + magnitude);
         }
 
         public function getPoint():Point
@@ -39,9 +35,6 @@ package global
             var p:Point = new Point();
             p.x = Math.cos(angle) * magnitude;
             p.y = Math.sin(angle) * magnitude;
-
-            p.x = Math.round(1024 * p.x) / 1024;
-            p.y = Math.round(1024 * p.y) / 1024;
             return p;
         }
 

@@ -110,9 +110,14 @@ package global
             return Util.toDegrees(Math.atan2(Math.sin(d1 - d2), Math.cos(d1 - d2)));
         }
 
+        public static function round(value:Number):Number
+        {
+            return Math.round(1024 * value) / 1024;
+        }
+
         public static function toDegrees(value:Number):Number
         {
-            return value * 180 / Math.PI;
+            return round(value * 180 / Math.PI);
         }
 
         public static function toRadians(value:Number):Number

@@ -14,7 +14,7 @@ package layers.wind
         public var windCellsByPoint:Object = {};
 
         private var map:Map;
-        private var size:Number = 60;
+        private var size:Number = 10;
 
         public var points:Array = [];
         private var pointsRows:Array = [];
@@ -191,6 +191,7 @@ package layers.wind
             }
 
             skipTheFirst = true;
+            var i:int = 0;
             for each (row in windCellRows)
             {
                 if (skipTheFirst)
