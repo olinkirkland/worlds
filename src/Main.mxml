@@ -123,6 +123,16 @@
             drawOcean();
 
             drawWind();
+
+            function animateWind():void
+            {
+                map.wind.propagateWindCells();
+                drawWind();
+                if (map.wind.queue.length > 0)
+                    setTimeout(animateWind, 200);
+            }
+
+            animateWind();
             //drawPrecipitation();
             //drawTemperature();
             //drawWater();
@@ -141,7 +151,7 @@
                 describe(c);
             }
 
-            drawWind(map.wind.closestCellToPoint(t));
+            //drawWind(map.wind.closestCellToPoint(t));
         }
 
         private function describe(c:Cell):void
@@ -184,11 +194,14 @@
         private function drawWind(windCell:WindCell = null):void
         {
             drawOnLayer(layerWind);
+            while (layerWind.numChildren > 0)
+                layerWind.removeChildAt(0);
 
             for each (var c:WindCell in map.wind.windCellsByPoint)
             {
                 //drawDot(c.point, Color.red, 2);
-                g.beginFill(Color.black, c.ocean ? 0 : c.elevation);
+//                g.beginFill(Color.black, c.ocean ? 0 : c.elevation);
+                g.beginFill(map.wind.queue.indexOf(c) >= 0 ? Color.green : Color.blue, .3);
 
                 var p1:Point = c.corners[0];
                 for (var i:int = 1; i <= c.corners.length; i++)
@@ -200,26 +213,37 @@
                 }
                 g.endFill();
 
-                if (c.force.strength > 0)
-                    drawPointer(c.point, c.force.angle, Color.red, c.force.strength * 30);
+                var txt:TextField = new TextField();
+                txt.border = true;
+                var format:TextFormat = new TextFormat("Arial", 16, Color.black);
+                txt.autoSize = TextFieldAutoSize.LEFT;
+                txt.defaultTextFormat = format;
+                txt.x = c.point.x - txt.width / 2 + 10;
+                txt.y = c.point.y - txt.height / 2;
+                var q:int = map.wind.queue.indexOf(c);
+                txt.text = q + "";
+                txt.visible = q >= 0;
+                layerWind.addChild(txt);
+
+                if (c.vector.magnitude > 0)
+                    drawPointer(c.point, Util.toDegrees(c.vector.angle), Color.red, c.vector.magnitude * 30);
             }
 
-            if (windCell)
-            {
-                trace("strength=" + windCell.force.strength + ", angle=" + windCell.force.angle);
-                for each (var affectedNeighbor:WindCell in windCell.getAffectedNeighbors())
-                    drawDot(affectedNeighbor.point, Color.blue, 4);
-
-                setTimeout(function():void {
-                    windCell.propagate();
-                    drawWind();
-                }, 500);
-
-                //drawWind();
+//            if (windCell)
+//            {
+//                trace("strength=" + windCell.vector.magnitude + ", angle=" + Util.toDegrees(windCell.vector.angle));
+//
 //                drawDot(windCell.point, Color.red, 4);
 //                for each (c in windCell.neighbors)
 //                    drawPointer(c.point, Util.angleBetweenTwoPoints(windCell.point, c.point), Color.black);
-            }
+//
+//                setTimeout(function ():void
+//                {
+//                    map.wind.propagateWindCells();
+//                    //windCell.propagate();
+//                    drawWind();
+//                }, 200);
+//            }
         }
 
         private function drawPrecipitation():void

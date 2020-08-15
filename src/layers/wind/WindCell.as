@@ -1,31 +1,29 @@
 package layers.wind
 {
     import flash.geom.Point;
-    import flash.geom.Vector3D;
 
+    import global.EuclideanVector;
     import global.Util;
+
+    import layers.wind.WindCell;
 
     public class WindCell
     {
         public var point:Point;
         public var size:Number;
         public var corners:Array;
-        public var force:Vector3D;
-        public var neighbors:Array;
+        public var vector:EuclideanVector;
+        public var neighbors:Object;
         public var elevation:Number;
         public var ocean:Boolean;
-
-        private var appliedForces:Array;
 
         public function WindCell(point:Point, size:Number)
         {
             this.point = point;
             this.size = size;
 
-            // Reset force (angle + strength)
-            force = new Force();
-            appliedForces = [];
-            neighbors = [];
+            vector = new EuclideanVector();
+            neighbors = {};
 
             // Determine corners
             corners = [];
@@ -33,50 +31,46 @@ package layers.wind
                 corners.push(Util.pointFromAngleAndDistance(point, i, size));
         }
 
-        public function getAffectedNeighbors():Array
-        {
-            var targets:Array = [];
-            for each (var neighbor:WindCell in neighbors)
-            {
-                var angleToNeighbor:Number = Util.roundToNearest(Util.angleBetweenTwoPoints(point, neighbor.point), 30);
-                if (Math.abs(Util.differenceBetweenTwoDegrees(force.angle, angleToNeighbor)) < 90)
-                    targets.push({windCell: neighbor, angle: angleToNeighbor});
-            }
-
-            var affectedNeighbors:Array = [];
-            for each (var target:Object in targets)
-                affectedNeighbors.push(target.windCell);
-
-            return affectedNeighbors;
-        }
-
         public function propagate():Array
         {
-            // Split up my force and merge it into my neighbors
-            // then return the affected neighbors
-            var targets:Array = [];
-            for each (var neighbor:WindCell in neighbors)
+            var angle1:Number;
+            var angle2:Number;
+            for (var i:int = 0; i < 360; i += 60)
             {
-                var angleToNeighbor:Number = Util.roundToNearest(Util.angleBetweenTwoPoints(point, neighbor.point), 30);
-                if (Math.abs(Util.differenceBetweenTwoDegrees(force.angle, angleToNeighbor)) < 60)
-                    targets.push({windCell: neighbor, angle: angleToNeighbor});
+                if (i >= vector.degrees)
+                {
+                    angle2 = i;
+                    angle1 = i - 60;
+                    if (angle1 < 0)
+                        angle1 += 360;
+                    break;
+                }
             }
 
-            var affectedNeighbors:Array = [];
-            for each (var target:Object in targets)
+            trace(vector.degrees + " is between " + angle1 + " and " + angle2);
+
+            var angle1Distance:Number = Math.round(1024 * Math.abs(Util.differenceBetweenTwoDegrees(vector.angle, Util.toRadians(angle1)))) / 1024;
+            var angle2Distance:Number = Math.round(1024 * Math.abs(Util.differenceBetweenTwoDegrees(vector.angle, Util.toRadians(angle2)))) / 1024;
+            var angle1Ratio:Number = 1 - angle1Distance / 60;
+            var angle2Ratio:Number = 1 - angle2Distance / 60;
+
+            trace(angle1 + " is " + angle1Distance + " away");
+            trace(angle2 + " is " + angle2Distance + " away");
+            trace(angle1 + "=" + int(angle1Ratio * 100) + "%, " + angle2 + "=" + int(angle2Ratio * 100) + "%");
+
+            var arr:Array = [];
+            if (neighbors[angle1] && angle1Ratio > 0)
             {
-                var strengthPercent:Number = Util.differenceBetweenTwoDegrees(force.angle, target.angle) / 60;
-                var w:WindCell = target.windCell;
-                if (w.force.merge(new Force(target.angle, strengthPercent * force.strength)))
-                    affectedNeighbors.push(w);
+                WindCell(neighbors[angle1]).vector.add(new EuclideanVector(Util.toRadians(angle1), angle1Ratio * vector.magnitude));
+                arr.push(neighbors[angle1]);
+            }
+            if (neighbors[angle2] && angle2Ratio > 0)
+            {
+                WindCell(neighbors[angle2]).vector.add(new EuclideanVector(Util.toRadians(angle2), angle2Ratio * vector.magnitude));
+                arr.push(neighbors[angle2]);
             }
 
-            return [];
-        }
-
-        public function reset():void
-        {
-            force = new Force();
+            return arr;
         }
     }
 }

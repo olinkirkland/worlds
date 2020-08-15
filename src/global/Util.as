@@ -107,8 +107,7 @@ package global
 
         public static function differenceBetweenTwoDegrees(d1:Number, d2:Number):Number
         {
-            var m:Number = Math.abs((d1 + 180 - d2) % 360 - 180);
-            return m;
+            return Util.toDegrees(Math.atan2(Math.sin(d1 - d2), Math.cos(d1 - d2)));
         }
 
         public static function toDegrees(value:Number):Number

@@ -4,6 +4,7 @@ package layers.wind
     import flash.geom.Rectangle;
 
     import global.Direction;
+    import global.Util;
 
     import graph.Cell;
 
@@ -13,11 +14,13 @@ package layers.wind
         public var windCellsByPoint:Object = {};
 
         private var map:Map;
-        private var size:Number = 30;
+        private var size:Number = 60;
 
         public var points:Array = [];
         private var pointsRows:Array = [];
         private var windCellRows:Array = [];
+
+        public var queue:Array = [];
 
         public function Wind(map:Map)
         {
@@ -51,9 +54,9 @@ package layers.wind
                     // Middle
                     var row:Array = windCellRow;
                     if (j > 0)
-                        c.neighbors.push(row[j - 1]);
+                        c.neighbors[180] = row[j - 1];
                     if (j < row.length - 2)
-                        c.neighbors.push(row[j + 1]);
+                        c.neighbors[0] = row[j + 1];
 
                     var k:int = j + offset;
                     // Above
@@ -61,9 +64,9 @@ package layers.wind
                     {
                         row = windCellRows[i - 1];
                         if (k >= 0)
-                            c.neighbors.push(row[k]);
+                            c.neighbors[240] = row[k];
                         if (k < row.length - 1)
-                            c.neighbors.push(row[k + 1]);
+                            c.neighbors[300] = row[k + 1];
                     }
 
                     // Below
@@ -71,9 +74,9 @@ package layers.wind
                     {
                         row = windCellRows[i + 1];
                         if (k >= 0)
-                            c.neighbors.push(row[k]);
+                            c.neighbors[120] = row[k];
                         if (k < row.length - 1)
-                            c.neighbors.push(row[k + 1]);
+                            c.neighbors[60] = row[k + 1];
                     }
                 }
             }
@@ -168,39 +171,50 @@ package layers.wind
              * Apply Initial Winds
              */
 
-            var queue:Array = [];
+            queue = [];
 
             var row:Array = windCellRows[0];
-//            var c:WindCell = row[int(row.length / 2)];
-//            queue.push(c);
-
-//            queue.push(row[int(row.length / 2) - 1]);
-//            queue.push(row[int(row.length / 2) + 1]);
-
-//            for each (c in queue)
-//            {
-//                c.force.angle = Direction.SOUTH;
-//                c.force.strength = 1;
-//            }
 
             // Polar north wind
+            var skipTheFirst:Boolean = true;
             for each (var c:WindCell in windCellRows[0])
             {
+                if (skipTheFirst)
+                {
+                    skipTheFirst = false;
+                    continue;
+                }
+
                 queue.push(c);
-                c.force.angle = Direction.SOUTH;
-                c.force.strength = 1;
+                c.vector.angle = Util.toRadians(Direction.SOUTH);
+                c.vector.magnitude = 1;
             }
 
-            //propagateWindCells(queue);
+            skipTheFirst = true;
+            for each (row in windCellRows)
+            {
+                if (skipTheFirst)
+                {
+                    skipTheFirst = false;
+                    continue;
+                }
+
+                c = row[0];
+                queue.push(c);
+                c.vector.angle = Util.toRadians(Direction.EAST);
+                c.vector.magnitude = 1;
+            }
+
+            //propagateWindCells();
         }
 
-        public function propagateWindCells(queue:Array):void
+        public function propagateWindCells():void
         {
             /**
              * Propagate Wind
              */
 
-            while (queue.length > 0)
+            if (queue.length > 0)
             {
                 var c:WindCell = queue.shift();
                 var targets:Array = c.propagate();
@@ -208,6 +222,10 @@ package layers.wind
                 for each (var t:WindCell in targets)
                     if (queue.indexOf(t) < 0)
                         queue.push(t);
+            }
+            else
+            {
+                trace("Queue is empty!");
             }
         }
 
