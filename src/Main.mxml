@@ -78,7 +78,7 @@
             layerRivers.name = "rivers";
 
             //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerFlux, layerPrecipitation, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
                 layerGroup.addElement(layer);
 
@@ -120,10 +120,10 @@
             drawOcean();
 
             drawWind();
-            //drawPrecipitation();
+            drawPrecipitation();
             //drawTemperature();
             //drawWater();
-            //drawFlux();
+            drawFlux();
             //drawRivers();
         }
 
