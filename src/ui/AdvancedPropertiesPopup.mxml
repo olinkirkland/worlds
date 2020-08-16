@@ -2,16 +2,13 @@
 <ui:Popup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:ui="ui.*"
-          width="100%"
-          minWidth="400"
-          maxWidth="500"
+          width="800"
           creationComplete="onCreationComplete(event)">
 
     <fx:Script><![CDATA[
         import global.Icons;
 
         import mx.events.FlexEvent;
-        import mx.utils.ObjectUtil;
         import mx.utils.ObjectUtil;
 
         private var values:Object;
@@ -41,7 +38,7 @@
             sliderPrecision.value = values.precision;
 
             // Smoothing
-            sliderSmoothing.label.text = "Height Smoothness";
+            sliderSmoothing.label.text = "Height Smoothing Passes";
             sliderSmoothing.slider.minimum = 0;
             sliderSmoothing.slider.maximum = 10;
             sliderSmoothing.slider.stepSize = 1;
@@ -67,6 +64,54 @@
             sliderPlateCount.slider.stepSize = 1;
             sliderPlateCount.slider.snapInterval = 1;
             sliderPlateCount.value = values.plateCount;
+
+            // Cloud Moisture Capacity
+            sliderCloudMoistureCapacity.label.text = "Cloud Moisture Capacity";
+            sliderCloudMoistureCapacity.slider.minimum = 1;
+            sliderCloudMoistureCapacity.slider.maximum = 30;
+            sliderCloudMoistureCapacity.slider.stepSize = 1;
+            sliderCloudMoistureCapacity.slider.snapInterval = 1;
+            sliderCloudMoistureCapacity.value = values.cloudMoistureCapacity;
+
+            // Moisture Gained over Ocean
+            sliderMoistureGainedOverOcean.label.text = "Moisture Gained over Ocean";
+            sliderMoistureGainedOverOcean.slider.minimum = 0;
+            sliderMoistureGainedOverOcean.slider.maximum = 1;
+            sliderMoistureGainedOverOcean.slider.stepSize = .05;
+            sliderMoistureGainedOverOcean.slider.snapInterval = .05;
+            sliderMoistureGainedOverOcean.value = values.moistureGainedOverOcean;
+
+            // Wind Strength Gained Over Ocean
+            sliderWindStrengthGainedOverOcean.label.text = "Wind Strength Gained over Ocean";
+            sliderWindStrengthGainedOverOcean.slider.minimum = 0;
+            sliderWindStrengthGainedOverOcean.slider.maximum = 1;
+            sliderWindStrengthGainedOverOcean.slider.stepSize = .05;
+            sliderWindStrengthGainedOverOcean.slider.snapInterval = .05;
+            sliderWindStrengthGainedOverOcean.value = values.windStrengthGainedOverOcean;
+
+            // Wind Strength Lost Over Land
+            sliderWindStrengthLostOverLand.label.text = "Wind Strength Lost over Land";
+            sliderWindStrengthLostOverLand.slider.minimum = 0;
+            sliderWindStrengthLostOverLand.slider.maximum = 1;
+            sliderWindStrengthLostOverLand.slider.stepSize = .05;
+            sliderWindStrengthLostOverLand.slider.snapInterval = .05;
+            sliderWindStrengthLostOverLand.value = values.windStrengthLostOverLand;
+
+            // Wind Smoothing
+            sliderWindSmoothing.label.text = "Wind Smoothing Passes";
+            sliderWindSmoothing.slider.minimum = 0;
+            sliderWindSmoothing.slider.maximum = 5;
+            sliderWindSmoothing.slider.stepSize = 1;
+            sliderWindSmoothing.slider.snapInterval = 1;
+            sliderWindSmoothing.value = values.windSmoothing;
+
+            // Wind Strength Height Difference Modifier
+            sliderWindStrengthHeightChangeModifier.label.text = "Wind Height Change Modifier";
+            sliderWindStrengthHeightChangeModifier.slider.minimum = 1;
+            sliderWindStrengthHeightChangeModifier.slider.maximum = 50;
+            sliderWindStrengthHeightChangeModifier.slider.stepSize = 1;
+            sliderWindStrengthHeightChangeModifier.slider.snapInterval = 1;
+            sliderWindStrengthHeightChangeModifier.value = values.windStrengthHeightChangeModifier;
         }
 
         private function onCopyToClipboard(event:MouseEvent):void
@@ -108,6 +153,12 @@
             values.seaLevel = sliderSeaLevel.value;
             values.tectonicJitter = sliderTectonicJitter.value;
             values.plateCount = sliderPlateCount.value;
+            values.cloudMoistureCapacity = sliderCloudMoistureCapacity.value;
+            values.moistureGainedOverOcean = sliderMoistureGainedOverOcean.value;
+            values.windStrengthGainedOverOcean = sliderWindStrengthGainedOverOcean.value;
+            values.windStrengthLostOverLand = sliderWindStrengthLostOverLand.value;
+            values.windSmoothing = sliderWindSmoothing.value;
+            values.windStrengthHeightChangeModifier = sliderWindStrengthHeightChangeModifier.value;
         }
 
         private function onApply(event:MouseEvent):void
@@ -151,19 +202,34 @@
         </s:Panel>
 
         <s:HGroup width="100%">
-            <!--Left Column-->
+            <!--Column 1-->
             <s:VGroup width="100%">
                 <ui:SliderWithInput id="sliderSpacing" />
                 <ui:SliderWithInput id="sliderPrecision" />
                 <ui:SliderWithInput id="sliderSmoothing" />
             </s:VGroup>
 
-            <!--Right Column-->
+            <!--Column 2-->
             <s:VGroup width="100%">
                 <ui:SliderWithInput id="sliderSeaLevel" />
                 <ui:SliderWithInput id="sliderTectonicJitter" />
                 <ui:SliderWithInput id="sliderPlateCount" />
             </s:VGroup>
+
+            <!--Column 3-->
+            <s:VGroup width="100%">
+                <ui:SliderWithInput id="sliderWindStrengthGainedOverOcean" />
+                <ui:SliderWithInput id="sliderWindStrengthLostOverLand" />
+                <ui:SliderWithInput id="sliderWindSmoothing" />
+            </s:VGroup>
+
+            <!--Column 4-->
+            <s:VGroup width="100%">
+                <ui:SliderWithInput id="sliderWindStrengthHeightChangeModifier" />
+                <ui:SliderWithInput id="sliderCloudMoistureCapacity" />
+                <ui:SliderWithInput id="sliderMoistureGainedOverOcean" />
+            </s:VGroup>
+
         </s:HGroup>
 
         <s:Panel width="100%">

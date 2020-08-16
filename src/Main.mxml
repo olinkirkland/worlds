@@ -157,8 +157,6 @@
             var neighborIndexes:Array = [];
             for each (var neighbor:Cell in c.neighbors)
                 neighborIndexes.push(neighbor.index);
-            trace(c.tectonicPlate.type);
-            //trace("Neighbors (" + c.neighbors.length + "): " + neighborIndexes.join(", "));
         }
 
         private function makeMap():void
@@ -194,8 +192,7 @@
             g.clear();
 
             for each (var gust:Gust in map.wind.gusts)
-                if (gust.strength > 0)
-                    drawPointer(g, gust.point, gust.angle, Color.white, 5, gust.strength / 30);
+                drawPointer(g, gust.point, gust.angle, Color.red, 5, gust.strength);
         }
 
         private function drawPrecipitation():void
@@ -247,7 +244,8 @@
                     if (river.end != cell)
                     {
                         drawPointer(g, cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighbor.point), color);
-                    } else
+                    }
+                    else
                     {
                         drawDot(g, cell.point, color, 5);
                     }
@@ -305,8 +303,7 @@
 
             var light:Number = 0.5 + 35 * normal.dotProduct(lightVector);
             if (light < 0) light = 0;
-            else
-                if (light > 1) light = 1;
+            else if (light > 1) light = 1;
 
             return light;
         }

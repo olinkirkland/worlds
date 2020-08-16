@@ -1,12 +1,11 @@
-package layers.wind {
+package layers.wind
+{
     import flash.geom.Point;
 
-    import global.Direction;
+    import ui.AdvancedPropertiesUtil;
 
-    import global.Util;
-
-
-    public class Gust {
+    public class Gust
+    {
         public var point:Point;
         public var size:Number;
         public var height:Number;
@@ -21,8 +20,20 @@ package layers.wind {
         public var moisture:Number;
         public var precipitation:Number;
 
+
+        private var moistureCapacity:Number;
+        private var moistureGainedOverOcean:Number;
+        private var strengthGainedOverOcean:Number;
+        private var strengthLostOverLand:Number;
+
         public function Gust(point:Point,
-                             size:Number) {
+                             size:Number)
+        {
+            moistureCapacity = AdvancedPropertiesUtil.currentValues.cloudMoistureCapacity;
+            moistureGainedOverOcean = AdvancedPropertiesUtil.currentValues.moistureGainedOverOcean;
+            strengthGainedOverOcean = AdvancedPropertiesUtil.currentValues.windStrengthGainedOverOcean;
+            strengthLostOverLand = AdvancedPropertiesUtil.currentValues.windStrengthLostOverLand;
+
             this.point = point;
             this.size = size;
 
@@ -37,68 +48,51 @@ package layers.wind {
             neighbors = {0: null, 90: null, 180: null, 270: null};
         }
 
-        public function send():Array {
-            if (strength == 0)
+        public function send():Array
+        {
+            var neighbor:Gust = neighbors[angle];
+            if (!neighbor)
                 return [];
 
-            var carry:Boolean;
-            var neighbor:Gust = neighbors[angle];
-            if (neighbor) {
-                var heightDifference:Number = 1 - (neighbor.height - height) * 2;
+            // Calculate the height difference to the neighbor
+            var heightDifference:Number = height - neighbor.height;
+            heightDifference = int(heightDifference * 1000) / 1000;
+            heightDifference *= AdvancedPropertiesUtil.currentValues.windStrengthHeightChangeModifier;
 
-                // Decrease speed going uphill (and increase going downhill)
-                var outgoingStrength:Number = strength * heightDifference;
+            // Decrease speed going uphill (and increase going downhill)
+            var outgoingStrength:Number = strength * (1 - heightDifference);
 
-                if (ocean) {
-                    // Pick up moisture from the ocean
-                    if (moisture < 25)
-                        moisture += 3;
+            if (ocean)
+            {
+                // Pick up moisture from the ocean
+                if (moisture < moistureCapacity)
+                    moisture += moistureGainedOverOcean;
 
-                    precipitation = 0;
-                    // Pick up speed from the ocean
-                    outgoingStrength *= 1.5;
-                } else {
-                    // Drop moisture onto land as precipitation
-                    if (moisture > 0) {
-                        precipitation = Math.min(moisture, heightDifference * 2);
-                        moisture -= precipitation * 1.5;
-                        precipitation = Math.min(precipitation / 3, 1);
-                    }
-                    // Decrease speed over land
-                    outgoingStrength *= .9;
+                precipitation = 0;
+                // Pick up speed from the ocean
+                outgoingStrength += strengthGainedOverOcean;
+            }
+            else
+            {
+                // Drop moisture onto land as precipitation
+                if (moisture > 0)
+                {
+                    precipitation = Math.min(moisture, heightDifference * 2);
+                    moisture -= precipitation * 1.5;
+                    precipitation = Math.min(precipitation / 3, 1);
                 }
 
-                outgoingStrength = Math.min(outgoingStrength, 25);
-
-                carry = neighbor.receive(angle, outgoingStrength, moisture);
+                // Decrease speed over land
+                outgoingStrength -= strengthLostOverLand;
             }
 
-            return neighbor && carry ? [neighbor] : [];
-        }
+            outgoingStrength = Math.max(0, Math.min(outgoingStrength, 1));
 
-        public function receive(incomingAngle:Number, incomingStrength:Number, incomingMoisture:Number):Boolean {
-            if (strength > incomingStrength)
-                return false;
+            neighbor.angle = angle;
+            neighbor.strength = outgoingStrength;
+            neighbor.moisture = moisture;
 
-            angle = incomingAngle;
-            strength = incomingStrength;
-            moisture = incomingMoisture;
-
-            if (strength < 1)
-                strength = 0;
-
-            return true;
-        }
-
-        public function setNeighbor(gust:Gust,
-                                    degrees:Number):void {
-            neighbors[degrees] = gust;
-        }
-
-        public function reset():void {
-            angle = Direction.SOUTH;
-            strength = 0;
-            ocean = false;
+            return [neighbor];
         }
     }
 }
