@@ -2,7 +2,7 @@ package layers.wind
 {
     import flash.geom.Point;
 
-    import ui.AdvancedPropertiesUtil;
+    import ui.Settings;
 
     public class Gust
     {
@@ -29,10 +29,10 @@ package layers.wind
         public function Gust(point:Point,
                              size:Number)
         {
-            moistureCapacity = AdvancedPropertiesUtil.currentValues.cloudMoistureCapacity;
-            moistureGainedOverOcean = AdvancedPropertiesUtil.currentValues.moistureGainedOverOcean;
-            strengthGainedOverOcean = AdvancedPropertiesUtil.currentValues.windStrengthGainedOverOcean;
-            strengthLostOverLand = AdvancedPropertiesUtil.currentValues.windStrengthLostOverLand;
+            moistureCapacity = Settings.advancedProperties.cloudMoistureCapacity;
+            moistureGainedOverOcean = Settings.advancedProperties.moistureGainedOverOcean;
+            strengthGainedOverOcean = Settings.advancedProperties.windStrengthGainedOverOcean;
+            strengthLostOverLand = Settings.advancedProperties.windStrengthLostOverLand;
 
             this.point = point;
             this.size = size;
@@ -57,7 +57,7 @@ package layers.wind
             // Calculate the height difference to the neighbor
             var heightDifference:Number = height - neighbor.height;
             heightDifference = int(heightDifference * 1000) / 1000;
-            heightDifference *= AdvancedPropertiesUtil.currentValues.windStrengthHeightChangeModifier;
+            heightDifference *= Settings.advancedProperties.windStrengthHeightChangeModifier;
 
             // Decrease speed going uphill (and increase going downhill)
             var outgoingStrength:Number = strength * (1 - heightDifference);

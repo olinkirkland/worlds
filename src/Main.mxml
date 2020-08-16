@@ -27,6 +27,8 @@
         import mx.events.FlexEvent;
         import mx.events.ResizeEvent;
 
+        import ui.Settings;
+
         import ui.UIEventType;
 
         public static var map:Map;
@@ -46,6 +48,7 @@
         private var layerRivers:UIComponent;
 
         private var layers:Array;
+        private var g:Graphics;
 
         public function onApplicationComplete(event:FlexEvent):void
         {
@@ -78,14 +81,22 @@
             layerRivers.name = "rivers";
 
             //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerFlux, layerPrecipitation, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerFlux, layerRivers, layerPrecipitation, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
                 layerGroup.addElement(layer);
 
             // Initial layers
-            var initialLayers:Array = [layerWind, layerOcean, layerRelief, layerContinents, layerHeightMap];
+            var initialLayers:Array = [];
+            for each (var layerName:String in Settings.initialLayers)
+            {
+                for each (var l:UIComponent in layers)
+                    if (layerName == l.name)
+                        initialLayers.push(l);
+            }
+
             for each (layer in layers)
                 layer.visible = false;
+
             for each (layer in initialLayers)
                 layer.visible = true;
 
@@ -107,6 +118,22 @@
                     draw();
                 }, 100);
             });
+
+            stage.nativeWindow.addEventListener(Event.CLOSING, onExit);
+        }
+
+        private function onExit(event:Event):void
+        {
+            event.preventDefault();
+
+            var initialLayers = [];
+            for each (var layer:UIComponent in layers)
+                if (layer.visible)
+                    initialLayers.push(layer.name);
+
+            Settings.initialLayers = initialLayers;
+
+            stage.nativeWindow.close();
         }
 
         private function draw():void
@@ -124,7 +151,7 @@
             //drawTemperature();
             //drawWater();
             drawFlux();
-            //drawRivers();
+            drawRivers();
         }
 
         private function toggleLayer(layer:UIComponent):void
@@ -153,7 +180,7 @@
         {
             trace("Cell #" + c.index);
             //trace("  altitude=" + c.altitude);
-            trace("  elevation=" + c.elevation);
+            trace("  elevation=" + Util.round(c.elevation));
             var neighborIndexes:Array = [];
             for each (var neighbor:Cell in c.neighbors)
                 neighborIndexes.push(neighbor.index);
@@ -168,8 +195,7 @@
 
         private function drawContinents():void
         {
-            var g:Graphics = layerContinents.graphics;
-            g.clear();
+            drawOnLayer(layerContinents);
 
             for each (var cell:Cell in map.cells)
                 if (!cell.ocean)
@@ -178,8 +204,7 @@
 
         private function drawOcean():void
         {
-            var g:Graphics = layerOcean.graphics;
-            g.clear();
+            drawOnLayer(layerOcean);
 
             for each (var cell:Cell in map.cells)
                 if (cell.ocean)
@@ -188,8 +213,7 @@
 
         private function drawWind():void
         {
-            var g:Graphics = layerWind.graphics;
-            g.clear();
+            drawOnLayer(layerWind);
 
             for each (var gust:Gust in map.wind.gusts)
                 drawPointer(g, gust.point, gust.angle, Color.red, 5, gust.strength);
@@ -197,8 +221,7 @@
 
         private function drawPrecipitation():void
         {
-            var g:Graphics = layerPrecipitation.graphics;
-            g.clear();
+            drawOnLayer(layerPrecipitation);
 
             for each (var cell:Cell in map.cells)
                 fillCell(g, cell, Color.darkBlue, cell.precipitation);
@@ -206,8 +229,7 @@
 
         private function drawTemperature():void
         {
-            var g:Graphics = layerTemperature.graphics;
-            g.clear();
+            drawOnLayer(layerTemperature);
 
             for each (var cell:Cell in map.cells)
                 fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
@@ -215,8 +237,7 @@
 
         private function drawFlux():void
         {
-            var g:Graphics = layerFlux.graphics;
-            g.clear();
+            drawOnLayer(layerFlux);
             g.lineStyle(1, Color.darkBlue);
 
             for each (var cell:Cell in map.cells)
@@ -231,8 +252,7 @@
 
         private function drawRivers():void
         {
-            var g:Graphics = layerRivers.graphics;
-            g.clear();
+            drawOnLayer(layerRivers);
 
             map.hydrology.rivers.sort(Sort.riverByLength);
             for each (var river:River in map.hydrology.rivers)
@@ -255,8 +275,7 @@
 
         private function drawWater():void
         {
-            var g:Graphics = layerWater.graphics;
-            g.clear();
+            drawOnLayer(layerWater);
 
             for each (var cell:Cell in map.cells)
                 if (cell.water > 0.1)
@@ -265,8 +284,7 @@
 
         private function drawRelief():void
         {
-            var g:Graphics = layerRelief.graphics;
-            g.clear();
+            drawOnLayer(layerRelief);
 
             for each (var cell:Cell in map.cells)
             {
@@ -310,8 +328,7 @@
 
         private function drawColorHeightMap():void
         {
-            var g:Graphics = layerHeightMap.graphics;
-            g.clear();
+            drawOnLayer(layerHeightMap);
 
             for each (var cell:Cell in map.cells)
                 fillCell(g, cell, colorFromHeightMap(cell.elevation));
@@ -333,8 +350,7 @@
 
         private function drawDebug():void
         {
-            var g:Graphics = layerDebug.graphics;
-            g.clear();
+            drawOnLayer(layerDebug);
 
             for each (var t:TectonicPlate in map.lithosphere.tectonicPlates)
                 drawDot(g, t.cells[0].point, Color.red, 5);
@@ -345,8 +361,7 @@
 
         private function drawOutlines():void
         {
-            var g:Graphics = layerOutlines.graphics;
-            g.clear();
+            drawOnLayer(layerOutlines);
 
             for each (var cell:Cell in map.cells)
                 for each (var edge:Edge in cell.edges)
@@ -356,8 +371,7 @@
 
         private function drawTectonicPlates():void
         {
-            var g:Graphics = layerTectonicPlates.graphics;
-            g.clear();
+            drawOnLayer(layerTectonicPlates);
 
             for each (var cell:Cell in map.cells)
             {
@@ -422,6 +436,12 @@
 
             var t:Object = event.target;
             t.height = (t.width / t.contentWidth) * t.contentHeight;
+        }
+
+        private function drawOnLayer(layer:UIComponent):void
+        {
+            g = layer.graphics;
+            g.clear();
         }
         ]]>
     </fx:Script>

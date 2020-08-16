@@ -7,7 +7,7 @@ package layers.wind
 
     import graph.Cell;
 
-    import ui.AdvancedPropertiesUtil;
+    import ui.Settings;
 
     public class Wind
     {
@@ -190,7 +190,7 @@ package layers.wind
             }
 
             // Smooth
-            for (var k:int = 0; k < AdvancedPropertiesUtil.currentValues.windSmoothing; k++)
+            for (var k:int = 0; k < Settings.advancedProperties.windSmoothing; k++)
                 for each (gust in gusts)
                 {
                     var averageStrength:Number = gust.strength;

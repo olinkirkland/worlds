@@ -24,7 +24,7 @@ package
     import layers.temperature.Temperature;
     import layers.wind.Wind;
 
-    import ui.AdvancedPropertiesUtil;
+    import ui.Settings;
 
     public class Map
     {
@@ -65,10 +65,10 @@ package
                             seed:int = 1)
         {
             // Set properties
-            spacing = AdvancedPropertiesUtil.currentValues.spacing;
-            precision = AdvancedPropertiesUtil.currentValues.precision;
-            smoothPasses = AdvancedPropertiesUtil.currentValues.smoothing;
-            seaLevel = AdvancedPropertiesUtil.currentValues.seaLevel;
+            spacing = Settings.advancedProperties.spacing;
+            precision = Settings.advancedProperties.precision;
+            smoothPasses = Settings.advancedProperties.smoothing;
+            seaLevel = Settings.advancedProperties.seaLevel;
 
             this.width = width;
             this.height = height;
@@ -99,8 +99,8 @@ package
 
             determineTemperature();
             determineWind();
-            //determineHydrology();
-            //determineRivers();
+            determineHydrology();
+            determineRivers();
         }
 
         private function determineRivers():void
@@ -119,7 +119,6 @@ package
                 var lowestAltitude:Number = cell.altitude;
                 for each (var neighbor:Cell in cell.neighbors)
                 {
-                    // The spacing * 2 is to avoid duplicate neighbors (due to wrapping)
                     if (neighbor.altitude < lowestAltitude && Util.distanceBetweenTwoPoints(cell.point, neighbor.point) < spacing * 2)
                     {
                         lowestAltitude = neighbor.altitude;
@@ -137,7 +136,7 @@ package
             if (cell.ocean) return;
 
             neighbor.flux += cell.flux;
-            if (cell.flux > 1)
+            if (cell.flux > 0.5)
             {
                 var river:River;
                 if (cell.rivers.length > 0)
@@ -150,7 +149,8 @@ package
                     }
 
                     river.addCell(neighbor);
-                } else
+                }
+                else
                 {
                     // Start new river
                     river = hydrology.addRiver();
@@ -655,7 +655,8 @@ package
                     if (quadTree.isRangePopulated(box))
                     {
                         candidate = null;
-                    } else
+                    }
+                    else
                     {
                         // Valid candidate
                         if (!area.contains(candidate.x, candidate.y))
@@ -672,7 +673,8 @@ package
                 {
                     addPoint(candidate);
                     queue.push(candidate);
-                } else
+                }
+                else
                 {
                     // Remove the first point in queue
                     queue.shift();

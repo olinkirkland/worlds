@@ -10,7 +10,7 @@ package layers.tectonics
 
     import graph.*;
 
-    import ui.AdvancedPropertiesUtil;
+    import ui.Settings;
 
     public class Lithosphere
     {
@@ -23,7 +23,7 @@ package layers.tectonics
         {
             this.map = map;
 
-            pickStartingCells(AdvancedPropertiesUtil.currentValues.plateCount);
+            pickStartingCells(Settings.advancedProperties.plateCount);
             expandPlates();
         }
 
@@ -94,7 +94,7 @@ package layers.tectonics
                     {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower)
                         {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() < AdvancedPropertiesUtil.currentValues.tectonicJitter ? Rand.rand.next() * .1 : .05);
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() < Settings.advancedProperties.tectonicJitter ? Rand.rand.next() * .1 : .05);
                             //neighbor.tectonicPlatePower = cell.tectonicPlatePower - .05;
                             if (neighbor.tectonicPlate)
                                 neighbor.tectonicPlate.removeCell(neighbor);
