@@ -54,7 +54,7 @@ package layers.tectonics
             area = 0;
             for each (var cell:Cell in cells)
                 area += cell.area;
-            area = Util.round(area);
+            area = Util.fixed(area);
         }
     }
 }

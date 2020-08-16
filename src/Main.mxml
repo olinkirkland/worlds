@@ -410,7 +410,7 @@
             g.drawCircle(point.x, point.y, 2);
             g.endFill();
             g.moveTo(point.x, point.y);
-            var head:Point = Util.pointFromDegreesAndDistance(point, direction, distance);
+            var head:Point = Util.pointFromAngleAndDistance(point, direction, distance);
             g.lineTo(head.x, head.y);
             g.lineStyle();
         }
