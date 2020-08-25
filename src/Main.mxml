@@ -78,7 +78,7 @@
             layerRivers.name = "rivers";
 
             //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlow, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerFlow, layerRivers, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRivers, layerRelief, layerOcean, layerWind, layerPrecipitation, layerFlow, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
                 layerGroup.addElement(layer);
 
@@ -255,22 +255,32 @@
             for each (var river:River in map.hydrology.rivers)
             {
                 var color:uint = Math.random() * Color.white;
-                //color = river.type == River.STEM ? Color.red : Color.yellow;
+                color = river.type == River.STEM ? Color.red : Color.yellow;
 
+                var i:int = 0;
+                var l:int = river.cells.length;
                 for each (var cell:Cell in river.cells)
                 {
                     if (cell != river.end || cell.lowestNeighborBelow)
                     {
+                        var t:Number = 1 + (i / l * l) / 3;
+
+                        g.lineStyle(Math.min(t, 5), Color.blue);
+                        g.moveTo(cell.point.x, cell.point.y);
+                        g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
+
 //                        if (cell == river.start)
 //                        {
 //                            g.lineStyle();
-//                            drawDot(cell.point, color, 5);
+//                            drawDot(cell.point, color, 3);
 //                        }
+//
+//                        g.lineStyle(1, color);
+//                        g.moveTo(cell.point.x, cell.point.y);
+//                        g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
+//                        drawPointer(cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighborBelow.point), color);
 
-                        g.lineStyle(1, color);
-                        g.moveTo(cell.point.x, cell.point.y);
-                        g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
-                        drawPointer(cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighborBelow.point), color);
+                        i++;
                     }
                 }
             }

@@ -13,7 +13,7 @@ package ui
 
         private static var _advancedProperties:Object;
         public static var defaultAdvancedProperties:Object = {
-            spacing:                          8,
+            spacing:                          6,
             precision:                        5,
             smoothing:                        5,
             seaLevel:                         .35,
@@ -25,8 +25,9 @@ package ui
             windStrengthLostOverLand:         .1,
             windSmoothing:                    3,
             windStrengthHeightChangeModifier: 3,
-            riverMoistureThreshold:           .5,
-            riverLengthThreshold:             3
+            riverMoistureThreshold:           .2,
+            riverMinimumStemLength:           5,
+            riverMinimumTributaryLength:      3
         };
 
         public static function get initialLayers():Array

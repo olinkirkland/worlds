@@ -28,9 +28,9 @@
                 radiusX="5"
                 radiusY="5">
 
-            <s:fill>
-                <s:SolidColor color="{Color.background}" />
-            </s:fill>
+            <s:stroke>
+                <s:SolidColorStroke color="{Color.secondary}" />
+            </s:stroke>
 
         </s:Rect>
 

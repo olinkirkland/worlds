@@ -29,5 +29,23 @@ package layers.geography
             cell.rivers.push(this);
             cells.push(cell);
         }
+
+        public function removeCell(cell:Cell):void
+        {
+            cell.rivers.removeAt(cell.rivers.indexOf(this));
+            cells.removeAt(cells.indexOf(cell));
+
+            if (start == cell)
+                start = cells.length > 0 ? cells[0] : null;
+
+            if (end == cell)
+                end = cells.length > 0 ? cells[cells.length - 1] : null;
+        }
+
+        public function removeAllCells():void
+        {
+            while (cells.length > 0)
+                removeCell(cells[0]);
+        }
     }
 }

@@ -105,6 +105,8 @@ package
 
         private function makeRivers():void
         {
+            var d:Date = new Date();
+
             // Setup
             hydrology = new Hydrology(this);
 
@@ -118,9 +120,14 @@ package
                 if (!cell.ocean && cell.lowestNeighborBelow && cell.moisture > Settings.advancedProperties.riverMoistureThreshold && cell.rivers.length == 0)
                 {
                     // Start a new river
-                    propagateRiver(cell, hydrology.addRiver());
+                    var river:River = hydrology.addRiver();
+                    propagateRiver(cell, river);
+
+                    hydrology.validateRiver(river);
                 }
             }
+
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Rivers", Util.secondsSince(d)));
         }
 
         private function propagateRiver(cell:Cell, river:River):void

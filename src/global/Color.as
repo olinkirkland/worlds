@@ -15,7 +15,7 @@ package global {
 
         // UI
         public static const primary:uint = 0x2185D0;
-        public static const secondary:uint = 0xE0E1E2;
+        public static const secondary:uint = 0xE6E7E8;
         public static const background:uint = 0xF8F8F9;
 
         public static const darkBody:uint = 0x5A5A5A;
