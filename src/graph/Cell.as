@@ -2,11 +2,7 @@ package graph
 {
     import flash.geom.Point;
 
-    import global.Util;
-
-    import layers.geography.Outflow;
     import layers.geography.River;
-
     import layers.tectonics.TectonicPlate;
 
     public class Cell
@@ -34,10 +30,7 @@ package graph
         public var tectonicPlateBorder:Boolean;
 
         // Water Cycle
-        public var precipitation:Number;
-        public var water:Number = 0;
-        public var lowestNeighbor:Cell;
-        public var flux:Number;
+        public var moisture:Number = 0;
         public var rivers:Vector.<River>;
 
         // Temperature
@@ -53,12 +46,6 @@ package graph
         public function get elevationAboveSeaLevel():Number
         {
             return elevation - Map.seaLevel;
-        }
-
-        public function get altitude():Number
-        {
-            // I know 'altitude' is probably not the perfect word for this, but it's more unique than 'heightWithWater'
-            return elevation + water;
         }
 
         public function get tectonicPlateDirection():int
@@ -99,6 +86,22 @@ package graph
             }
 
             return null;
+        }
+
+        public function get lowestNeighborBelow():Cell
+        {
+            // Returns the lowest neighbor below this cell's elevation
+            // If there are no neighbors lower than this cell, return null
+            var lowestElevation:Number = elevation;
+            var lowest:Cell = null;
+            for each (var neighbor:Cell in neighbors)
+                if (neighbor.elevation <= lowestElevation)
+                {
+                    lowestElevation = neighbor.elevation;
+                    lowest = neighbor;
+                }
+
+            return lowest;
         }
     }
 }

@@ -76,9 +76,9 @@
             // Moisture Gained over Ocean
             sliderMoistureGainedOverOcean.label.text = "Moisture Gained over Ocean";
             sliderMoistureGainedOverOcean.slider.minimum = 0;
-            sliderMoistureGainedOverOcean.slider.maximum = 1;
-            sliderMoistureGainedOverOcean.slider.stepSize = .05;
-            sliderMoistureGainedOverOcean.slider.snapInterval = .05;
+            sliderMoistureGainedOverOcean.slider.maximum = 5;
+            sliderMoistureGainedOverOcean.slider.stepSize = .1;
+            sliderMoistureGainedOverOcean.slider.snapInterval = .1;
             sliderMoistureGainedOverOcean.value = values.moistureGainedOverOcean;
 
             // Wind Strength Gained Over Ocean
@@ -112,6 +112,22 @@
             sliderWindStrengthHeightChangeModifier.slider.stepSize = 1;
             sliderWindStrengthHeightChangeModifier.slider.snapInterval = 1;
             sliderWindStrengthHeightChangeModifier.value = values.windStrengthHeightChangeModifier;
+
+            // River Moisture Threshold
+            sliderRiverMoistureThreshold.label.text = "River Moisture Threshold";
+            sliderRiverMoistureThreshold.slider.minimum = 0;
+            sliderRiverMoistureThreshold.slider.maximum = 3;
+            sliderRiverMoistureThreshold.slider.stepSize = .05;
+            sliderRiverMoistureThreshold.slider.snapInterval = .05;
+            sliderRiverMoistureThreshold.value = values.riverMoistureThreshold;
+
+            // River Length Threshold
+            sliderRiverLengthThreshold.label.text = "River Length Threshold";
+            sliderRiverLengthThreshold.slider.minimum = 0;
+            sliderRiverLengthThreshold.slider.maximum = 10;
+            sliderRiverLengthThreshold.slider.stepSize = 1;
+            sliderRiverLengthThreshold.slider.snapInterval = 1;
+            sliderRiverLengthThreshold.value = values.riverLengthThreshold;
         }
 
         private function onCopyToClipboard(event:MouseEvent):void
@@ -159,6 +175,8 @@
             values.windStrengthLostOverLand = sliderWindStrengthLostOverLand.value;
             values.windSmoothing = sliderWindSmoothing.value;
             values.windStrengthHeightChangeModifier = sliderWindStrengthHeightChangeModifier.value;
+            values.riverMoistureThreshold = sliderRiverMoistureThreshold.value;
+            values.riverLengthThreshold = sliderRiverLengthThreshold.value;
         }
 
         private function onApply(event:MouseEvent):void
@@ -221,13 +239,15 @@
                 <ui:SliderWithInput id="sliderWindStrengthGainedOverOcean" />
                 <ui:SliderWithInput id="sliderWindStrengthLostOverLand" />
                 <ui:SliderWithInput id="sliderWindSmoothing" />
+                <ui:SliderWithInput id="sliderWindStrengthHeightChangeModifier" />
             </s:VGroup>
 
             <!--Column 4-->
             <s:VGroup width="100%">
-                <ui:SliderWithInput id="sliderWindStrengthHeightChangeModifier" />
                 <ui:SliderWithInput id="sliderCloudMoistureCapacity" />
                 <ui:SliderWithInput id="sliderMoistureGainedOverOcean" />
+                <ui:SliderWithInput id="sliderRiverMoistureThreshold" />
+                <ui:SliderWithInput id="sliderRiverLengthThreshold" />
             </s:VGroup>
 
         </s:HGroup>

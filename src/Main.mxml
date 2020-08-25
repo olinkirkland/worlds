@@ -43,8 +43,7 @@
         private var layerWind:UIComponent;
         private var layerPrecipitation:UIComponent;
         private var layerTemperature:UIComponent;
-        private var layerWater:UIComponent;
-        private var layerFlux:UIComponent;
+        private var layerFlow:UIComponent;
         private var layerRivers:UIComponent;
 
         private var layers:Array;
@@ -73,15 +72,13 @@
             layerPrecipitation.name = "precipitation";
             layerTemperature = new UIComponent();
             layerTemperature.name = "temperature";
-            layerWater = new UIComponent();
-            layerWater.name = "water";
-            layerFlux = new UIComponent();
-            layerFlux.name = "flux";
+            layerFlow = new UIComponent();
+            layerFlow.name = "flow";
             layerRivers = new UIComponent();
             layerRivers.name = "rivers";
 
-            //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlux, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerFlux, layerRivers, layerPrecipitation, layerOutlines, layerDebug];
+            //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlow, layerRivers, layerTemperature, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerPrecipitation, layerFlow, layerRivers, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
                 layerGroup.addElement(layer);
 
@@ -126,7 +123,7 @@
         {
             event.preventDefault();
 
-            var initialLayers = [];
+            var initialLayers:Array = [];
             for each (var layer:UIComponent in layers)
                 if (layer.visible)
                     initialLayers.push(layer.name);
@@ -150,7 +147,7 @@
             drawPrecipitation();
             //drawTemperature();
             //drawWater();
-            drawFlux();
+            drawFlow();
             drawRivers();
         }
 
@@ -171,19 +168,18 @@
                 var t:Point = Util.closestPoint(p, arr);
                 var c:Cell = map.getCellByPoint(t);
                 describe(c);
-//                c.water += 1;
-//                draw();
+
+                //trace("> " + c.lowestNeighborBelow.elevation);
             }
         }
 
         private function describe(c:Cell):void
         {
             trace("Cell #" + c.index);
-            //trace("  altitude=" + c.altitude);
-            trace("  elevation=" + Util.round(c.elevation));
-            var neighborIndexes:Array = [];
-            for each (var neighbor:Cell in c.neighbors)
-                neighborIndexes.push(neighbor.index);
+            for each (var r:River in c.rivers)
+                trace("River index=" + r.index + " (length=" + r.cells.length + ")");
+//            trace("  elevation=" + Util.round(c.elevation));
+//            trace("  ocean=" + c.ocean);
         }
 
         private function makeMap():void
@@ -199,7 +195,7 @@
 
             for each (var cell:Cell in map.cells)
                 if (!cell.ocean)
-                    fillCell(g, cell, Color.green);
+                    fillCell(cell, Color.green);
         }
 
         private function drawOcean():void
@@ -208,7 +204,7 @@
 
             for each (var cell:Cell in map.cells)
                 if (cell.ocean)
-                    fillCell(g, cell, Color.blue, .6);
+                    fillCell(cell, Color.blue, .6);
         }
 
         private function drawWind():void
@@ -216,7 +212,7 @@
             drawOnLayer(layerWind);
 
             for each (var gust:Gust in map.wind.gusts)
-                drawPointer(g, gust.point, gust.angle, Color.red, 5, gust.strength);
+                drawPointer(gust.point, gust.angle, Color.red, 5, gust.strength);
         }
 
         private function drawPrecipitation():void
@@ -224,7 +220,7 @@
             drawOnLayer(layerPrecipitation);
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Color.darkBlue, cell.precipitation);
+                fillCell(cell, Color.darkBlue, cell.moisture);
         }
 
         private function drawTemperature():void
@@ -232,20 +228,21 @@
             drawOnLayer(layerTemperature);
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
+                fillCell(cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
         }
 
-        private function drawFlux():void
+        private function drawFlow():void
         {
-            drawOnLayer(layerFlux);
-            g.lineStyle(1, Color.darkBlue);
+            drawOnLayer(layerFlow);
 
             for each (var cell:Cell in map.cells)
             {
-                if (cell.lowestNeighbor && !cell.lowestNeighbor.ocean)
+                if (cell.lowestNeighborBelow && !cell.ocean)
                 {
+                    g.lineStyle(1, Color.darkBlue);
                     g.moveTo(cell.point.x, cell.point.y);
-                    g.lineTo(cell.lowestNeighbor.point.x, cell.lowestNeighbor.point.y);
+                    g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
+                    drawPointer(cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighborBelow.point), Color.darkBlue);
                 }
             }
         }
@@ -257,29 +254,26 @@
             map.hydrology.rivers.sort(Sort.riverByLength);
             for each (var river:River in map.hydrology.rivers)
             {
-                g.lineStyle(1, Math.random() * 0xffffff);
-                var color:uint = Color.random;
+                var color:uint = Math.random() * Color.white;
+                //color = river.type == River.STEM ? Color.red : Color.yellow;
+
                 for each (var cell:Cell in river.cells)
                 {
-                    if (river.end != cell)
+                    if (cell != river.end || cell.lowestNeighborBelow)
                     {
-                        drawPointer(g, cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighbor.point), color);
-                    }
-                    else
-                    {
-                        drawDot(g, cell.point, color, 5);
+//                        if (cell == river.start)
+//                        {
+//                            g.lineStyle();
+//                            drawDot(cell.point, color, 5);
+//                        }
+
+                        g.lineStyle(1, color);
+                        g.moveTo(cell.point.x, cell.point.y);
+                        g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
+                        drawPointer(cell.point, Util.angleBetweenTwoPoints(cell.point, cell.lowestNeighborBelow.point), color);
                     }
                 }
             }
-        }
-
-        private function drawWater():void
-        {
-            drawOnLayer(layerWater);
-
-            for each (var cell:Cell in map.cells)
-                if (cell.water > 0.1)
-                    fillCell(g, cell, Color.blue, cell.water * 2);
         }
 
         private function drawRelief():void
@@ -331,7 +325,7 @@
             drawOnLayer(layerHeightMap);
 
             for each (var cell:Cell in map.cells)
-                fillCell(g, cell, colorFromHeightMap(cell.elevation));
+                fillCell(cell, colorFromHeightMap(cell.elevation));
         }
 
         private function colorFromHeightMap(height:Number):uint
@@ -351,12 +345,6 @@
         private function drawDebug():void
         {
             drawOnLayer(layerDebug);
-
-            for each (var t:TectonicPlate in map.lithosphere.tectonicPlates)
-                drawDot(g, t.cells[0].point, Color.red, 5);
-
-//            for each (var cell:Cell in map.cells)
-//                drawDot(g, cell.point, Color.orange, 3);
         }
 
         private function drawOutlines():void
@@ -366,7 +354,7 @@
             for each (var cell:Cell in map.cells)
                 for each (var edge:Edge in cell.edges)
                     if (edge.v0 && edge.v1)
-                        drawLine(g, edge.v0.point, edge.v1.point, Color.black);
+                        drawLine(edge.v0.point, edge.v1.point, Color.black);
         }
 
         private function drawTectonicPlates():void
@@ -376,16 +364,16 @@
             for each (var cell:Cell in map.cells)
             {
                 if (cell.tectonicPlate && cell.tectonicPlate.type != TectonicPlate.DEEP)
-                    fillCell(g, cell, cell.tectonicPlate.color);
+                    fillCell(cell, cell.tectonicPlate.color);
                 //fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 0xE74856 : 0x8E8CD8);
 
                 // Draw tectonic plate direction
                 if (cell.tectonicPlateBorder)
-                    drawPointer(g, cell.point, cell.tectonicPlateDirection, Color.black);
+                    drawPointer(cell.point, cell.tectonicPlateDirection, Color.black);
             }
         }
 
-        private function fillCell(g:Graphics, cell:Cell, color:uint, alpha:Number = 1):void
+        private function fillCell(cell:Cell, color:uint, alpha:Number = 1):void
         {
             // Draw a filled cell
             g.beginFill(color, alpha);
@@ -401,14 +389,14 @@
             g.endFill();
         }
 
-        private function drawDot(g:Graphics, point:Point, color:uint, size:int):void
+        private function drawDot(point:Point, color:uint, size:int):void
         {
             g.beginFill(color);
             g.drawCircle(point.x, point.y, size);
             g.endFill();
         }
 
-        private function drawLine(g:Graphics, point1:Point, point2:Point, color:uint, weight:Number = 1):void
+        private function drawLine(point1:Point, point2:Point, color:uint, weight:Number = 1):void
         {
             g.lineStyle(weight, color);
             g.moveTo(point1.x, point1.y);
@@ -416,16 +404,22 @@
             g.lineStyle();
         }
 
-        private function drawPointer(g:Graphics, point:Point, direction:Number, color:uint, distance:Number = 7, pointerAlpha:Number = 1):void
+        private function drawPointer(point:Point, direction:Number, color:uint, distance:Number = 7, pointerAlpha:Number = 1):void
         {
             // Draw pointer
-            g.lineStyle(2, color, pointerAlpha);
+            g.lineStyle();
             g.beginFill(color, pointerAlpha);
-            g.drawCircle(point.x, point.y, 2);
-            g.endFill();
-            g.moveTo(point.x, point.y);
-            var head:Point = Util.pointFromAngleAndDistance(point, direction, distance);
-            g.lineTo(head.x, head.y);
+            //g.drawCircle(point.x, point.y, 2);
+            //g.endFill();
+            var p0:Point = Util.pointFromAngleAndDistance(point, direction - 90, distance / 2);
+            var p1:Point = Util.pointFromAngleAndDistance(point, direction, distance);
+            var p2:Point = Util.pointFromAngleAndDistance(point, direction + 90, distance / 2);
+
+            g.moveTo(p0.x, p0.y);
+            //var head:Point = Util.pointFromAngleAndDistance(point, direction, distance);
+            g.lineTo(p1.x, p1.y);
+            g.lineTo(p2.x, p2.y);
+            g.lineTo(p0.x, p0.y);
             g.lineStyle();
         }
 
@@ -465,28 +459,6 @@
                          width="1200"
                          height="600" />
             </s:VGroup>
-
-
-            <!--            <s:Rect width="100%"-->
-            <!--                    height="100%">-->
-            <!--                <s:fill>-->
-            <!--                    <s:SolidColor color="{Color.red}"-->
-            <!--                                  alpha=".4" />-->
-            <!--                </s:fill>-->
-            <!--            </s:Rect>-->
-
-
-            <!--            <s:HGroup id="layerGroupMask"-->
-            <!--                      width="100%"-->
-            <!--                      height="{layerGroupContainer.height}"-->
-            <!--                      padding="15">-->
-            <!--                <s:Rect width="100%"-->
-            <!--                        height="100%">-->
-            <!--                    <s:fill>-->
-            <!--                        <s:SolidColor color="{Color.red}" />-->
-            <!--                    </s:fill>-->
-            <!--                </s:Rect>-->
-            <!--            </s:HGroup>-->
 
         </s:Group>
 

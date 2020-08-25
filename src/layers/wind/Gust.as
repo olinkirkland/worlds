@@ -74,13 +74,9 @@ package layers.wind
             }
             else
             {
-                // Drop moisture onto land as precipitation
-                if (moisture > 0)
-                {
-                    precipitation = Math.min(moisture, heightDifference * 2);
-                    moisture -= precipitation * 1.5;
-                    precipitation = Math.min(precipitation / 3, 1);
-                }
+                // Calculate precipitation and subtract it from the moisture
+                precipitation = moisture / 5;
+                moisture -= Math.min(moisture, precipitation);
 
                 // Decrease speed over land
                 outgoingStrength -= strengthLostOverLand;

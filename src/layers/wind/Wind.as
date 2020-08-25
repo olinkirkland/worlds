@@ -213,35 +213,54 @@ package layers.wind
         {
             for each (var gust:Gust in gusts)
             {
-                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size * 2, size * 2));
                 for each (var p:Point in quadPoints)
                 {
                     var cell:Cell = map.getCellByPoint(p);
-                    if (!cell.precipitation)
-                        cell.precipitation = gust.precipitation;
+                    if (cell.ocean)
+                        continue;
+
+                    if (!cell.moisture)
+                        cell.moisture = gust.precipitation;
                     else
-                        cell.precipitation = (cell.precipitation + gust.precipitation) / 2;
+                        cell.moisture = (cell.moisture + gust.precipitation) / 2;
                 }
             }
 
-            // Average out the precipitation
-            for (var i:int = 0; i < 1; i++)
+            // Average and stretch the cell moisture
+            for (var i:int = 0; i < 10; i++)
             {
+                // Average
+                var maxMoisture:Number = 0;
                 for each (cell in map.cells)
                 {
-                    var average:Number = 0;
-                    for each (var neighbor:Cell in cell.neighbors)
-                        if (neighbor.precipitation)
-                            average += neighbor.precipitation;
+                    if (cell.ocean)
+                        continue;
 
-                    average /= cell.neighbors.length;
-                    cell.precipitation = average;
+                    if (cell.moisture > maxMoisture)
+                        maxMoisture = cell.moisture;
+
+                    var average:Number = 0;
+                    var neighborCount:int = 0;
+                    for each (var neighbor:Cell in cell.neighbors)
+                        if (neighbor.moisture && !neighbor.ocean)
+                        {
+                            average += neighbor.moisture;
+                            neighborCount++;
+                        }
+
+                    cell.moisture = average /= neighborCount;
                 }
+
+                // Stretch
+                for each (cell in map.cells)
+                    if (cell.moisture)
+                        cell.moisture *= (1 / maxMoisture);
             }
 
             for each (cell in map.cells)
-                if (!cell.precipitation)
-                    cell.precipitation = 0;
+                if (!cell.moisture)
+                    cell.moisture = 0;
         }
     }
 }

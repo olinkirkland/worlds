@@ -24,7 +24,9 @@ package ui
             windStrengthGainedOverOcean:      .1,
             windStrengthLostOverLand:         .1,
             windSmoothing:                    3,
-            windStrengthHeightChangeModifier: 3
+            windStrengthHeightChangeModifier: 3,
+            riverMoistureThreshold:           .5,
+            riverLengthThreshold:             3
         };
 
         public static function get initialLayers():Array

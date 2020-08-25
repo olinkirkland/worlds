@@ -88,7 +88,7 @@ package
 
             lithosphere = new Lithosphere(this);
 
-            //addPerlinNoiseToHeightMap();
+            addPerlinNoiseToHeightMap();
             smoothHeightMap();
 
             bounds.width = this.width;
@@ -99,71 +99,49 @@ package
 
             determineTemperature();
             determineWind();
-            determineHydrology();
-            determineRivers();
+
+            makeRivers();
         }
 
-        private function determineRivers():void
+        private function makeRivers():void
         {
             // Setup
-            for each (var cell:Cell in cells)
-            {
-                cell.rivers = new Vector.<River>();
-                cell.flux = cell.precipitation;
-            }
+            hydrology = new Hydrology(this);
 
-            // Pour flux to lowest neighbors and determine rivers
-            cells.sort(Sort.cellByAltitude).reverse();
+            for each (var cell:Cell in cells)
+                cell.rivers = new Vector.<River>();
+
+            // Pour flow to lowest neighbors and determine rivers
+            cells.sort(Sort.cellByElevation).reverse();
             for each (cell in cells)
             {
-                var lowestAltitude:Number = cell.altitude;
-                for each (var neighbor:Cell in cell.neighbors)
+                if (!cell.ocean && cell.lowestNeighborBelow && cell.moisture > Settings.advancedProperties.riverMoistureThreshold && cell.rivers.length == 0)
                 {
-                    if (neighbor.altitude < lowestAltitude && Util.distanceBetweenTwoPoints(cell.point, neighbor.point) < spacing * 2)
-                    {
-                        lowestAltitude = neighbor.altitude;
-                        cell.lowestNeighbor = neighbor;
-                    }
+                    // Start a new river
+                    propagateRiver(cell, hydrology.addRiver());
                 }
-
-                if (cell.lowestNeighbor)
-                    pour(cell, cell.lowestNeighbor);
             }
         }
 
-        private function pour(cell:Cell, neighbor:Cell):void
+        private function propagateRiver(cell:Cell, river:River):void
         {
-            if (cell.ocean) return;
+            var lowest:Cell = cell.lowestNeighborBelow;
 
-            neighbor.flux += cell.flux;
-            if (cell.flux > 0.5)
+            if (lowest && lowest.rivers.length > 0)
             {
-                var river:River;
-                if (cell.rivers.length > 0)
-                {
-                    // Extend the longest river that's already in this cell
-                    for each (var r:River in cell.rivers)
-                    {
-                        if (!river || r.cells.length > river.cells.length)
-                            river = r;
-                    }
-
-                    river.addCell(neighbor);
-                }
-                else
-                {
-                    // Start new river
-                    river = hydrology.addRiver();
-                    river.addCell(cell);
-                    river.addCell(neighbor);
-                }
-
-                // Identify points where the river empties into a body of water
-                if (neighbor.ocean || !neighbor.lowestNeighbor)
-                {
-                    river.end = neighbor;
-                }
+                // Cell already has a river, so end the current river because it's a tributary
+                river.addCell(cell);
+                river.end = cell;
+                river.type = River.TRIBUTARY;
+                return;
             }
+
+            river.addCell(cell);
+
+            if (lowest && !lowest.ocean)
+                propagateRiver(lowest, river);
+            else
+                river.end = cell;
         }
 
         private function determineTemperature():void
@@ -180,16 +158,6 @@ package
             wind = new Wind(this);
 
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind", Util.secondsSince(d)));
-        }
-
-        private function determineHydrology():void
-        {
-            var d:Date = new Date();
-
-            // Calculate hydrology
-            hydrology = new Hydrology(this);
-
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Hydrology", Util.secondsSince(d)));
         }
 
         private function determineOceans():void
