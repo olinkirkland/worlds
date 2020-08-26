@@ -19,13 +19,15 @@
         import graph.Corner;
         import graph.Edge;
 
-        import layers.geography.River;
+        import layers.geography.hydrology.River;
         import layers.tectonics.TectonicPlate;
-        import layers.wind.Gust;
+        import layers.wind.Cloud;
 
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
         import mx.events.ResizeEvent;
+
+        import spark.filters.BlurFilter;
 
         import ui.Settings;
 
@@ -41,10 +43,11 @@
         private var layerRelief:UIComponent;
         private var layerOcean:UIComponent;
         private var layerWind:UIComponent;
-        private var layerPrecipitation:UIComponent;
+        private var layerMoisture:UIComponent;
         private var layerTemperature:UIComponent;
         private var layerFlow:UIComponent;
         private var layerRivers:UIComponent;
+        private var layerBiomes:UIComponent;
 
         private var layers:Array;
         private var g:Graphics;
@@ -68,17 +71,18 @@
             layerOcean.name = "ocean";
             layerWind = new UIComponent();
             layerWind.name = "wind";
-            layerPrecipitation = new UIComponent();
-            layerPrecipitation.name = "precipitation";
+            layerMoisture = new UIComponent();
+            layerMoisture.name = "moisture";
             layerTemperature = new UIComponent();
             layerTemperature.name = "temperature";
             layerFlow = new UIComponent();
             layerFlow.name = "flow";
             layerRivers = new UIComponent();
             layerRivers.name = "rivers";
+            layerBiomes = new UIComponent();
+            layerBiomes.name = "biomes";
 
-            //layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRelief, layerOcean, layerWind, layerWater, layerPrecipitation, layerFlow, layerRivers, layerTemperature, layerOutlines, layerDebug];
-            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerRivers, layerRelief, layerOcean, layerWind, layerPrecipitation, layerFlow, layerOutlines, layerDebug];
+            layers = [layerTectonicPlates, layerHeightMap, layerContinents, layerBiomes, layerRivers, layerRelief, layerOcean, layerWind, layerMoisture, layerFlow, layerTemperature, layerOutlines, layerDebug];
             for each (var layer:UIComponent in layers)
                 layerGroup.addElement(layer);
 
@@ -142,13 +146,12 @@
             drawContinents();
             drawRelief();
             drawOcean();
-
             drawWind();
-            drawPrecipitation();
-            //drawTemperature();
-            //drawWater();
+            drawMoisture();
+            drawTemperature();
             drawFlow();
             drawRivers();
+            drawBiomes();
         }
 
         private function toggleLayer(layer:UIComponent):void
@@ -176,10 +179,6 @@
         private function describe(c:Cell):void
         {
             trace("Cell #" + c.index);
-            for each (var r:River in c.rivers)
-                trace("River index=" + r.index + " (length=" + r.cells.length + ")");
-//            trace("  elevation=" + Util.round(c.elevation));
-//            trace("  ocean=" + c.ocean);
         }
 
         private function makeMap():void
@@ -211,16 +210,26 @@
         {
             drawOnLayer(layerWind);
 
-            for each (var gust:Gust in map.wind.gusts)
-                drawPointer(gust.point, gust.angle, Color.red, 5, gust.strength);
+            for each (var gust:Cloud in map.wind.clouds)
+                drawPointer(gust.point, gust.angle, Color.red, 5, gust.precipitation);
         }
 
-        private function drawPrecipitation():void
+        private function drawMoisture():void
         {
-            drawOnLayer(layerPrecipitation);
+            drawOnLayer(layerMoisture);
 
             for each (var cell:Cell in map.cells)
                 fillCell(cell, Color.darkBlue, cell.moisture);
+        }
+
+        private function drawBiomes():void
+        {
+            drawOnLayer(layerBiomes);
+
+            for each (var cell:Cell in map.cells)
+            {
+                //fillCell(cell,
+            }
         }
 
         private function drawTemperature():void
@@ -305,6 +314,11 @@
                     g.endFill();
                 }
             }
+
+            layerRelief.filters = [];
+            var blurFilter:BlurFilter = new BlurFilter(Settings.advancedProperties.reliefBlur, Settings.advancedProperties.reliefBlur, 10);
+            if (Settings.advancedProperties.reliefBlur > 0)
+                layerRelief.filters.push(blurFilter);
         }
 
         public function calculateLighting(p:Cell, r:Corner, s:Corner):Number

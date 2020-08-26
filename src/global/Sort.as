@@ -2,7 +2,7 @@ package global
 {
     import graph.Cell;
 
-    import layers.geography.River;
+    import layers.geography.hydrology.River;
 
     public class Sort
     {

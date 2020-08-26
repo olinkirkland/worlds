@@ -27,7 +27,8 @@ package ui
             windStrengthHeightChangeModifier: 3,
             riverMoistureThreshold:           .2,
             riverMinimumStemLength:           5,
-            riverMinimumTributaryLength:      3
+            riverMinimumTributaryLength:      3,
+            reliefBlur:                       0
         };
 
         public static function get initialLayers():Array

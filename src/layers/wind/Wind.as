@@ -12,11 +12,11 @@ package layers.wind
     public class Wind
     {
         private var map:Map;
-        private var size:Number = 10;
+        private var size:Number = 20;
 
         private var points:Array;
         private var grid:Array;
-        public var gusts:Array;
+        public var clouds:Array;
 
 
         public function Wind(map:Map)
@@ -25,25 +25,25 @@ package layers.wind
 
             points = [];
             grid = [[]];
-            gusts = [];
+            clouds = [];
 
             var offset:Point = new Point(20, 20);
             var width:int = map.width - 40;
             var height:int = map.height - 40;
 
-            var gust:Gust;
+            var cloud:Cloud;
             for (var i:int = 0; i < width / size; i++)
             {
                 grid [i] = [];
                 for (var j:int = 0; j < height / size; j++)
                 {
                     var p:Point = new Point(i * size + offset.x, j * size + offset.y);
-                    gust = new Gust(p,
+                    cloud = new Cloud(p,
                             size);
 
                     points.push(p);
-                    gusts.push(gust);
-                    grid[i][j] = gust;
+                    clouds.push(cloud);
+                    grid[i][j] = cloud;
                 }
             }
 
@@ -52,70 +52,65 @@ package layers.wind
             {
                 for (j = 0; j < grid[i].length; j++)
                 {
-                    gust = grid[i][j];
+                    cloud = grid[i][j];
 
                     // North
                     if (i > 0)
-                        gust.neighbors[Direction.WEST] = grid[i - 1][j];
+                        cloud.neighbors[Direction.WEST] = grid[i - 1][j];
 
                     // East
                     if (j < grid[i].length - 1)
-                        gust.neighbors[Direction.SOUTH] = grid[i][j + 1];
+                        cloud.neighbors[Direction.SOUTH] = grid[i][j + 1];
 
                     // South
                     if (i < grid.length - 1)
-                        gust.neighbors[Direction.EAST] = grid[i + 1][j];
+                        cloud.neighbors[Direction.EAST] = grid[i + 1][j];
 
                     // West
                     if (j > 0)
-                        gust.neighbors[Direction.NORTH] = grid[i][j - 1];
+                        cloud.neighbors[Direction.NORTH] = grid[i][j - 1];
                 }
             }
 
-            for each (gust in gusts)
+            for each (cloud in clouds)
             {
                 var averageHeight:Number = 0;
-                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size, size));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(cloud.point.x, cloud.point.y, size, size));
 
-                var ocean:Boolean = false;
+                cloud.ocean = true;
                 for each (p in quadPoints)
                 {
                     var cell:Cell = map.getCellByPoint(p);
                     averageHeight += cell.elevation;
-                    if (cell.ocean)
-                        ocean = true;
+                    if (!cell.ocean)
+                        cloud.ocean = false;
                 }
 
-                if (ocean)
-                {
-                    gust.ocean = true;
-                    gust.height = Map.seaLevel;
-                }
-                else
-                {
-                    averageHeight /= quadPoints.length;
-                    gust.height = averageHeight >= 0 ? averageHeight : -1;
-                }
+                averageHeight /= quadPoints.length;
+                cloud.height = averageHeight >= 0 ? averageHeight : -1;
+
+                if (cloud.ocean)
+                    cloud.height = Map.seaLevel;
             }
 
-            // Smoothing for gusts that don't have any points under them
-            for each (gust in gusts)
+            // Smoothing for clouds that don't have any points under them
+            for each (cloud in clouds)
             {
-                if (gust.height < 0)
+                if (cloud.height < 0)
                 {
-                    gust.height = 0;
+                    cloud.height = 0;
                     i = 0;
-                    for each (var neighbor:Gust in gust.neighbors)
+                    for each (var neighbor:Cloud in cloud.neighbors)
                         if (neighbor && neighbor.height >= 0)
                         {
-                            gust.height += neighbor.height;
+                            cloud.height += neighbor.height;
 
                             if (neighbor.ocean)
-                                gust.ocean = true;
+                                cloud.ocean = true;
 
                             i++;
                         }
-                    gust.height /= i;
+                    cloud.height /= i;
                 }
             }
 
@@ -135,25 +130,26 @@ package layers.wind
             {
                 for (var j:int = 0; j < grid[i].length; j++)
                 {
-                    var gust:Gust = grid[i][j];
+                    var cloud:Cloud = grid[i][j];
                     // Default
-                    gust.angle = Direction.SOUTH;
-                    gust.strength = 0;
-                    gust.moisture = 0;
+                    cloud.angle = Direction.SOUTH;
+                    cloud.strength = 0;
+                    cloud.moisture = 0;
 
                     // Prevailing East Wind
                     if (i == 0)
                     {
-                        queue.push(gust);
-                        gust.angle = Direction.EAST;
-                        gust.strength = 1;
+                        queue.push(cloud);
+                        cloud.angle = Direction.EAST;
+                        cloud.strength = 1;
+                        cloud.moisture = Settings.advancedProperties.cloudMoistureCapacity;
                     }
 
 //                    // South Polar Wind
 //                    if (j == grid[i].length - 1) {
-//                        queue.push(gust);
-//                        gust.angle = Direction.NORTH;
-//                        gust.strength = 20;
+//                        queue.push(cloud);
+//                        cloud.angle = Direction.NORTH;
+//                        cloud.strength = 20;
 //                    }
                 }
             }
@@ -167,17 +163,18 @@ package layers.wind
              * Propagate Wind
              */
 
+            var cloud:Cloud = null;
             while (queue.length > 0)
             {
-                var gust:Gust = queue.shift();
-                var targets:Array = gust.send();
+                cloud = queue.shift();
+                var targets:Array = cloud.send();
 
-                for each (var target:Gust in targets)
+                for each (var target:Cloud in targets)
                 {
                     var containsTarget:Boolean = false;
-                    for each (gust in queue)
+                    for each (cloud in queue)
                     {
-                        if (gust == target)
+                        if (cloud == target)
                         {
                             containsTarget = true;
                             break;
@@ -191,29 +188,30 @@ package layers.wind
 
             // Smooth
             for (var k:int = 0; k < Settings.advancedProperties.windSmoothing; k++)
-                for each (gust in gusts)
+                for each (cloud in clouds)
                 {
-                    var averageStrength:Number = gust.strength;
+                    var averageStrength:Number = cloud.strength;
                     var neighborCount:int = 0;
-                    for each (var g:Gust in gust.neighbors)
+
+                    for each (var c:Cloud in cloud.neighbors)
                     {
-                        if (g)
+                        if (c)
                         {
                             neighborCount++;
-                            averageStrength += g.strength;
+                            averageStrength += c.strength;
                         }
                     }
 
                     averageStrength /= neighborCount;
-                    gust.strength = averageStrength;
+                    cloud.strength = averageStrength;
                 }
         }
 
         private function applyPrecipitationToCells():void
         {
-            for each (var gust:Gust in gusts)
+            for each (var cloud:Cloud in clouds)
             {
-                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(gust.point.x, gust.point.y, size * 2, size * 2));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(cloud.point.x, cloud.point.y, size, size));
                 for each (var p:Point in quadPoints)
                 {
                     var cell:Cell = map.getCellByPoint(p);
@@ -221,9 +219,9 @@ package layers.wind
                         continue;
 
                     if (!cell.moisture)
-                        cell.moisture = gust.precipitation;
+                        cell.moisture = cloud.precipitation;
                     else
-                        cell.moisture = (cell.moisture + gust.precipitation) / 2;
+                        cell.moisture = (cell.moisture + cloud.precipitation) / 2;
                 }
             }
 
@@ -243,7 +241,7 @@ package layers.wind
                     var average:Number = 0;
                     var neighborCount:int = 0;
                     for each (var neighbor:Cell in cell.neighbors)
-                        if (neighbor.moisture && !neighbor.ocean)
+                        if (neighbor.moisture)
                         {
                             average += neighbor.moisture;
                             neighborCount++;

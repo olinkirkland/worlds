@@ -1,5 +1,6 @@
-package layers.geography
+package layers.geography.hydrology
 {
+    import layers.geography.*;
     import ui.Settings;
 
     public class Hydrology

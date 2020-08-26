@@ -2,7 +2,7 @@ package graph
 {
     import flash.geom.Point;
 
-    import layers.geography.River;
+    import layers.geography.hydrology.River;
     import layers.tectonics.TectonicPlate;
 
     public class Cell
@@ -30,11 +30,13 @@ package graph
         public var tectonicPlateBorder:Boolean;
 
         // Water Cycle
-        public var moisture:Number = 0;
+        public var moisture:Number;
         public var rivers:Vector.<River>;
 
         // Temperature
         public var temperature:Number;
+
+        // Biome
 
         public function Cell()
         {

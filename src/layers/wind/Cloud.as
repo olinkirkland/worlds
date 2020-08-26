@@ -4,7 +4,7 @@ package layers.wind
 
     import ui.Settings;
 
-    public class Gust
+    public class Cloud
     {
         public var point:Point;
         public var size:Number;
@@ -26,8 +26,8 @@ package layers.wind
         private var strengthGainedOverOcean:Number;
         private var strengthLostOverLand:Number;
 
-        public function Gust(point:Point,
-                             size:Number)
+        public function Cloud(point:Point,
+                              size:Number)
         {
             moistureCapacity = Settings.advancedProperties.cloudMoistureCapacity;
             moistureGainedOverOcean = Settings.advancedProperties.moistureGainedOverOcean;
@@ -50,7 +50,7 @@ package layers.wind
 
         public function send():Array
         {
-            var neighbor:Gust = neighbors[angle];
+            var neighbor:Cloud = neighbors[angle];
             if (!neighbor)
                 return [];
 

@@ -17,8 +17,10 @@ package
 
     import graph.*;
 
-    import layers.geography.Hydrology;
-    import layers.geography.River;
+    import layers.geography.climate.Climate;
+
+    import layers.geography.hydrology.Hydrology;
+    import layers.geography.hydrology.River;
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
     import layers.temperature.Temperature;
@@ -55,6 +57,7 @@ package
         public var lithosphere:Lithosphere;
         public var temperature:Temperature;
         public var wind:Wind;
+        public var climate:Climate;
         public var hydrology:Hydrology;
 
         // Point Mapping
@@ -97,10 +100,11 @@ package
             determineOceans();
             setCornerHeights();
 
-            determineTemperature();
-            determineWind();
-
+            determineWindAndMoisture();
             makeRivers();
+
+            determineTemperature();
+            determineClimate();
         }
 
         private function makeRivers():void
@@ -126,6 +130,10 @@ package
                     hydrology.validateRiver(river);
                 }
             }
+
+            // Todo Add moisture to river cells (w/ random variation)
+
+            // Todo Average/Stretch moisture AFTER this step (move code from Wind.as)
 
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Rivers", Util.secondsSince(d)));
         }
@@ -159,12 +167,20 @@ package
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Temperature", Util.secondsSince(d)));
         }
 
-        private function determineWind():void
+        private function determineWindAndMoisture():void
         {
             var d:Date = new Date();
             wind = new Wind(this);
 
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind", Util.secondsSince(d)));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind and Moisture", Util.secondsSince(d)));
+        }
+
+        private function determineClimate():void
+        {
+            var d:Date = new Date();
+            climate = new Climate(this);
+
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Climate and Biomes", Util.secondsSince(d)));
         }
 
         private function determineOceans():void
