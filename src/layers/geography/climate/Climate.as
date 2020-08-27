@@ -4,6 +4,8 @@ package layers.geography.climate
 
     import graph.Cell;
 
+    import ui.Settings;
+
     public class Climate
     {
         private var map:Map;
@@ -27,9 +29,9 @@ package layers.geography.climate
             // Determine temperature
             for each (var cell:Cell in map.cells)
             {
-                cell.temperature = 1 - Math.abs(2 * (cell.point.y / map.height) - 1) * 1.2;
+                cell.temperature = 1 - Math.abs(2 * (cell.point.y / map.height) - 1) * Settings.properties.poleTemperatureModifier;
                 if (!cell.ocean)
-                    cell.temperature -= (cell.elevationAboveSeaLevel);
+                    cell.temperature -= (cell.elevationAboveSeaLevel) * Settings.properties.elevationTemperatureModifier;
                 cell.temperature = Util.fixed(cell.temperature, 2);
                 cell.temperature = Math.min(Math.max(0, cell.temperature), 1);
             }

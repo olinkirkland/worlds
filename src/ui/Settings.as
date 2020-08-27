@@ -29,6 +29,8 @@ package ui
             riverMinimumStemLength:           5,
             riverMinimumTributaryLength:      3,
             reliefBlur:                       0,
+            poleTemperatureModifier:          1.2,
+            elevationTemperatureModifier:     1,
             language:                         "en"
         };
 

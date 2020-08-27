@@ -138,6 +138,22 @@
             sliderRiverMinimumTributaryLength.slider.stepSize = 1;
             sliderRiverMinimumTributaryLength.slider.snapInterval = 1;
             sliderRiverMinimumTributaryLength.value = values.riverMinimumTributaryLength;
+
+            // Minimum Stem Length
+            sliderPoleTemperatureModifier.label.text = "Ice Cap Temperature Modifier";
+            sliderPoleTemperatureModifier.slider.minimum = 0;
+            sliderPoleTemperatureModifier.slider.maximum = 2;
+            sliderPoleTemperatureModifier.slider.stepSize = .05;
+            sliderPoleTemperatureModifier.slider.snapInterval = .05;
+            sliderPoleTemperatureModifier.value = values.poleTemperatureModifier;
+
+            // Minimum Stem Length
+            sliderElevationTemperatureModifier.label.text = "Elevation Temperature Modifier";
+            sliderElevationTemperatureModifier.slider.minimum = 0;
+            sliderElevationTemperatureModifier.slider.maximum = 2;
+            sliderElevationTemperatureModifier.slider.stepSize = .05;
+            sliderElevationTemperatureModifier.slider.snapInterval = .05;
+            sliderElevationTemperatureModifier.value = values.elevationTemperatureModifier;
         }
 
         private function onCopyToClipboard(event:MouseEvent):void
@@ -188,6 +204,8 @@
             values.riverMoistureThreshold = sliderRiverMoistureThreshold.value;
             values.riverMinimumStemLength = sliderRiverMinimumStemLength.value;
             values.riverMinimumTributaryLength = sliderRiverMinimumTributaryLength.value;
+            values.poleTemperatureModifier = sliderPoleTemperatureModifier.value;
+            values.elevationTemperatureModifier = sliderElevationTemperatureModifier.value;
         }
 
         private function onApply(event:MouseEvent):void
@@ -370,6 +388,31 @@
                                                         width="100%" />
                                     <ui:SliderWithInput id="sliderRiverMinimumTributaryLength"
                                                         width="100%" />
+                                </s:HGroup>
+                            </s:VGroup>
+                        </s:Panel>
+
+                    </s:VGroup>
+
+                </s:Panel>
+
+                <!--Climate-->
+                <s:Panel width="100%">
+
+                    <s:VGroup width="100%">
+
+                        <s:Label width="100%"
+                                 text="Climate" />
+
+                        <s:Panel width="100%"
+                                 skinClass="skins.PanelSkinWhite">
+                            <s:VGroup width="100%">
+                                <s:HGroup width="100%">
+                                    <ui:SliderWithInput id="sliderPoleTemperatureModifier"
+                                                        width="100%" />
+                                    <ui:SliderWithInput id="sliderElevationTemperatureModifier"
+                                                        width="100%" />
+                                    <s:Spacer width="100%" />
                                 </s:HGroup>
                             </s:VGroup>
                         </s:Panel>
