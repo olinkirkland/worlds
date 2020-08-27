@@ -22,7 +22,6 @@
 
             item = value;
 
-            // Item must have a percent property
             if (item.hasOwnProperty("color"))
                 color = item.color;
             else if (item.hasOwnProperty("name"))
@@ -31,20 +30,6 @@
                 color = Math.random() * 0xffffff;
 
             fillSolidColor.color = color;
-
-            if (!item.hasOwnProperty("percent"))
-                return;
-
-            labelTime.text = item.timeTakenInSeconds + "s";
-
-            var percent:Number = item.percent * 100;
-            var percentAsString:String = percent.toFixed(1);
-            if (percent < .1)
-                percentAsString = percent.toFixed(2);
-            if (percent < .01)
-                percentAsString = percent.toFixed(3);
-
-            labelPercent.text = percentAsString + "%"
         }
         ]]>
     </fx:Script>
@@ -67,8 +52,6 @@
                 </s:Rect>
                 <s:Label id="labelDisplay" />
             </s:HGroup>
-            <s:Label id="labelPercent" />
-            <s:Label id="labelTime" />
         </s:VGroup>
     </s:HGroup>
 </s:ItemRenderer>

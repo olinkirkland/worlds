@@ -17,7 +17,7 @@
 
         private function onCreationComplete(event:FlexEvent):void
         {
-            values = ObjectUtil.clone(Settings.advancedProperties);
+            values = ObjectUtil.clone(Settings.properties);
             validateSliders();
         }
 
@@ -166,7 +166,7 @@
 
         private function onResetDefaultValues(event:MouseEvent):void
         {
-            values = ObjectUtil.clone(Settings.defaultAdvancedProperties);
+            values = ObjectUtil.clone(Settings.defaultProperties);
             validateSliders();
         }
 
@@ -193,7 +193,7 @@
         private function onApply(event:MouseEvent):void
         {
             updateValues();
-            Settings.advancedProperties = ObjectUtil.clone(values);
+            Settings.properties = ObjectUtil.clone(values);
 
             // Run map
             dispatchEvent(new Event(UIEventType.MAKE_MAP, true));
@@ -208,7 +208,7 @@
 
         <s:HGroup width="100%"
                   verticalAlign="middle">
-            <s:Label text="Advanced Properties"
+            <s:Label text="Settings"
                      width="100%"
                      styleName="header" />
             <s:Button id="buttonClose"
@@ -218,7 +218,7 @@
 
         <s:Label id="labelDescription"
                  width="100%"
-                 text="Changing advanced properties drastically alters what the map looks like." />
+                 text="Changing some properties will drastically alter what the map looks like." />
 
         <s:Panel width="100%"
                  skinClass="skins.PanelSkinOutline">

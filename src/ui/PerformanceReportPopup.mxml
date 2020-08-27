@@ -38,7 +38,7 @@
 
         <s:HGroup width="100%"
                   verticalAlign="middle">
-            <s:Label text="Performance Report"
+            <s:Label text="Performance"
                      width="100%"
                      styleName="header" />
             <s:Button id="closeButton"

@@ -30,7 +30,6 @@
         import spark.filters.BlurFilter;
 
         import ui.Settings;
-
         import ui.UIEventType;
 
         public static var map:Map;
@@ -179,6 +178,9 @@
         private function describe(c:Cell):void
         {
             trace("Cell #" + c.index);
+            trace("  " + c.biomeType);
+            trace("   " + c.temperatureLevel);
+            trace("   " + c.moistureLevel);
         }
 
         private function makeMap():void
@@ -227,9 +229,8 @@
             drawOnLayer(layerBiomes);
 
             for each (var cell:Cell in map.cells)
-            {
-                //fillCell(cell,
-            }
+                if (!cell.ocean)
+                    fillCell(cell, Settings.biomeColors[cell.biomeType]);
         }
 
         private function drawTemperature():void
@@ -237,7 +238,7 @@
             drawOnLayer(layerTemperature);
 
             for each (var cell:Cell in map.cells)
-                fillCell(cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .7);
+                fillCell(cell, Util.colorBetweenColors(Color.blue, Color.orange, cell.temperature), .8);
         }
 
         private function drawFlow():void
@@ -316,8 +317,8 @@
             }
 
             layerRelief.filters = [];
-            var blurFilter:BlurFilter = new BlurFilter(Settings.advancedProperties.reliefBlur, Settings.advancedProperties.reliefBlur, 10);
-            if (Settings.advancedProperties.reliefBlur > 0)
+            var blurFilter:BlurFilter = new BlurFilter(Settings.properties.reliefBlur, Settings.properties.reliefBlur, 10);
+            if (Settings.properties.reliefBlur > 0)
                 layerRelief.filters.push(blurFilter);
         }
 

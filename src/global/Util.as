@@ -29,6 +29,9 @@ package global
 
         public static function stringToSeed(str:String):Number
         {
+            if (!str)
+                return 0;
+
             var hash:Number = 0;
             for (var i:int = 0; i < str.length; i++)
             {

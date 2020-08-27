@@ -29,10 +29,10 @@ package layers.wind
         public function Cloud(point:Point,
                               size:Number)
         {
-            moistureCapacity = Settings.advancedProperties.cloudMoistureCapacity;
-            moistureGainedOverOcean = Settings.advancedProperties.moistureGainedOverOcean;
-            strengthGainedOverOcean = Settings.advancedProperties.windStrengthGainedOverOcean;
-            strengthLostOverLand = Settings.advancedProperties.windStrengthLostOverLand;
+            moistureCapacity = Settings.properties.cloudMoistureCapacity;
+            moistureGainedOverOcean = Settings.properties.moistureGainedOverOcean;
+            strengthGainedOverOcean = Settings.properties.windStrengthGainedOverOcean;
+            strengthLostOverLand = Settings.properties.windStrengthLostOverLand;
 
             this.point = point;
             this.size = size;
@@ -57,7 +57,7 @@ package layers.wind
             // Calculate the height difference to the neighbor
             var heightDifference:Number = height - neighbor.height;
             heightDifference = int(heightDifference * 1000) / 1000;
-            heightDifference *= Settings.advancedProperties.windStrengthHeightChangeModifier;
+            heightDifference *= Settings.properties.windStrengthHeightChangeModifier;
 
             // Decrease speed going uphill (and increase going downhill)
             var outgoingStrength:Number = strength * (1 - heightDifference);

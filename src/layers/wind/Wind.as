@@ -142,7 +142,7 @@ package layers.wind
                         queue.push(cloud);
                         cloud.angle = Direction.EAST;
                         cloud.strength = 1;
-                        cloud.moisture = Settings.advancedProperties.cloudMoistureCapacity;
+                        cloud.moisture = Settings.properties.cloudMoistureCapacity;
                     }
 
 //                    // South Polar Wind
@@ -187,7 +187,7 @@ package layers.wind
             }
 
             // Smooth
-            for (var k:int = 0; k < Settings.advancedProperties.windSmoothing; k++)
+            for (var k:int = 0; k < Settings.properties.windSmoothing; k++)
                 for each (cloud in clouds)
                 {
                     var averageStrength:Number = cloud.strength;
@@ -211,7 +211,7 @@ package layers.wind
         {
             for each (var cloud:Cloud in clouds)
             {
-                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(cloud.point.x, cloud.point.y, size, size));
+                var quadPoints:Vector.<Point> = map.quadTree.query(new Rectangle(cloud.point.x, cloud.point.y, size * 2, size * 2));
                 for each (var p:Point in quadPoints)
                 {
                     var cell:Cell = map.getCellByPoint(p);
@@ -226,7 +226,7 @@ package layers.wind
             }
 
             // Average and stretch the cell moisture
-            for (var i:int = 0; i < 10; i++)
+            for (var i:int = 0; i < 15; i++)
             {
                 // Average
                 var maxMoisture:Number = 0;

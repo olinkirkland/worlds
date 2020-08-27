@@ -23,7 +23,7 @@ package layers.tectonics
         {
             this.map = map;
 
-            pickStartingCells(Settings.advancedProperties.plateCount);
+            pickStartingCells(Settings.properties.plateCount);
             expandPlates();
         }
 
@@ -94,7 +94,7 @@ package layers.tectonics
                     {
                         if (!neighbor.used && neighbor.tectonicPlate != cell.tectonicPlate && neighbor.tectonicPlatePower < cell.tectonicPlatePower)
                         {
-                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() < Settings.advancedProperties.tectonicJitter ? Rand.rand.next() * .1 : .05);
+                            neighbor.tectonicPlatePower = cell.tectonicPlatePower - (Rand.rand.next() < Settings.properties.tectonicJitter ? Rand.rand.next() * .1 : .05);
                             //neighbor.tectonicPlatePower = cell.tectonicPlatePower - .05;
                             if (neighbor.tectonicPlate)
                                 neighbor.tectonicPlate.removeCell(neighbor);

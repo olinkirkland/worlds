@@ -35,8 +35,8 @@ package layers.geography.hydrology
         public function validateRiver(river:River):void
         {
             if (!river.end.lowestNeighborBelow ||
-                    (river.type == River.STEM && river.cells.length < Settings.advancedProperties.riverMinimumStemLength) ||
-                    (river.type == River.TRIBUTARY && river.cells.length < Settings.advancedProperties.riverMinimumTributaryLength))
+                    (river.type == River.STEM && river.cells.length < Settings.properties.riverMinimumStemLength) ||
+                    (river.type == River.TRIBUTARY && river.cells.length < Settings.properties.riverMinimumTributaryLength))
                 removeRiver(river);
         }
     }

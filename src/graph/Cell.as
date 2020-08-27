@@ -2,6 +2,8 @@ package graph
 {
     import flash.geom.Point;
 
+    import layers.geography.climate.Biome;
+
     import layers.geography.hydrology.River;
     import layers.tectonics.TectonicPlate;
 
@@ -37,6 +39,9 @@ package graph
         public var temperature:Number;
 
         // Biome
+        public var temperatureLevel:String;
+        public var moistureLevel:String;
+        public var biomeType:String;
 
         public function Cell()
         {

@@ -18,12 +18,10 @@ package
     import graph.*;
 
     import layers.geography.climate.Climate;
-
     import layers.geography.hydrology.Hydrology;
     import layers.geography.hydrology.River;
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
-    import layers.temperature.Temperature;
     import layers.wind.Wind;
 
     import ui.Settings;
@@ -55,7 +53,6 @@ package
 
         // Controllers
         public var lithosphere:Lithosphere;
-        public var temperature:Temperature;
         public var wind:Wind;
         public var climate:Climate;
         public var hydrology:Hydrology;
@@ -67,11 +64,11 @@ package
                             height:int,
                             seed:int = 1)
         {
-            // Set properties
-            spacing = Settings.advancedProperties.spacing;
-            precision = Settings.advancedProperties.precision;
-            smoothPasses = Settings.advancedProperties.smoothing;
-            seaLevel = Settings.advancedProperties.seaLevel;
+            // Set defaultProperties
+            spacing = Settings.properties.spacing;
+            precision = Settings.properties.precision;
+            smoothPasses = Settings.properties.smoothing;
+            seaLevel = Settings.properties.seaLevel;
 
             this.width = width;
             this.height = height;
@@ -103,7 +100,6 @@ package
             determineWindAndMoisture();
             makeRivers();
 
-            determineTemperature();
             determineClimate();
         }
 
@@ -121,7 +117,7 @@ package
             cells.sort(Sort.cellByElevation).reverse();
             for each (cell in cells)
             {
-                if (!cell.ocean && cell.lowestNeighborBelow && cell.moisture > Settings.advancedProperties.riverMoistureThreshold && cell.rivers.length == 0)
+                if (!cell.ocean && cell.lowestNeighborBelow && cell.moisture > Settings.properties.riverMoistureThreshold && cell.rivers.length == 0)
                 {
                     // Start a new river
                     var river:River = hydrology.addRiver();
@@ -159,20 +155,12 @@ package
                 river.end = cell;
         }
 
-        private function determineTemperature():void
-        {
-            var d:Date = new Date();
-            temperature = new Temperature(this);
-
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Temperature", Util.secondsSince(d)));
-        }
-
         private function determineWindAndMoisture():void
         {
             var d:Date = new Date();
             wind = new Wind(this);
 
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind and Moisture", Util.secondsSince(d)));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind and moisture", Util.secondsSince(d)));
         }
 
         private function determineClimate():void
@@ -180,7 +168,7 @@ package
             var d:Date = new Date();
             climate = new Climate(this);
 
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Climate and Biomes", Util.secondsSince(d)));
+            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Climate and biomes", Util.secondsSince(d)));
         }
 
         private function determineOceans():void

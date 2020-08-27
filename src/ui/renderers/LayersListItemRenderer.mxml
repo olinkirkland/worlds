@@ -10,12 +10,18 @@
         import mx.core.UIComponent;
         import mx.events.FlexEvent;
 
+        import ui.UIEventType;
+
+        import ui.UIEventType;
+
         private var layer:UIComponent
 
-        private function onCreationComplete(event:FlexEvent):void {
+        private function onCreationComplete(event:FlexEvent):void
+        {
         }
 
-        override public function set data(value:Object):void {
+        override public function set data(value:Object):void
+        {
             if (!value)
                 return;
 
@@ -24,13 +30,16 @@
             update();
         }
 
-        private function onClick(event:MouseEvent):void {
+        private function onClick(event:MouseEvent):void
+        {
             layer.visible = !layer.visible;
             update();
         }
 
-        private function update():void {
+        private function update():void
+        {
             button.selected = layer.visible;
+            dispatchEvent(new Event(UIEventType.LAYER_VISIBILITY_CHANGE, true));
         }
         ]]>
     </fx:Script>

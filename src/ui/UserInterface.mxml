@@ -2,7 +2,6 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:ui="ui.*"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
          width="100%"
          height="100%"
          creationComplete="onCreationComplete(event)">
@@ -13,9 +12,14 @@
         import global.Icons;
         import global.Util;
 
+        import lang.Lang;
+
         import mx.collections.ArrayCollection;
+        import mx.core.UIComponent;
         import mx.events.FlexEvent;
 
+        import spark.collections.Sort;
+        import spark.collections.SortField;
         import spark.events.ElementExistenceEvent;
         import spark.events.TextOperationEvent;
 
@@ -24,11 +28,35 @@
         private function onCreationComplete(event:FlexEvent):void
         {
             updateSeed(seedPhrase);
+            layersList.addEventListener(UIEventType.LAYER_VISIBILITY_CHANGE, onLayersChange);
+        }
+
+        private function onLayersChange(event:Event):void
+        {
+            validateBiomeLegendVisibility();
+        }
+
+        private function validateBiomeLegendVisibility():void
+        {
+            for each (var layer:UIComponent in layersList.dataProvider)
+                if (layer.name == "biomes")
+                    biomeLegendPanel.visible = biomeLegendPanel.includeInLayout = layer.visible;
         }
 
         public function addLayers(layers:Array):void
         {
             layersList.dataProvider = new ArrayCollection(layers);
+
+            var arr:ArrayCollection = new ArrayCollection();
+            for (var key:String in Settings.biomeColors)
+                arr.addItem({name: Lang.getText(key), color: Settings.biomeColors[key]});
+
+            var alphabeticSort:Sort = new Sort([new SortField("name")]);
+            arr.sort = alphabeticSort;
+            arr.refresh();
+
+            biomeLegend.dataProvider = arr;
+            validateBiomeLegendVisibility();
         }
 
         public function updateSeed(value:String):void
@@ -80,7 +108,7 @@
 
         private function onOptionsButtonClicked(event:MouseEvent):void
         {
-            openPopup(new AdvancedPropertiesPopup());
+            openPopup(new SettingsPopup());
         }
 
         private function openPopup(panel:Popup):void
@@ -149,12 +177,12 @@
                         <ui:VerticalDivider />
 
                         <s:Button id="buttonPerformanceReport"
-                                  label="Performance Report"
+                                  label="Performance"
                                   icon="{Icons.graph}"
                                   click="onPerformanceReportButtonClicked(event)" />
 
-                        <s:Button id="buttonAdvancedProperties"
-                                  label="Advanced Properties"
+                        <s:Button id="buttonSettings"
+                                  label="Settings"
                                   icon="{Icons.options}"
                                   click="onOptionsButtonClicked(event)" />
                     </s:HGroup>
@@ -172,6 +200,21 @@
                         <s:HorizontalLayout />
                     </s:layout>
                 </s:List>
+
+                <s:Panel skinClass="skins.PanelSkinWhite"
+                         id="biomeLegendPanel">
+                    <s:List id="biomeLegend"
+                            horizontalScrollPolicy="auto"
+                            itemRenderer="ui.renderers.LegendItemRenderer"
+                            useVirtualLayout="false"
+                            borderVisible="false"
+                            contentBackgroundAlpha="0"
+                            labelField="name">
+                        <s:layout>
+                            <s:HorizontalLayout />
+                        </s:layout>
+                    </s:List>
+                </s:Panel>
 
             </s:VGroup>
 

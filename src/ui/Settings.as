@@ -11,8 +11,8 @@ package ui
         private static var _initialLayers:Array;
         public static var defaultInitialLayers:Array = ["relief", "continents", "ocean", "precipitation", "rivers"];
 
-        private static var _advancedProperties:Object;
-        public static var defaultAdvancedProperties:Object = {
+        private static var _properties:Object;
+        public static var defaultProperties:Object = {
             spacing:                          6,
             precision:                        5,
             smoothing:                        5,
@@ -28,7 +28,19 @@ package ui
             riverMoistureThreshold:           .2,
             riverMinimumStemLength:           5,
             riverMinimumTributaryLength:      3,
-            reliefBlur:                       0
+            reliefBlur:                       0,
+            language:                         "en"
+        };
+
+        public static var biomeColors:Object = {
+            tundra:              0xBFA0EA,
+            borealForest:        0x005400,
+            grassland:           0xFFFF00,
+            shrubland:           0xF9B233,
+            seasonalForest:      0x45B145,
+            temperateRainforest: 0x45B145,
+            desert:              0xF94A00,
+            tropicalRainforest:  0x00FF00
         };
 
         public static function get initialLayers():Array
@@ -52,30 +64,30 @@ package ui
             shared.data.initialLayers = value;
         }
 
-        public static function get advancedProperties():Object
+        public static function get properties():Object
         {
             // Load from shared
-            if (!_advancedProperties)
+            if (!_properties)
             {
                 shared = SharedObject.getLocal("settings");
-                _advancedProperties = shared.data.advancedProperties;
-                if (!_advancedProperties)
-                    _advancedProperties = ObjectUtil.clone(defaultAdvancedProperties);
+                _properties = shared.data.properties;
+                if (!_properties)
+                    _properties = ObjectUtil.clone(defaultProperties);
             }
 
             // Ensure that any values not specified in the loaded settings are applied
-            for (var key:String in defaultAdvancedProperties)
-                if (!_advancedProperties.hasOwnProperty(key))
-                    _advancedProperties[key] = defaultAdvancedProperties[key];
+            for (var key:String in defaultProperties)
+                if (!_properties.hasOwnProperty(key))
+                    _properties[key] = defaultProperties[key];
 
-            return _advancedProperties;
+            return _properties;
         }
 
-        public static function set advancedProperties(value:Object):void
+        public static function set properties(value:Object):void
         {
-            _advancedProperties = value;
+            _properties = value;
 
-            shared.data.advancedProperties = value;
+            shared.data.properties = value;
         }
     }
 }
