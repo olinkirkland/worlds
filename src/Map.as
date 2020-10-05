@@ -10,7 +10,6 @@ package
     import flash.utils.Dictionary;
 
     import global.Rand;
-    import global.Sort;
     import global.Util;
     import global.performance.PerformanceReport;
     import global.performance.PerformanceReportItem;
@@ -19,7 +18,6 @@ package
 
     import layers.geography.climate.Climate;
     import layers.geography.hydrology.Hydrology;
-    import layers.geography.hydrology.River;
     import layers.tectonics.Lithosphere;
     import layers.tectonics.TectonicPlate;
     import layers.wind.Wind;
@@ -98,67 +96,15 @@ package
             setCornerHeights();
 
             determineWindAndMoisture();
-            makeRivers();
 
             determineClimate();
-        }
-
-        private function makeRivers():void
-        {
-            var d:Date = new Date();
-
-            // Setup
-            hydrology = new Hydrology(this);
-
-            for each (var cell:Cell in cells)
-                cell.rivers = new Vector.<River>();
-
-            // Pour flow to lowest neighbors and determine rivers
-            cells.sort(Sort.cellByElevation).reverse();
-            for each (cell in cells)
-            {
-                if (!cell.ocean && cell.lowestNeighborBelow && cell.moisture > Settings.properties.riverMoistureThreshold && cell.rivers.length == 0)
-                {
-                    // Start a new river
-                    var river:River = hydrology.addRiver();
-                    propagateRiver(cell, river);
-
-                    hydrology.validateRiver(river);
-                }
-            }
-
-            // Todo Add moisture to river cells (w/ random variation)
-
-            // Todo Average/Stretch moisture AFTER this step (move code from Wind.as)
-
-            PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Rivers", Util.secondsSince(d)));
-        }
-
-        private function propagateRiver(cell:Cell, river:River):void
-        {
-            var lowest:Cell = cell.lowestNeighborBelow;
-
-            if (lowest && lowest.rivers.length > 0)
-            {
-                // Cell already has a river, so end the current river because it's a tributary
-                river.addCell(cell);
-                river.end = cell;
-                river.type = River.TRIBUTARY;
-                return;
-            }
-
-            river.addCell(cell);
-
-            if (lowest && !lowest.ocean)
-                propagateRiver(lowest, river);
-            else
-                river.end = cell;
         }
 
         private function determineWindAndMoisture():void
         {
             var d:Date = new Date();
             wind = new Wind(this);
+            hydrology = new Hydrology(this);
 
             PerformanceReport.addPerformanceReportItem(new PerformanceReportItem("Wind and moisture", Util.secondsSince(d)));
         }
@@ -246,7 +192,7 @@ package
                 }
             }
 
-            var perlinModifier:Number = .3;
+            var perlinModifier:Number = .8;
             for each (var cell:Cell in cells)
                 cell.elevation += (.5 - perlin[int(cell.point.x / width * perlin.length)][int(cell.point.y / height * perlin[0].length)]) * perlinModifier;
 

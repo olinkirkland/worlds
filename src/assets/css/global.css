@@ -50,6 +50,10 @@ s|TextInput {
     focusAlpha: 0;
 }
 
+s|CheckBox {
+    skinClass: ClassReference("skins.CheckBoxSkin");
+}
+
 /*
 Scrollbars
  */

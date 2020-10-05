@@ -75,7 +75,7 @@
             layerTemperature = new UIComponent();
             layerTemperature.name = "temperature";
             layerFlow = new UIComponent();
-            layerFlow.name = "flow";
+            layerFlow.name = "flux";
             layerRivers = new UIComponent();
             layerRivers.name = "rivers";
             layerBiomes = new UIComponent();
@@ -179,8 +179,8 @@
         {
             trace("Cell #" + c.index);
             trace("  " + c.biomeType);
-            trace("   " + c.temperatureLevel);
-            trace("   " + c.moistureLevel);
+            trace("   " + c.temperatureClimateDescriptor);
+            trace("   " + c.moistureClimateDescriptor);
         }
 
         private function makeMap():void
@@ -275,7 +275,9 @@
                     {
                         var t:Number = 1 + (i / l * l) / 3;
 
-                        g.lineStyle(Math.min(t, 5), Color.blue);
+                        g.drawCircle(cell.point.x, cell.point.y, cell.flux);
+                        //g.lineStyle(Math.min(t, 5), Color.blue);
+                        g.lineStyle(1, Color.blue);
                         g.moveTo(cell.point.x, cell.point.y);
                         g.lineTo(cell.lowestNeighborBelow.point.x, cell.lowestNeighborBelow.point.y);
 
@@ -389,7 +391,7 @@
             for each (var cell:Cell in map.cells)
             {
                 if (cell.tectonicPlate && cell.tectonicPlate.type != TectonicPlate.DEEP)
-                    fillCell(cell, cell.tectonicPlate.color);
+                    fillCell(cell, cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? Color.green : Color.blue);
                 //fillCell(g, cell, cell.tectonicPlate.type == TectonicPlate.CONTINENTAL ? 0xE74856 : 0x8E8CD8);
 
                 // Draw tectonic plate direction
@@ -429,22 +431,21 @@
             g.lineStyle();
         }
 
-        private function drawPointer(point:Point, direction:Number, color:uint, distance:Number = 7, pointerAlpha:Number = 1):void
+        private function drawPointer(point:Point, direction:Number, color:uint, distance:Number = 4, pointerAlpha:Number = 1):void
         {
             // Draw pointer
             g.lineStyle();
             g.beginFill(color, pointerAlpha);
-            //g.drawCircle(point.x, point.y, 2);
-            //g.endFill();
-            var p0:Point = Util.pointFromAngleAndDistance(point, direction - 90, distance / 2);
-            var p1:Point = Util.pointFromAngleAndDistance(point, direction, distance);
-            var p2:Point = Util.pointFromAngleAndDistance(point, direction + 90, distance / 2);
+            var pointBack:Point = Util.pointFromAngleAndDistance(point, direction + 180, distance);
+            var pointLeft:Point = Util.pointFromAngleAndDistance(pointBack, direction - 90, distance);
+            var pointHead:Point = Util.pointFromAngleAndDistance(point, direction, distance);
+            var pointRight:Point = Util.pointFromAngleAndDistance(pointBack, direction + 90, distance);
 
-            g.moveTo(p0.x, p0.y);
-            //var head:Point = Util.pointFromAngleAndDistance(point, direction, distance);
-            g.lineTo(p1.x, p1.y);
-            g.lineTo(p2.x, p2.y);
-            g.lineTo(p0.x, p0.y);
+            g.moveTo(pointLeft.x, pointLeft.y);
+            g.lineTo(pointHead.x, pointHead.y);
+            g.lineTo(pointRight.x, pointRight.y);
+            g.lineTo(point.x, point.y);
+            g.lineTo(pointLeft.x, pointLeft.y);
             g.lineStyle();
         }
 

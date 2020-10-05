@@ -7,14 +7,11 @@ package layers.geography.hydrology
         public static const STEM:String = "stem";
         public static const TRIBUTARY:String = "tributary";
 
-        public var index:int;
         public var cells:Vector.<Cell>;
         public var start:Cell;
         public var end:Cell;
 
         public var type:String;
-
-        public var invalid:Boolean = false;
 
         public function River()
         {

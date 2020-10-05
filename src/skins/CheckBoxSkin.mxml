@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+             xmlns:s="library://ns.adobe.com/flex/spark"
+             xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+             alpha.disabledStates="0.5"
+             creationComplete="onCreationComplete(event)">
+
+    <fx:Metadata>
+        <![CDATA[
+        [HostComponent("spark.components.CheckBox")]
+        ]]>
+    </fx:Metadata>
+
+    <fx:Script fb:purpose="styling">
+        import global.Color;
+        import global.Icons;
+
+        /* Define the symbol fill items that should be colored by the "symbolColor" style. */
+        static private const symbols:Array = ["checkMarkFill"];
+
+        override protected function initializationComplete():void
+        {
+        useChromeColor = true;
+        super.initializationComplete();
+        }
+    </fx:Script>
+
+    <fx:Script>
+        <![CDATA[
+        import mx.events.FlexEvent;
+
+        private static const focusExclusions:Array = ["labelDisplay"];
+
+        private function onCreationComplete(event:FlexEvent):void
+        {
+            var t:ColorTransform = image.transform.colorTransform;
+            t.color = Color.lightBody;
+            image.transform.colorTransform = t;
+        }
+
+        override public function get focusSkinExclusions():Array
+        {
+            return focusExclusions;
+        };
+
+        override public function styleChanged(styleProp:String):void
+        {
+            super.styleChanged(styleProp);
+
+            // Check if the style is null for mass style changes or if the labelPlacement/gap styles were changed
+            if (styleProp == "labelPlacement" || styleProp == "gap" || styleProp === null)
+                updateLabelPlacement();
+        }
+
+        public function updateLabelPlacement():void
+        {
+            if (!checkDisplay || !labelDisplay)
+                return;
+
+            //Adjust the label to right side.
+            labelDisplay.verticalCenter = 0;
+            labelDisplay.top = 0;
+            labelDisplay.bottom = 0;
+            labelDisplay.left = checkDisplay.width + 5;
+            labelDisplay.right = 0;
+
+            //Adjust the checkbox to left side.
+            checkDisplay.verticalCenter = 0;
+            checkDisplay.left = 0;
+        }
+        ]]>
+    </fx:Script>
+
+    <s:states>
+        <s:State name="up" />
+        <s:State name="over"
+                 stateGroups="overStates" />
+        <s:State name="down"
+                 stateGroups="downStates" />
+        <s:State name="disabled"
+                 stateGroups="disabledStates" />
+        <s:State name="upAndSelected"
+                 stateGroups="selectedStates" />
+        <s:State name="overAndSelected"
+                 stateGroups="overStates, selectedStates" />
+        <s:State name="downAndSelected"
+                 stateGroups="downStates, selectedStates" />
+        <s:State name="disabledAndSelected"
+                 stateGroups="disabledStates, selectedStates" />
+    </s:states>
+
+    <!-- Checkbox container -->
+    <s:Group id="checkDisplay"
+             verticalCenter="0"
+             width="20"
+             height="20">
+
+        <!-- Fill -->
+        <s:Rect width="100%"
+                height="100%"
+                radiusX="3"
+                radiusY="3">
+            <s:fill>
+                <s:SolidColor color.selectedStates="{Color.primary}"
+                              color="{Color.secondary}" />
+            </s:fill>
+        </s:Rect>
+
+        <!-- Highlight -->
+        <s:Rect width="100%"
+                height="100%"
+                radiusX="3"
+                radiusY="3">
+            <s:fill>
+                <s:SolidColor color="{Color.black}"
+                              alpha="0"
+                              alpha.overStates=".1"
+                              alpha.downStates=".3" />
+            </s:fill>
+        </s:Rect>
+
+        <!--Checkmark-->
+        <s:HGroup width="100%"
+                  height="100%"
+                  horizontalAlign="center"
+                  verticalAlign="middle">
+            <s:BitmapImage id="image"
+                           alpha.selectedStates="1"
+                           source="{Icons.close}"
+                           source.selectedStates="{Icons.check}"
+                           width="12"
+                           height="12"
+                           smooth="true" />
+        </s:HGroup>
+    </s:Group>
+
+    <!-- Label -->
+    <s:Label id="labelDisplay"
+             textAlign="start"
+             verticalAlign="middle"
+             maxDisplayedLines="1" />
+
+</s:SparkSkin>

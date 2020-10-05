@@ -4,8 +4,7 @@
           xmlns:ui="ui.*"
           width="800"
           height="100%"
-          maxHeight="900"
-          creationComplete="onCreationComplete(event)">
+          maxHeight="900">
 
     <fx:Script><![CDATA[
         import global.Icons;
@@ -15,10 +14,13 @@
 
         private var values:Object;
 
-        private function onCreationComplete(event:FlexEvent):void
+        override public function onCreationComplete(event:FlexEvent):void
         {
+            super.onCreationComplete(event);
             values = ObjectUtil.clone(Settings.properties);
             validateSliders();
+
+            onCheckBoxInitialSeedChange(null);
         }
 
         private function validateSliders():void
@@ -115,14 +117,6 @@
             sliderWindStrengthHeightChangeModifier.slider.snapInterval = 1;
             sliderWindStrengthHeightChangeModifier.value = values.windStrengthHeightChangeModifier;
 
-            // River Moisture Threshold
-            sliderRiverMoistureThreshold.label.text = "River Moisture Threshold";
-            sliderRiverMoistureThreshold.slider.minimum = 0;
-            sliderRiverMoistureThreshold.slider.maximum = 3;
-            sliderRiverMoistureThreshold.slider.stepSize = .05;
-            sliderRiverMoistureThreshold.slider.snapInterval = .05;
-            sliderRiverMoistureThreshold.value = values.riverMoistureThreshold;
-
             // Minimum Stem Length
             sliderRiverMinimumStemLength.label.text = "Minimum River Length (Stem)";
             sliderRiverMinimumStemLength.slider.minimum = 0;
@@ -139,7 +133,7 @@
             sliderRiverMinimumTributaryLength.slider.snapInterval = 1;
             sliderRiverMinimumTributaryLength.value = values.riverMinimumTributaryLength;
 
-            // Minimum Stem Length
+            // Ice Cap Temperature Modifier
             sliderPoleTemperatureModifier.label.text = "Ice Cap Temperature Modifier";
             sliderPoleTemperatureModifier.slider.minimum = 0;
             sliderPoleTemperatureModifier.slider.maximum = 2;
@@ -147,13 +141,21 @@
             sliderPoleTemperatureModifier.slider.snapInterval = .05;
             sliderPoleTemperatureModifier.value = values.poleTemperatureModifier;
 
-            // Minimum Stem Length
+            // Elevation Temperature Modifier
             sliderElevationTemperatureModifier.label.text = "Elevation Temperature Modifier";
             sliderElevationTemperatureModifier.slider.minimum = 0;
             sliderElevationTemperatureModifier.slider.maximum = 2;
             sliderElevationTemperatureModifier.slider.stepSize = .05;
             sliderElevationTemperatureModifier.slider.snapInterval = .05;
             sliderElevationTemperatureModifier.value = values.elevationTemperatureModifier;
+
+            // Equator Offset
+            sliderEquatorOffset.label.text = "Equator Offset";
+            sliderEquatorOffset.slider.minimum = -1;
+            sliderEquatorOffset.slider.maximum = 1;
+            sliderEquatorOffset.slider.stepSize = .05;
+            sliderEquatorOffset.slider.snapInterval = .05;
+            sliderEquatorOffset.value = values.equatorOffset;
         }
 
         private function onCopyToClipboard(event:MouseEvent):void
@@ -201,11 +203,11 @@
             values.windStrengthLostOverLand = sliderWindStrengthLostOverLand.value;
             values.windSmoothing = sliderWindSmoothing.value;
             values.windStrengthHeightChangeModifier = sliderWindStrengthHeightChangeModifier.value;
-            values.riverMoistureThreshold = sliderRiverMoistureThreshold.value;
             values.riverMinimumStemLength = sliderRiverMinimumStemLength.value;
             values.riverMinimumTributaryLength = sliderRiverMinimumTributaryLength.value;
             values.poleTemperatureModifier = sliderPoleTemperatureModifier.value;
             values.elevationTemperatureModifier = sliderElevationTemperatureModifier.value;
+            values.equatorOffset = sliderEquatorOffset.value;
         }
 
         private function onApply(event:MouseEvent):void
@@ -216,6 +218,12 @@
             // Run map
             dispatchEvent(new Event(UIEventType.MAKE_MAP, true));
             close();
+        }
+
+        private function onCheckBoxInitialSeedChange(event:Event):void
+        {
+            initialSeedPanel.visible = initialSeedPanel.includeInLayout = checkBoxInitialSeed.selected;
+            Settings.initialSeed = null;
         }
         ]]>
     </fx:Script>
@@ -234,195 +242,234 @@
                       click="{close()}" />
         </s:HGroup>
 
-        <s:Label id="labelDescription"
-                 width="100%"
-                 text="Changing some properties will drastically alter what the map looks like." />
-
+        <s:Label text="App Settings" />
         <s:Panel width="100%"
                  skinClass="skins.PanelSkinOutline">
-            <s:HGroup width="100%">
-                <s:Button id="buttonCopySettings"
-                          label="Copy to Clipboard"
-                          click="{onCopyToClipboard(event)}" />
-                <s:Button id="buttonPasteSettings"
-                          label="Paste from Clipboard"
-                          click="{onPasteFromClipboard(event)}" />
-                <s:Spacer width="100%" />
-                <s:Button id="buttonResetDefaultValues"
-                          label="Reset Defaults"
-                          icon="{Icons.reset}"
-                          click="{onResetDefaultValues(event)}" />
-                <s:Button id="buttonApply"
-                          label="Apply"
-                          icon="{Icons.play}"
-                          skinClass="skins.buttons.PrimaryButtonSkin"
-                          click="{onApply(event)}" />
+            <s:HGroup width="100%"
+                      verticalAlign="middle">
+
+                <s:VGroup width="100%">
+
+                    <s:HGroup width="100%"
+                              verticalAlign="middle">
+                        <s:CheckBox id="checkBoxInitialSeed"
+                                    change="onCheckBoxInitialSeedChange(event)" />
+                        <s:Label width="100%"
+                                 text="Starting Seed" />
+                    </s:HGroup>
+
+                    <s:Panel id="initialSeedPanel"
+                             width="100%"
+                             skinClass="skins.PanelSkinWhite">
+                        <s:VGroup width="100%"
+                                  padding="5">
+                            <s:HGroup width="100%"
+                                      gap="10">
+                                <s:TextInput id="initialSeedInput"
+                                             width="200" />
+                                <s:Button id="buttonApplyCurrentSeed"
+                                          label="Use Current Seed" />
+                            </s:HGroup>
+                        </s:VGroup>
+                    </s:Panel>
+
+                </s:VGroup>
             </s:HGroup>
         </s:Panel>
 
-        <s:Scroller width="100%"
-                    height="100%"
-                    verticalScrollPolicy="auto"
-                    horizontalScrollPolicy="off">
+        <s:Label text="Map Properties" />
 
+        <s:Panel width="100%"
+                 height="100%"
+                 skinClass="skins.PanelSkinOutline">
             <s:VGroup width="100%"
-                      gap="5"
-                      padding="0">
+                      height="100%">
+                <s:HGroup width="100%">
+                    <s:Button id="buttonCopySettings"
+                              label="Copy to Clipboard"
+                              click="{onCopyToClipboard(event)}" />
+                    <s:Button id="buttonPasteSettings"
+                              label="Paste from Clipboard"
+                              click="{onPasteFromClipboard(event)}" />
+                    <s:Spacer width="100%" />
+                    <s:Button id="buttonResetDefaultValues"
+                              label="Restore Defaults"
+                              icon="{Icons.reset}"
+                              click="{onResetDefaultValues(event)}" />
+                    <s:Button id="buttonApply"
+                              label="Apply"
+                              icon="{Icons.play}"
+                              skinClass="skins.buttons.PrimaryButtonSkin"
+                              click="{onApply(event)}" />
+                </s:HGroup>
 
-                <!--Voronoi Graph-->
-                <s:Panel width="100%">
+                <s:Scroller width="100%"
+                            height="100%"
+                            verticalScrollPolicy="auto"
+                            horizontalScrollPolicy="off">
 
-                    <s:VGroup width="100%">
+                    <s:VGroup width="100%"
+                              gap="10"
+                              padding="0">
 
-                        <s:Label width="100%"
-                                 text="Voronoi Graph" />
+                        <!--Voronoi Graph-->
+                        <s:Panel width="100%">
 
-                        <s:Panel width="100%"
-                                 skinClass="skins.PanelSkinWhite">
-                            <s:VGroup width="100%"
-                                      padding="5">
-                                <s:HGroup width="100%"
-                                          gap="5">
-                                    <ui:SliderWithInput id="sliderSpacing"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderPrecision"
-                                                        width="100%" />
-                                    <s:Spacer width="100%" />
-                                </s:HGroup>
-                            </s:VGroup>
-                        </s:Panel>
-
-                    </s:VGroup>
-
-                </s:Panel>
-
-                <!--Height Map-->
-                <s:Panel width="100%">
-
-                    <s:VGroup width="100%">
-
-                        <s:Label width="100%"
-                                 text="Height Map" />
-
-                        <s:Panel width="100%"
-                                 skinClass="skins.PanelSkinWhite">
-                            <s:VGroup width="100%"
-                                      gap="5"
-                                      padding="5">
-                                <s:HGroup width="100%"
-                                          gap="5">
-                                    <ui:SliderWithInput id="sliderSeaLevel"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderTectonicJitter"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderPlateCount"
-                                                        width="100%" />
-                                </s:HGroup>
-                                <s:HGroup width="100%"
-                                          gap="5">
-                                    <ui:SliderWithInput id="sliderSmoothing"
-                                                        width="100%" />
-                                    <s:Spacer width="100%" />
-                                    <s:Spacer width="100%" />
-                                </s:HGroup>
-                            </s:VGroup>
-                        </s:Panel>
-
-                    </s:VGroup>
-
-                </s:Panel>
-
-                <!--Wind-->
-                <s:Panel width="100%">
-
-                    <s:VGroup width="100%">
-
-                        <s:Label width="100%"
-                                 text="Wind and Moisture" />
-
-                        <s:Panel width="100%"
-                                 skinClass="skins.PanelSkinWhite">
-                            <s:VGroup width="100%"
-                                      gap="5"
-                                      padding="5">
-                                <s:HGroup width="100%"
-                                          gap="5">
-                                    <ui:SliderWithInput id="sliderWindStrengthGainedOverOcean"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderWindStrengthLostOverLand"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderWindStrengthHeightChangeModifier"
-                                                        width="100%" />
-                                </s:HGroup>
-                                <s:HGroup width="100%"
-                                          gap="5">
-                                    <ui:SliderWithInput id="sliderWindSmoothing"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderCloudMoistureCapacity"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderMoistureGainedOverOcean"
-                                                        width="100%" />
-                                </s:HGroup>
-                            </s:VGroup>
-                        </s:Panel>
-
-                    </s:VGroup>
-
-                </s:Panel>
-
-                <!--Rivers-->
-                <s:Panel width="100%">
-
-                    <s:VGroup width="100%">
-
-                        <s:Label width="100%"
-                                 text="Rivers" />
-
-                        <s:Panel width="100%"
-                                 skinClass="skins.PanelSkinWhite">
                             <s:VGroup width="100%">
-                                <s:HGroup width="100%">
-                                    <ui:SliderWithInput id="sliderRiverMoistureThreshold"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderRiverMinimumStemLength"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderRiverMinimumTributaryLength"
-                                                        width="100%" />
-                                </s:HGroup>
+
+                                <s:Label width="100%"
+                                         text="Voronoi Graph" />
+
+                                <s:Panel width="100%"
+                                         skinClass="skins.PanelSkinWhite">
+                                    <s:VGroup width="100%"
+                                              padding="5">
+                                        <s:HGroup width="100%"
+                                                  gap="10">
+                                            <ui:SliderWithInput id="sliderSpacing"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderPrecision"
+                                                                width="100%" />
+                                            <s:Spacer width="100%" />
+                                        </s:HGroup>
+                                    </s:VGroup>
+                                </s:Panel>
+
                             </s:VGroup>
+
                         </s:Panel>
 
-                    </s:VGroup>
+                        <!--Height Map-->
+                        <s:Panel width="100%">
 
-                </s:Panel>
-
-                <!--Climate-->
-                <s:Panel width="100%">
-
-                    <s:VGroup width="100%">
-
-                        <s:Label width="100%"
-                                 text="Climate" />
-
-                        <s:Panel width="100%"
-                                 skinClass="skins.PanelSkinWhite">
                             <s:VGroup width="100%">
-                                <s:HGroup width="100%">
-                                    <ui:SliderWithInput id="sliderPoleTemperatureModifier"
-                                                        width="100%" />
-                                    <ui:SliderWithInput id="sliderElevationTemperatureModifier"
-                                                        width="100%" />
-                                    <s:Spacer width="100%" />
-                                </s:HGroup>
+
+                                <s:Label width="100%"
+                                         text="Height Map" />
+
+                                <s:Panel width="100%"
+                                         skinClass="skins.PanelSkinWhite">
+                                    <s:VGroup width="100%"
+                                              gap="10"
+                                              padding="5">
+                                        <s:HGroup width="100%"
+                                                  gap="10">
+                                            <ui:SliderWithInput id="sliderSeaLevel"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderTectonicJitter"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderPlateCount"
+                                                                width="100%" />
+                                        </s:HGroup>
+                                        <s:HGroup width="100%"
+                                                  gap="10">
+                                            <ui:SliderWithInput id="sliderSmoothing"
+                                                                width="100%" />
+                                            <s:Spacer width="100%" />
+                                            <s:Spacer width="100%" />
+                                        </s:HGroup>
+                                    </s:VGroup>
+                                </s:Panel>
+
                             </s:VGroup>
+
+                        </s:Panel>
+
+                        <!--Wind-->
+                        <s:Panel width="100%">
+
+                            <s:VGroup width="100%">
+
+                                <s:Label width="100%"
+                                         text="Wind and Moisture" />
+
+                                <s:Panel width="100%"
+                                         skinClass="skins.PanelSkinWhite">
+                                    <s:VGroup width="100%"
+                                              gap="10"
+                                              padding="5">
+                                        <s:HGroup width="100%"
+                                                  gap="10">
+                                            <ui:SliderWithInput id="sliderWindStrengthGainedOverOcean"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderWindStrengthLostOverLand"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderWindStrengthHeightChangeModifier"
+                                                                width="100%" />
+                                        </s:HGroup>
+                                        <s:HGroup width="100%"
+                                                  gap="10">
+                                            <ui:SliderWithInput id="sliderWindSmoothing"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderCloudMoistureCapacity"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderMoistureGainedOverOcean"
+                                                                width="100%" />
+                                        </s:HGroup>
+                                    </s:VGroup>
+                                </s:Panel>
+
+                            </s:VGroup>
+
+                        </s:Panel>
+
+                        <!--Rivers-->
+                        <s:Panel width="100%">
+
+                            <s:VGroup width="100%">
+
+                                <s:Label width="100%"
+                                         text="Rivers" />
+
+                                <s:Panel width="100%"
+                                         skinClass="skins.PanelSkinWhite">
+                                    <s:VGroup width="100%">
+                                        <s:HGroup width="100%">
+                                            <ui:SliderWithInput id="sliderRiverMinimumStemLength"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderRiverMinimumTributaryLength"
+                                                                width="100%" />
+                                        </s:HGroup>
+                                    </s:VGroup>
+                                </s:Panel>
+
+                            </s:VGroup>
+
+                        </s:Panel>
+
+                        <!--Climate-->
+                        <s:Panel width="100%">
+
+                            <s:VGroup width="100%">
+
+                                <s:Label width="100%"
+                                         text="Climate" />
+
+                                <s:Panel width="100%"
+                                         skinClass="skins.PanelSkinWhite">
+                                    <s:VGroup width="100%">
+                                        <s:HGroup width="100%">
+                                            <ui:SliderWithInput id="sliderPoleTemperatureModifier"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderElevationTemperatureModifier"
+                                                                width="100%" />
+                                            <ui:SliderWithInput id="sliderEquatorOffset"
+                                                                width="100%" />
+                                        </s:HGroup>
+                                    </s:VGroup>
+                                </s:Panel>
+
+                            </s:VGroup>
+
                         </s:Panel>
 
                     </s:VGroup>
 
-                </s:Panel>
+                </s:Scroller>
 
             </s:VGroup>
-        </s:Scroller>
+
+        </s:Panel>
 
     </s:VGroup>
 </ui:Popup>

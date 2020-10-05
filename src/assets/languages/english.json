@@ -1,9 +1,9 @@
 {
-  "temperateRainforest": "Temperate Rainforest",
-  "borealForest": "Boreal Forest",
+  "taiga": "Taiga",
   "desert": "Desert",
-  "grassland": "Grassland",
+  "desert": "Desert",
   "shrubland": "Shrubland",
+  "grassland": "Grassland",
   "seasonalForest": "Seasonal Forest",
   "tropicalRainforest": "Tropical Rainforest",
   "tundra": "Tundra"

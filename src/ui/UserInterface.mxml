@@ -82,7 +82,7 @@
 
         public function setToReady():void
         {
-            newMapButton.label = "";
+            newMapButton.label = "Make World";
             newMapButton.setStyle("icon", Icons.play);
 
             mapPropertiesGroup.enabled = true;
@@ -168,12 +168,14 @@
                               verticalAlign="middle">
 
                         <s:Button id="randomSeedPhraseButton"
+                                  label="Random Seed"
                                   icon="{Icons.dice}"
                                   click="onRandomSeedPhraseButtonClicked(event)" />
 
-                        <s:TextInput id="seedTextInput"
-                                     width="200"
-                                     change="onSeedTextInputChange(event)" />
+                        <ui:TextInputWithIcon id="seedTextInput"
+                                              width="200"
+                                              icon="{Icons.point}"
+                                              change="onSeedTextInputChange(event)" />
                         <ui:VerticalDivider />
 
                         <s:Button id="buttonPerformanceReport"

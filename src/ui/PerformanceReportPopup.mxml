@@ -4,8 +4,7 @@
           xmlns:ui="ui.*"
           width="100%"
           minWidth="600"
-          maxWidth="1200"
-          creationComplete="onCreationComplete(event)">
+          maxWidth="1200">
 
     <fx:Script><![CDATA[
         import global.Color;
@@ -15,8 +14,9 @@
         import mx.collections.ArrayCollection;
         import mx.events.FlexEvent;
 
-        private function onCreationComplete(event:FlexEvent):void
+        override public function onCreationComplete(event:FlexEvent):void
         {
+            super.onCreationComplete(event);
             PerformanceReport.items.sortOn("timeTakenInSeconds", Array.DESCENDING);
             var d:ArrayCollection = new ArrayCollection(PerformanceReport.items);
             performanceReportColorBar.dataProvider = d;

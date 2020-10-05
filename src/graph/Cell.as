@@ -33,14 +33,15 @@ package graph
 
         // Water Cycle
         public var moisture:Number;
+        public var flux:Number;
         public var rivers:Vector.<River>;
 
         // Temperature
         public var temperature:Number;
 
         // Biome
-        public var temperatureLevel:String;
-        public var moistureLevel:String;
+        public var temperatureClimateDescriptor:String;
+        public var moistureClimateDescriptor:String;
         public var biomeType:String;
 
         public function Cell()
@@ -48,6 +49,7 @@ package graph
             neighbors = new Vector.<Cell>();
             edges = new Vector.<Edge>();
             corners = new Vector.<Corner>();
+            rivers = new Vector.<River>();
         }
 
         public function get elevationAboveSeaLevel():Number

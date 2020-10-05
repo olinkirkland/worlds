@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark">
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:ui="ui.*"
+        creationComplete="onCreationComplete(event)">
 
     <fx:Metadata>
 		<![CDATA[
@@ -15,6 +17,19 @@
         <s:State name="normalWithPrompt" />
         <s:State name="disabledWithPrompt" />
     </s:states>
+
+    <fx:Script><![CDATA[
+        import global.Color;
+
+        import mx.events.FlexEvent;
+
+        private function onCreationComplete(event:FlexEvent):void
+        {
+            var t:ColorTransform = iconDisplay.transform.colorTransform;
+            t.color = 0xd2d3d4;
+            iconDisplay.transform.colorTransform = t;
+        }
+        ]]></fx:Script>
 
     <s:Group width="100%">
 
@@ -30,17 +45,28 @@
             </s:stroke>
         </s:Rect>
 
-        <s:VGroup width="100%"
+        <s:HGroup width="100%"
                   verticalAlign="middle"
                   padding="10"
                   height="30">
+
+            <s:HGroup id="iconDisplayGroup"
+                      visible="{iconDisplay.source}"
+                      includeInLayout="{iconDisplay.source}">
+                <s:BitmapImage id="iconDisplay"
+                               left="3"
+                               width="12"
+                               height="12"
+                               smooth="true" />
+
+                <ui:VerticalDivider />
+            </s:HGroup>
+
             <s:RichEditableText id="textDisplay"
+                                top="1"
                                 width="100%" />
-        </s:VGroup>
+        </s:HGroup>
 
     </s:Group>
 
-    <fx:Script><![CDATA[
-        import global.Color;
-        ]]></fx:Script>
 </s:Skin>

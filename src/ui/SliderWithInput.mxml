@@ -13,7 +13,8 @@
               verticalAlign="middle">
         <s:TextInput id="input"
                      restrict="[0-9\.]"
-                     width="45"
+                     width="60"
+                     textAlign="center"
                      change="{onInputChange(event)}" />
         <s:HSlider id="slider"
                    showDataTip="false"

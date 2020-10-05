@@ -23,13 +23,13 @@ package global
         [Embed(source="/assets/images/options.png")]
         public static const options:Class;
 
-        [Embed(source="/assets/images/tectonic.png")]
-        public static const tectonic:Class;
-
         [Embed(source="/assets/images/point.png")]
         public static const point:Class;
 
         [Embed(source="/assets/images/reset.png")]
         public static const reset:Class;
+
+        [Embed(source="/assets/images/globe.png")]
+        public static const globe:Class;
     }
 }

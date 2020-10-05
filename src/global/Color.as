@@ -1,5 +1,7 @@
-package global {
-    public class Color {
+package global
+{
+    public class Color
+    {
         // Shades
         public static const white:uint = 0xffffff;
         public static const grey:uint = 0xcccccc;
@@ -15,7 +17,7 @@ package global {
 
         // UI
         public static const primary:uint = 0x2185D0;
-        public static const secondary:uint = 0xE6E7E8;
+        public static const secondary:uint = 0xd2d3d4;
         public static const background:uint = 0xF8F8F9;
 
         public static const darkBody:uint = 0x5A5A5A;
@@ -23,14 +25,17 @@ package global {
 
         private static var all:Array = [red, orange, green, yellow, green, blue];
 
-        public static function get random():uint {
+        public static function get random():uint
+        {
             return all[int(Math.random() * all.length)];
         }
 
-        public static function stringToColor(str:String):uint {
+        public static function stringToColor(str:String):uint
+        {
             var modifier:int = 1;
             var seed:int = 11;
-            for (var i:int = 0; i < str.length; i++) {
+            for (var i:int = 0; i < str.length; i++)
+            {
                 seed = str.charCodeAt(i) + ((seed << 5) - seed);
                 seed = seed & seed;
             }
@@ -53,14 +58,16 @@ package global {
             return 0xffffff * seed * (seed > 0 ? max : min);
         }
 
-        public static function stringToLightColor(str:String):uint {
+        public static function stringToLightColor(str:String):uint
+        {
             var color:uint = stringToColor(str);
             while (!isLight(color))
                 color = lighten(color);
             return color;
         }
 
-        public static function lighten(color:uint, modifier:Number = .2):uint {
+        public static function lighten(color:uint, modifier:Number = .2):uint
+        {
             var z:uint = 0xff * modifier;
 
             var r:uint = trim(((color & 0xff0000) >> 16) + z);
@@ -70,17 +77,20 @@ package global {
             return r << 16 | g << 8 | b;
         }
 
-        private static function trim(value:uint):uint {
+        private static function trim(value:uint):uint
+        {
             return Math.min(Math.max(0x00, value), 0xff);
         }
 
-        public static function isLight(color:uint):Boolean {
+        public static function isLight(color:uint):Boolean
+        {
             var rgb:Object = hexToRgb(color);
             var a:Number = (rgb.r * 0.299) + (rgb.g * 0.587) + (rgb.b * 0.114);
             return a > 186;
         }
 
-        public static function hexToRgb(hex:uint):Object {
+        public static function hexToRgb(hex:uint):Object
+        {
             return {
                 r: (hex & 0xff0000) >> 16,
                 g: (hex & 0x00ff00) >> 8,

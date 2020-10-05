@@ -45,6 +45,10 @@
                 percentAsString = percent.toFixed(3);
 
             labelPercent.text = percentAsString + "%"
+
+            descriptionGroup.visible = item.description;
+            if (item.description)
+                labelDescription.text = item.description;
         }
         ]]>
     </fx:Script>
@@ -69,6 +73,25 @@
             </s:HGroup>
             <s:Label id="labelPercent" />
             <s:Label id="labelTime" />
+            <s:Group id="descriptionGroup"
+                     width="100%"
+                     height="100%">
+                <s:Rect width="100%"
+                        height="100%"
+                        radiusX="3"
+                        radiusY="3">
+                    <s:fill>
+                        <s:SolidColor color="{Color.black}"
+                                      alpha=".1" />
+                    </s:fill>
+                </s:Rect>
+                <s:HGroup width="100%"
+                          height="100%"
+                          padding="7">
+                    <s:Label id="labelDescription"
+                             width="100%" />
+                </s:HGroup>
+            </s:Group>
         </s:VGroup>
     </s:HGroup>
 </s:ItemRenderer>

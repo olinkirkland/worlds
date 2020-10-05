@@ -12,7 +12,7 @@ package layers.wind
     public class Wind
     {
         private var map:Map;
-        private var size:Number = 20;
+        private var size:Number = 10;
 
         private var points:Array;
         private var grid:Array;
@@ -224,41 +224,6 @@ package layers.wind
                         cell.moisture = (cell.moisture + cloud.precipitation) / 2;
                 }
             }
-
-            // Average and stretch the cell moisture
-            for (var i:int = 0; i < 15; i++)
-            {
-                // Average
-                var maxMoisture:Number = 0;
-                for each (cell in map.cells)
-                {
-                    if (cell.ocean)
-                        continue;
-
-                    if (cell.moisture > maxMoisture)
-                        maxMoisture = cell.moisture;
-
-                    var average:Number = 0;
-                    var neighborCount:int = 0;
-                    for each (var neighbor:Cell in cell.neighbors)
-                        if (neighbor.moisture)
-                        {
-                            average += neighbor.moisture;
-                            neighborCount++;
-                        }
-
-                    cell.moisture = average /= neighborCount;
-                }
-
-                // Stretch
-                for each (cell in map.cells)
-                    if (cell.moisture)
-                        cell.moisture *= (1 / maxMoisture);
-            }
-
-            for each (cell in map.cells)
-                if (!cell.moisture)
-                    cell.moisture = 0;
         }
     }
 }

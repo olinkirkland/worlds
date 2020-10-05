@@ -13,6 +13,7 @@ package layers.geography.climate
         private var temperatureLevelsDefinitions:Array;
         private var moistureLevelDefinitions:Array;
 
+        private static const frosty:String = "frosty";
         private static const cold:String = "cold";
         private static const temperate:String = "temperate";
         private static const hot:String = "hot";
@@ -29,7 +30,7 @@ package layers.geography.climate
             // Determine temperature
             for each (var cell:Cell in map.cells)
             {
-                cell.temperature = 1 - Math.abs(2 * (cell.point.y / map.height) - 1) * Settings.properties.poleTemperatureModifier;
+                cell.temperature = 1 - (Math.abs(2 * (cell.point.y / map.height) - (1 + Settings.properties.equatorOffset)) * Settings.properties.poleTemperatureModifier);
                 if (!cell.ocean)
                     cell.temperature -= (cell.elevationAboveSeaLevel) * Settings.properties.elevationTemperatureModifier;
                 cell.temperature = Util.fixed(cell.temperature, 2);
@@ -38,16 +39,17 @@ package layers.geography.climate
 
             // Determine biomes
             temperatureLevelsDefinitions = [
-                {name: cold, minimum: 0, maximum: .3},
-                {name: temperate, minimum: .3, maximum: .9},
-                {name: hot, minimum: .9, maximum: 1}
+                {name: frosty, minimum: 0, maximum: .1},
+                {name: cold, minimum: .1, maximum: .3},
+                {name: temperate, minimum: .3, maximum: .8},
+                {name: hot, minimum: .8, maximum: 1}
             ];
 
             moistureLevelDefinitions = [
                 {name: arid, minimum: 0, maximum: .05},
                 {name: dry, minimum: .05, maximum: .3},
-                {name: humid, minimum: .3, maximum: .8},
-                {name: wet, minimum: .8, maximum: 1}
+                {name: humid, minimum: .3, maximum: .6},
+                {name: wet, minimum: .6, maximum: 1}
             ];
 
             for each (cell in map.cells)
@@ -67,33 +69,36 @@ package layers.geography.climate
             for each (var temperatureLevel:Object in temperatureLevelsDefinitions)
                 if (cell.temperature >= temperatureLevel.minimum && cell.temperature <= temperatureLevel.maximum)
                     t = temperatureLevel.name;
-            cell.temperatureLevel = t;
+            cell.temperatureClimateDescriptor = t;
 
             var m:String = null;
             for each (var moistureLevel:Object in moistureLevelDefinitions)
                 if (cell.moisture >= moistureLevel.minimum && cell.moisture <= moistureLevel.maximum)
                     m = moistureLevel.name;
-            cell.moistureLevel = m;
+            cell.moistureClimateDescriptor = m;
 
             var type:String = null;
 
             switch (t)
             {
+                case frosty:
+                    type = Biome.TUNDRA;
+                    break;
+
                 case cold:
-                    if (m == arid || m == dry) type = Biome.TUNDRA;
-                    else if (m == humid || m == wet) type = Biome.BOREAL_FOREST;
+                    if (m == arid) type = Biome.TUNDRA;
+                    else if (m == dry || m == humid || m == wet) type = Biome.TAIGA;
                     break;
 
                 case temperate:
-                    if (m == arid) type = Biome.GRASSLAND;
-                    else if (m == dry) type = Biome.SHRUBLAND;
-                    else if (m == humid) type = Biome.SEASONAL_FOREST;
-                    else if (m == wet) type = Biome.TEMPERATE_RAINFOREST;
+                    if (m == arid) type = Biome.DESERT;
+                    else if (m == dry) type = Biome.GRASSLAND;
+                    else if (m == humid || m == wet) type = Biome.SEASONAL_FOREST;
                     break;
 
                 case hot:
                     if (m == arid) type = Biome.DESERT;
-                    else if (m == dry) type = Biome.SAVANNA;
+                    else if (m == dry) type = Biome.SHRUBLAND;
                     else if (m == humid || m == wet) type = Biome.TROPICAL_RAINFOREST;
                     break;
             }

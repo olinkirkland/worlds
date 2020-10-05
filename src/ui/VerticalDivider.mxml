@@ -3,12 +3,13 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           paddingLeft="7"
           paddingRight="7"
-          paddingTop="1"
-          paddingBottom="1"
           height="100%">
     <s:Line height="100%">
         <s:stroke>
-            <s:SolidColorStroke color="0x778899" alpha=".5" />
+            <s:SolidColorStroke color="{Color.secondary}" />
         </s:stroke>
     </s:Line>
+    <fx:Script><![CDATA[
+        import global.Color;
+        ]]></fx:Script>
 </s:HGroup>
