@@ -17,7 +17,7 @@ So as wind blows over mountains, it loses its moisture so there isn't any moistu
 5. Temperature this one is generally easy. It's cold north/south, then gets warmer around the equator. Also, elevation = colder. So mountains are going to be colder than grasslands.
 
 6. Biomes Pick where to put your biomes using temperature and moisture. Here's the table most people use:
-https://i.imgur.com/FaMot2N.png
+![](https://i.imgur.com/FaMot2N.png)
 
 7. City placement! Now you finally get to place your cities. Cities grow from towns, and people need fresh water, food, and trade. What supplies these things? Rivers! So pick places along rivers in moderate climates (or whatever climates you choose for your fantasy race to be most at home in) and plunk down a city. Prioritize confluences (where rivers join together) and estuaries (where rivers meet the ocean).
 
@@ -27,6 +27,6 @@ https://i.imgur.com/FaMot2N.png
 Near a river? Name it after the river. That's where we get Prackenbach, Donaustauf, Regensburg, etc.
 At a loss for what to call it? Mix in some colors and slap a generic suffix on like -ton, -town, -ville, etc.
 https://trello.com/c/wCHOdWMD/162-implement-a-new-naming-system This might help you along. I did a huge amount of research creating a logical procedural naming system for my Realms project last year and I think it can be used to make realistic and cool place names.
-https://i.imgur.com/OM81g0D.png
+![](https://i.imgur.com/OM81g0D.png)
 
 That's about it when it comes to my advice for worldbuilding but remember: The story comes first! You're welcome to use my generator (or my old one too, it's got more features but is less polished).
